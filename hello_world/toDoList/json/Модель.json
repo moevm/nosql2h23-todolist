@@ -1,0 +1,56 @@
+Person:
+{
+  "_id": ObjectId("personId1"),
+  "name": "Имя",
+  "surname": "Фамилия",
+  "email": "example@example.com",
+  "password": "hashedPassword",
+  "role": "USER"
+}
+
+Task:
+{  "_id": ObjectId("taskId1"),
+  "title": "Заголовок задачи",
+  "dateOfCreation": ISODate("2023-01-01T00:00:00Z"),
+  "dateOfDeadline": ISODate("2023-02-01T00:00:00Z"),
+  "creater": {
+    "_id": ObjectId("personId1"),
+    "name": "Имя",
+    "surname": "Фамилия"
+  },
+  "executer": {
+    "_id": ObjectId("personId2"),
+    "name": "Имя",
+    "surname": "Фамилия"
+  },
+  "status": "TODO",
+  "subTasks": []
+}
+
+Project:
+{
+  "_id": ObjectId("projectId1"),
+  "name": "Название проекта",
+  "tasks": [],
+  "executers": [
+    {
+      "_id": ObjectId("personId1"),
+      "name": "Имя",
+      "surname": "Фамилия"
+    },
+    {
+      "_id": ObjectId("personId2"),
+      "name": "Имя",
+      "surname": "Фамилия"
+    }
+  ],
+  "status": "ACTIVE"
+}
+
+Subtask:
+{
+  "_id": ObjectId("subtaskId1"),
+  "title": "Заголовок подзадачи",
+  "dateOfCreation": ISODate("2023-01-15T00:00:00Z"),
+  "status": "TODO",
+}
