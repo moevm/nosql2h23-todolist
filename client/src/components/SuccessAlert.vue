@@ -1,0 +1,50 @@
+<template>
+  <v-snackbar
+    color="green"
+    :value="visible"
+    :timeout="timeout"
+    min-width="100px"
+    top
+    right
+  >
+    <v-icon class="mr-2">mdi-check</v-icon>
+    {{ message }}
+    <template v-slot:action>
+      <v-btn
+        :disabled="false"
+        @click="onUndo()"
+        icon
+      >
+        <v-icon>mdi-arrow-u-left-top</v-icon>
+      </v-btn>
+      <v-btn
+        icon
+        @click="hideAlert()"
+      >
+        <v-icon>mdi-close</v-icon>
+      </v-btn>
+    </template>
+  </v-snackbar>
+</template>
+
+<script>
+import {mapActions, mapState} from 'vuex';
+
+export default {
+  name: "SuccessAlert",
+  computed: {
+    ...mapState('alert', {
+      message: state => state.alertMessage,
+      visible: state => state.isVisible,
+      timeout: state => state.timeoutValue
+    })
+  },
+  methods: {
+    ...mapActions('alert', {hideAlert: 'hideAlert'}),
+    onUndo(mutate) {
+      mutate();
+      this.hideAlert();
+    }
+  }
+}
+</script>
