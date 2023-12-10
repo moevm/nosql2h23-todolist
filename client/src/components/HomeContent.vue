@@ -105,14 +105,7 @@
 import {defineComponent} from 'vue'
 import TaskList from '@/components/TaskList.vue';
 import FiltersPanel from "@/components/FiltersPanel.vue";
-
-const person = {
-  name: "Артем",
-  surname: "Смирнов",
-  email: "email@gmail.com",
-  password: "pass",
-  role: "admin",
-};
+import {mapState} from "vuex";
 
 export default defineComponent({
   name: "HomeContent",
@@ -125,9 +118,11 @@ export default defineComponent({
       projects: [],
       projectItems: ['Проект 1', 'Проект 2', 'Проект 3', 'Проект 4'],
       search: '',
-      person
     };
   },
+  computed: mapState({
+    person: state => state.user,
+  }),
 })
 </script>
 

@@ -13,15 +13,10 @@ const routes = [
         name: 'home',
         component: () => import('../views/HomeView.vue'),
       },
-      // {
-      //   path: '/about',
-      //   name: 'about',
-      //   component: () => import('../views/AboutView.vue'),
-      // },
       {
-          path: '/stats',
-          name: 'stats',
-          component: () => import('../views/StatsView.vue'),
+        path: '/stats',
+        name: 'stats',
+        component: () => import('../views/StatsView.vue'),
       },
       {
         path: '/projects/:projectName',
@@ -57,5 +52,24 @@ const router = new VueRouter({
   base: process.env.BASE_URL,
   routes
 })
+
+const isLoggedIn = () => {
+  return localStorage.getItem('user')
+}
+
+const protectedRoutes = [
+  "home",
+  "stats",
+  "projects"
+]
+router.beforeEach((to, from, next) => {
+  const isProtected = protectedRoutes.includes(to.name)
+  if (isProtected && !isLoggedIn()) {
+    next({
+      path: '/login'
+    })
+  } else next()
+})
+
 
 export default router
