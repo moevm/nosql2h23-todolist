@@ -5,6 +5,7 @@ import com.application.toDoList.domains.Project;
 import com.application.toDoList.domains.Task;
 import com.application.toDoList.dto.ProjectDTO;
 import com.application.toDoList.enums.ProjectStatus;
+import com.application.toDoList.exceptions.ProjectNotFoundException;
 import com.application.toDoList.repositories.ProjectRepository;
 import com.application.toDoList.services.ProjectService;
 import org.bson.types.ObjectId;
@@ -70,7 +71,7 @@ public class ProjectController {
             return projectRepository.findByName(projectName).get();
         }
         else {
-            throw new RuntimeException(); //ИСКЛЮЧЕНИЕ НЕ НАЙДЕН ПРОЕКТ
+            throw new ProjectNotFoundException();
         }
     }
 

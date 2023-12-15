@@ -5,6 +5,8 @@ import com.application.toDoList.domains.Project;
 import com.application.toDoList.domains.Task;
 import com.application.toDoList.dto.ProjectDTO;
 import com.application.toDoList.enums.ProjectStatus;
+import com.application.toDoList.exceptions.ProjectNameException;
+import com.application.toDoList.exceptions.ProjectNotFoundException;
 import com.application.toDoList.repositories.PersonRepository;
 import com.application.toDoList.repositories.ProjectRepository;
 import com.application.toDoList.repositories.TaskRepository;
@@ -90,22 +92,20 @@ public class ProjectService {
             person = personRepository.findById(person_id).get();
         }
         else {
-            // ИСКЛЮЧЕНИЕ ЗАДАЧИ НЕ СУЩЕСТВУЕТ
+            // ИСКЛЮЧЕНИЕ ЧЕЛОВЕКА НЕ СУЩЕСТВУЕТ
         }
         project.getExecutors().remove(person);
         person.getProjects().remove(project);
     }
     public Project findById(ObjectId id) {
         Optional<Project> foundProject = projectRepository.findById(id);
-        return foundProject.orElseThrow(RuntimeException::new);
-        // ИСКЛЮЧЕНИЕ ПРОЕКТА НЕ СУЩЕСТВУЕТ
+        return foundProject.orElseThrow(ProjectNotFoundException::new);
     }
 
     public void findByName(String name) {
         Optional<Project> foundProject = projectRepository.findByName(name);
         foundProject.ifPresent(value -> {
-            throw new RuntimeException();
+            throw new ProjectNameException();
         });
-        // ИСКЛЮЧЕНИЕ ИМЯ ПРОЕКТА ДОЛЖНО БЫТЬ УНИКАЛЬНЫМ
     }
 }
