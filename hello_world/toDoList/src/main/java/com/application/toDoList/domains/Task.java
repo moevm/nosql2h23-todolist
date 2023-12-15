@@ -15,4 +15,6 @@ public class Task {
     @Id
     private ObjectId id;
 
+    Project project;
+
 }

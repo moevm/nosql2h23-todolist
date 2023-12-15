@@ -8,5 +8,5 @@ import java.util.Optional;
 
 public interface ProjectRepository extends MongoRepository<Project, String> {
     Optional<Project> findByName(String name);
-    Optional<Project> findById(ObjectId name);
+    Optional<Project> findById(ObjectId id);
 }
