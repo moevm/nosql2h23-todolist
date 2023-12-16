@@ -76,11 +76,11 @@ public class ProjectController {
     }
 
     public ProjectDTO convertToProjectDTO(Project project) {
-        return new ProjectDTO(project.getId().toHexString(), project.getName(), project.getStatus().name());
+        return new ProjectDTO(project.getId(), project.getName(), project.getStatus().name());
     }
 
     public Project convertToProject(ProjectDTO projectDTO) {
-        return new Project(new ObjectId(projectDTO.getId()), projectDTO.getName(), ProjectStatus.valueOf(projectDTO.getStatus()));
+        return new Project(projectDTO.getId(), projectDTO.getName(), ProjectStatus.valueOf(projectDTO.getStatus()));
     }
 
     //Исключения
