@@ -13,6 +13,6 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Document(collection = "Log")
 public class Logging {
     @Id
-    private ObjectId id;
+    private String id;
 
 }

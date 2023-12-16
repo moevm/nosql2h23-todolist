@@ -15,7 +15,7 @@ import java.util.Set;
 @Document(collection = "Person")
 public class Person {
     @Id
-    private ObjectId id;
+    private String id;
     private String name;
     private String surname;
     private String email;

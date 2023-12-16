@@ -13,6 +13,6 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Document(collection = "Subtask")
 public class Subtask {
     @Id
-    private ObjectId id;
+    private String id;
 
 }

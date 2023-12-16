@@ -18,7 +18,7 @@ import java.util.Set;
 @Document(collection = "Project")
 public class Project {
     @Id
-    private ObjectId id;
+    private String id;
     @Indexed(unique = true)
     private String name;
     private ProjectStatus status;
@@ -26,7 +26,7 @@ public class Project {
     private ArrayList<Task> tasks;
     private Logging log;
 
-    public Project(ObjectId id, String name, ProjectStatus status) {
+    public Project(String id, String name, ProjectStatus status) {
         this.id = id;
         this.name = name;
         this.status = status;

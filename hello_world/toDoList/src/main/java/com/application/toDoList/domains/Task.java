@@ -13,7 +13,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Document(collection = "Task")
 public class Task {
     @Id
-    private ObjectId id;
+    private String id;
 
     Project project;
 
