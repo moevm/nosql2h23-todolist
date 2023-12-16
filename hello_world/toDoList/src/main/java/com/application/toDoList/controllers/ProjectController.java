@@ -4,10 +4,12 @@ import com.application.toDoList.domains.Person;
 import com.application.toDoList.domains.Project;
 import com.application.toDoList.domains.Task;
 import com.application.toDoList.dto.ProjectDTO;
+import com.application.toDoList.dto.TaskToSave;
 import com.application.toDoList.enums.ProjectStatus;
 import com.application.toDoList.exceptions.ProjectNotFoundException;
 import com.application.toDoList.repositories.ProjectRepository;
 import com.application.toDoList.services.ProjectService;
+import com.application.toDoList.services.TaskService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,11 +23,13 @@ import java.util.List;
 public class ProjectController {
     private final ProjectRepository projectRepository;
     private final ProjectService projectService;
+    private final TaskService taskService;
 
     @Autowired
-    public ProjectController(ProjectRepository projectRepository,  ProjectService projectService) {
+    public ProjectController(ProjectRepository projectRepository, ProjectService projectService, TaskService taskService) {
         this.projectRepository = projectRepository;
         this.projectService = projectService;
+        this.taskService = taskService;
     }
 
     @GetMapping("/admin/all")
@@ -55,14 +59,18 @@ public class ProjectController {
         return projectService.change(projectDTO, project_id);
     }
 
-    @PostMapping("/admin/task/{task_id}")
-    public Task taskToProject(@PathVariable("task_id") String task_id) {
-        return projectService.addTask(task_id); //taskDTO
+    @PostMapping("/admin/{project_id}")
+    public Task addTaskToProject(@RequestBody TaskToSave taskToSave,
+                                 @PathVariable("project_id") String project_id) {
+        Task newTask = taskService.create(taskToSave);
+
+        return projectService.addTask(newTask.getId(), project_id);
     }
 
-    @DeleteMapping("/admin/task/{task_id}")
-    public ResponseEntity<HttpStatus> taskOutProject(@PathVariable("task_id") String task_id) {
-        projectService.deleteTask(task_id);
+    @DeleteMapping("/admin/{project_id}/{task_id}")
+    public ResponseEntity<HttpStatus> deleteTaskFromProject(@PathVariable("project_id") String project_id,
+                                                            @PathVariable("task_id") String task_id) {
+        projectService.deleteTask(task_id, project_id);
         return ResponseEntity.ok(HttpStatus.OK);
     }
 

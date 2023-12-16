@@ -1,9 +1,11 @@
 package com.application.toDoList.services;
 
+import com.application.toDoList.domains.Project;
 import com.application.toDoList.domains.Subtask;
 import com.application.toDoList.domains.Task;
 import com.application.toDoList.dto.TaskToSave;
 import com.application.toDoList.exceptions.TaskNotFoundException;
+import com.application.toDoList.repositories.ProjectRepository;
 import com.application.toDoList.repositories.TaskRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -17,6 +19,7 @@ import java.util.Optional;
 @AllArgsConstructor
 public class TaskService {
     private final TaskRepository taskRepository;
+    private final ProjectRepository projectRepository;
 
     public Task create(TaskToSave taskToSave) {
         Task task = new Task();
@@ -38,6 +41,14 @@ public class TaskService {
         Optional<Task> foundTask = taskRepository.findById(taskId);
         return foundTask.orElseThrow(TaskNotFoundException::new);
     }
+
+//    public Task findByTitleAndProjectName(String title, String projectName) {
+//        Project project = projectRepository.findByName(projectName).get();
+//        project.getTasks().forEach(task -> {
+//            if (task.getTitle().equals(title))
+//                return task;
+//        });
+//    }
 
     public Task addSubtaskToTask(String taskId, Subtask subtask) {
         Task task = findById(taskId);
