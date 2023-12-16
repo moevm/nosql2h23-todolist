@@ -5,15 +5,17 @@ import com.application.toDoList.domains.Project;
 import com.application.toDoList.domains.Task;
 import com.application.toDoList.dto.ProjectDTO;
 import com.application.toDoList.enums.ProjectStatus;
+import com.application.toDoList.exceptions.PersonNotFoundException;
 import com.application.toDoList.exceptions.ProjectNameException;
 import com.application.toDoList.exceptions.ProjectNotFoundException;
+import com.application.toDoList.exceptions.TaskNotFoundException;
 import com.application.toDoList.repositories.PersonRepository;
 import com.application.toDoList.repositories.ProjectRepository;
 import com.application.toDoList.repositories.TaskRepository;
-import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -30,79 +32,73 @@ public class ProjectService {
     }
 
     public Project create(ProjectDTO projectDTO) {
-        this.findByName(projectDTO.getName());
+        this.nameException(projectDTO.getName());
         Project project = new Project();
         project.setName(projectDTO.getName());
         project.setStatus(Enum.valueOf(ProjectStatus.class, projectDTO.getStatus()));
         return projectRepository.save(project);
     }
-
-    public Project change(ProjectDTO projectDTO, ObjectId project_id) {
-        Project project = this.findById(project_id);
-        this.findByName(projectDTO.getName());
-        project.setName(projectDTO.getName());
-        project.setStatus(Enum.valueOf(ProjectStatus.class, projectDTO.getStatus()));
-        return projectRepository.save(project);
+    public void delete(String project_id) {
+        projectRepository.deleteById(project_id);
     }
 
-    public Task addTask(ObjectId project_id, ObjectId task_id) {
+    public Project change(ProjectDTO projectDTO, String project_id) {
         Project project = this.findById(project_id);
-        Task task = new Task();
+        if (projectRepository.findByName(projectDTO.getName()).isEmpty() ||
+                Objects.equals(projectRepository.findByName(projectDTO.getName()).get().getId(), project_id)){
+            project.setName(projectDTO.getName());
+            project.setStatus(Enum.valueOf(ProjectStatus.class, projectDTO.getStatus()));
+            return projectRepository.save(project);
+        }
+        throw new ProjectNameException();
+    }
+
+    public Task addTask(String task_id) {
         if (taskRepository.findById(task_id).isPresent()) {
-            task = taskRepository.findById(task_id).get();
+            Task task = taskRepository.findById(task_id).get();
+            Project project = task.getProject();
+            project.getTasks().add(task);
+            task.setProject(project);
+            return task;
         }
-        else {
-            // ИСКЛЮЧЕНИЕ ЗАДАЧИ НЕ СУЩЕСТВУЕТ
-        }
-        project.getTasks().add(task);
-        task.setProject(project);
-        return task;
+        throw new TaskNotFoundException();
     }
 
-    public void deleteTask(ObjectId project_id, ObjectId task_id) {
-        Project project = this.findById(project_id);
-        Task task = new Task();
+    public void deleteTask(String task_id) {
         if (taskRepository.findById(task_id).isPresent()) {
-            task = taskRepository.findById(task_id).get();
+            Task task = taskRepository.findById(task_id).get();
+            Project project = task.getProject();
+            project.getTasks().remove(task);
         }
-        else {
-            // ИСКЛЮЧЕНИЕ ЗАДАЧИ НЕ СУЩЕСТВУЕТ
-        }
-        project.getTasks().remove(task);
+        throw new TaskNotFoundException();
     }
 
-    public Person addPerson(ObjectId project_id, ObjectId person_id) {
+    public Person addPerson(String project_id, String person_id) {
         Project project = this.findById(project_id);
-        Person person = new Person();
         if (personRepository.findById(person_id).isPresent()) {
-            person = personRepository.findById(person_id).get();
+            Person person = personRepository.findById(person_id).get();
+            project.getExecutors().add(person);
+            person.getProjects().add(project);
+            return person;
         }
-        else {
-            // ИСКЛЮЧЕНИЕ ЧЕЛОВЕКА НЕ СУЩЕСТВУЕТ
-        }
-        project.getExecutors().add(person);
-        person.getProjects().add(project);
-        return person;
+        throw new PersonNotFoundException();
     }
 
-    public void deletePerson(ObjectId project_id, ObjectId person_id) {
+    public void deletePerson(String project_id, String person_id) {
         Project project = this.findById(project_id);
-        Person person = new Person();
         if (personRepository.findById(person_id).isPresent()) {
-            person = personRepository.findById(person_id).get();
+            Person person = personRepository.findById(person_id).get();
+            project.getExecutors().remove(person);
+            person.getProjects().remove(project);
         }
-        else {
-            // ИСКЛЮЧЕНИЕ ЧЕЛОВЕКА НЕ СУЩЕСТВУЕТ
-        }
-        project.getExecutors().remove(person);
-        person.getProjects().remove(project);
+        throw new PersonNotFoundException();
     }
-    public Project findById(ObjectId id) {
+    public Project findById(String id) {
         Optional<Project> foundProject = projectRepository.findById(id);
         return foundProject.orElseThrow(ProjectNotFoundException::new);
     }
 
-    public void findByName(String name) {
+    public void nameException(String name) {
         Optional<Project> foundProject = projectRepository.findByName(name);
         foundProject.ifPresent(value -> {
             throw new ProjectNameException();
