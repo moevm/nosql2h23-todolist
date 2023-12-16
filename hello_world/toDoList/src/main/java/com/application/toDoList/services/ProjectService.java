@@ -15,6 +15,7 @@ import com.application.toDoList.repositories.TaskRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -31,7 +32,7 @@ public class ProjectService {
     }
 
     public Project create(ProjectDTO projectDTO) {
-        this.nameExeption(projectDTO.getName());
+        this.nameException(projectDTO.getName());
         Project project = new Project();
         project.setName(projectDTO.getName());
         project.setStatus(Enum.valueOf(ProjectStatus.class, projectDTO.getStatus()));
@@ -43,10 +44,13 @@ public class ProjectService {
 
     public Project change(ProjectDTO projectDTO, String project_id) {
         Project project = this.findById(project_id);
-        this.nameExeption(projectDTO.getName());
-        project.setName(projectDTO.getName());
-        project.setStatus(Enum.valueOf(ProjectStatus.class, projectDTO.getStatus()));
-        return projectRepository.save(project);
+        if (projectRepository.findByName(projectDTO.getName()).isEmpty() ||
+                Objects.equals(projectRepository.findByName(projectDTO.getName()).get().getId(), project_id)){
+            project.setName(projectDTO.getName());
+            project.setStatus(Enum.valueOf(ProjectStatus.class, projectDTO.getStatus()));
+            return projectRepository.save(project);
+        }
+        throw new ProjectNameException();
     }
 
     public Task addTask(String task_id) {
@@ -57,9 +61,7 @@ public class ProjectService {
             task.setProject(project);
             return task;
         }
-        else {
-            throw new TaskNotFoundException();
-        }
+        throw new TaskNotFoundException();
     }
 
     public void deleteTask(String task_id) {
@@ -68,9 +70,7 @@ public class ProjectService {
             Project project = task.getProject();
             project.getTasks().remove(task);
         }
-        else {
-            throw new TaskNotFoundException();
-        }
+        throw new TaskNotFoundException();
     }
 
     public Person addPerson(String project_id, String person_id) {
@@ -81,9 +81,7 @@ public class ProjectService {
             person.getProjects().add(project);
             return person;
         }
-        else {
-            throw new PersonNotFoundException();
-        }
+        throw new PersonNotFoundException();
     }
 
     public void deletePerson(String project_id, String person_id) {
@@ -93,16 +91,14 @@ public class ProjectService {
             project.getExecutors().remove(person);
             person.getProjects().remove(project);
         }
-        else {
-            throw new PersonNotFoundException();
-        }
+        throw new PersonNotFoundException();
     }
     public Project findById(String id) {
         Optional<Project> foundProject = projectRepository.findById(id);
         return foundProject.orElseThrow(ProjectNotFoundException::new);
     }
 
-    public void nameExeption(String name) {
+    public void nameException(String name) {
         Optional<Project> foundProject = projectRepository.findByName(name);
         foundProject.ifPresent(value -> {
             throw new ProjectNameException();

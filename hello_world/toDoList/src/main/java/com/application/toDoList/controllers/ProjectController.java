@@ -33,7 +33,7 @@ public class ProjectController {
     }
 
     @DeleteMapping("/admin/delete/{project_id}")
-    public ResponseEntity<HttpStatus> deleteProject(String project_id) {
+    public ResponseEntity<HttpStatus> deleteProject(@PathVariable("project_id") String project_id) {
         projectService.delete(project_id);
         return ResponseEntity.ok(HttpStatus.OK);
     }
