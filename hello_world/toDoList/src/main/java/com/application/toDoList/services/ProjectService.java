@@ -15,6 +15,8 @@ import com.application.toDoList.repositories.TaskRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -40,6 +42,23 @@ public class ProjectService {
     }
     public void delete(String project_id) {
         projectRepository.deleteById(project_id);
+    }
+
+    public List<Project> findAll() {
+        return projectRepository.findAll();
+    }
+
+    public List<Project> findAllForPerson(String person_id){
+        if (personRepository.findById(person_id).isPresent()) {
+            List<Project> allProjectsForPerson = new ArrayList<>();
+            for (Project project : this.findAll()){
+                if (project.getExecutors().contains(personRepository.findById(person_id).get())){
+                    allProjectsForPerson.add(project);
+                }
+            }
+            return allProjectsForPerson;
+        }
+        throw new PersonNotFoundException();
     }
 
     public Project change(ProjectDTO projectDTO, String project_id) {

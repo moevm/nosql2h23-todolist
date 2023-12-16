@@ -14,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.List;
 
 @RestController
 @RequestMapping("/project")
@@ -25,6 +26,16 @@ public class ProjectController {
     public ProjectController(ProjectRepository projectRepository,  ProjectService projectService) {
         this.projectRepository = projectRepository;
         this.projectService = projectService;
+    }
+
+    @GetMapping("/admin/all")
+    public List<Project> findAll() {
+        return projectService.findAll();
+    }
+
+    @GetMapping("/admin/find/{person_id}")
+    public List<Project> findAllForPerson(@PathVariable("person_id") String person_id) {
+        return projectService.findAllForPerson(person_id);
     }
 
     @PostMapping("/admin/create")
