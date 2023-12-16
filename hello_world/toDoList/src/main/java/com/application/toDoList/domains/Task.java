@@ -7,14 +7,23 @@ import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Document(collection = "Task")
 public class Task {
     @Id
-    private ObjectId id;
-
-    Project project;
+    private String id;
+    private String title;
+    private LocalDateTime dateOfCreation;
+    private LocalDateTime dateOfDeadline;
+    private String status;
+//    private Person creator;
+//    private Person executer;
+    private ArrayList<Subtask> subtasks;
+    private Project project;
 
 }

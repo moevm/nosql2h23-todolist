@@ -7,12 +7,16 @@ import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.time.LocalDateTime;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Document(collection = "Subtask")
 public class Subtask {
     @Id
-    private ObjectId id;
-
+    private String id;
+    private String title;
+    private LocalDateTime dateOfCreation;
+    private Boolean status;
 }
