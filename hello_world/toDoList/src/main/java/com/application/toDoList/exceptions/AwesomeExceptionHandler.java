@@ -24,6 +24,15 @@ public class AwesomeExceptionHandler extends ResponseEntityExceptionHandler {
         return new ResponseEntity<>(new AwesomeException("Пользователь не найден."), HttpStatus.NOT_FOUND);
     }
 
+    @ExceptionHandler(PersonAlreadyExistsException.class)
+    protected ResponseEntity<AwesomeException> handlePersonAlreadyExistsException() {
+        return new ResponseEntity<>(new AwesomeException("Person with this email already exists"), HttpStatus.BAD_REQUEST);
+    }
+    @ExceptionHandler(PersonNotInProjectException.class)
+    protected ResponseEntity<AwesomeException> handlePersonNotInProjectException() {
+        return new ResponseEntity<>(new AwesomeException("Вы не принадлежите проекту."), HttpStatus.BAD_REQUEST);
+    }
+
     @ExceptionHandler(TaskNotFoundException.class)
     protected ResponseEntity<AwesomeException> handleTaskNotFoundException() {
         return new ResponseEntity<>(new AwesomeException("Задачи не существует."), HttpStatus.NOT_FOUND);
