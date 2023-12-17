@@ -36,9 +36,9 @@
       <v-tooltip bottom>
         <template v-slot:activator="{ on, attrs }">
           <v-btn
-            :to="{name: 'auth'}"
             plain
             icon
+            @click="onLogout"
           >
             <v-icon v-bind="attrs" v-on="on">mdi-logout</v-icon>
           </v-btn>
@@ -74,6 +74,10 @@ export default defineComponent({
   methods: {
     onDrawerToggle(){
       this.drawerToggled = !this.drawerToggled;
+    },
+    onLogout(){
+      localStorage.clear();
+      this.$router.push({name: 'auth'});
     }
   }
 })
