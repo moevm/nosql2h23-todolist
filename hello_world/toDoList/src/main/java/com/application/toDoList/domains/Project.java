@@ -9,6 +9,7 @@ import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Set;
 
 @Data
@@ -29,5 +30,7 @@ public class Project {
         this.id = id;
         this.name = name;
         this.status = status;
+        this.executors = new HashSet<>();
+        this.tasks = new ArrayList<>();
     }
 }

@@ -29,7 +29,7 @@ public class ProjectService {
     private final PersonRepository personRepository;
 
     @Autowired
-    public ProjectService(ProjectRepository projectRepository, TaskRepository taskRepository, PersonService personService, PersonRepository personRepository) {
+    public ProjectService(ProjectRepository projectRepository, PersonService personService, PersonRepository personRepository) {
         this.projectRepository = projectRepository;
         this.personService = personService;
         this.personRepository = personRepository;
@@ -57,7 +57,7 @@ public class ProjectService {
         if (personRepository.findById(person_id).isPresent()) {
             List<Project> allProjectsForPerson = new ArrayList<>();
             for (Project project : this.findAll()){
-                if (project.getExecutors().contains(personRepository.findById(person_id).get())){
+                if (project.getExecutors() != null && project.getExecutors().contains(personRepository.findById(person_id).get())){
                     allProjectsForPerson.add(project);
                 }
             }
