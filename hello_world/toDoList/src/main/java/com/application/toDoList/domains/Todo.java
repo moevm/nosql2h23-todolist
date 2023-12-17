@@ -15,5 +15,4 @@ public class Todo {
     private String id;
     private String text;
 
-    // геттеры и сеттеры
 }

@@ -2,17 +2,18 @@ package com.application.toDoList.controllers;
 
 import com.application.toDoList.domains.Person;
 import com.application.toDoList.domains.Project;
-import com.application.toDoList.domains.Task;
 import com.application.toDoList.dto.ProjectDTO;
-import com.application.toDoList.dto.TaskToSave;
-import com.application.toDoList.enums.ProjectStatus;
 import com.application.toDoList.exceptions.ProjectNotFoundException;
 import com.application.toDoList.repositories.ProjectRepository;
+import com.application.toDoList.security.PersonDetails;
+import com.application.toDoList.services.PersonService;
 import com.application.toDoList.services.ProjectService;
-import com.application.toDoList.services.TaskService;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -23,13 +24,15 @@ import java.util.List;
 public class ProjectController {
     private final ProjectRepository projectRepository;
     private final ProjectService projectService;
-    private final TaskService taskService;
+    private final PersonService personService;
+    private final ModelMapper modelMapper;
 
     @Autowired
-    public ProjectController(ProjectRepository projectRepository, ProjectService projectService, TaskService taskService) {
+    public ProjectController(ProjectRepository projectRepository, ProjectService projectService, PersonService personService, ModelMapper modelMapper) {
         this.projectRepository = projectRepository;
         this.projectService = projectService;
-        this.taskService = taskService;
+        this.personService = personService;
+        this.modelMapper = modelMapper;
     }
 
     @GetMapping("/admin/all")
@@ -37,11 +40,17 @@ public class ProjectController {
         return projectService.findAll();
     }
 
-    @GetMapping("/admin/find/{person_id}")
+    @PostMapping("/admin/find/{person_id}")
     public List<Project> findAllForPerson(@PathVariable("person_id") String person_id) {
         return projectService.findAllForPerson(person_id);
     }
 
+    @GetMapping("/all")
+    public List<Project> findAllForPerson() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        PersonDetails personDetails = (PersonDetails) authentication.getPrincipal();
+        return projectService.findAllForPerson(personService.findEmail(personDetails.getUsername()).getId());
+    }
     @PostMapping("/admin/create")
     public Project createProject(@RequestBody @Valid ProjectDTO projectDTO) {
         return projectService.create(projectDTO);
@@ -59,20 +68,6 @@ public class ProjectController {
         return projectService.change(projectDTO, project_id);
     }
 
-    @PostMapping("/admin/{project_id}")
-    public Task addTaskToProject(@RequestBody TaskToSave taskToSave,
-                                 @PathVariable("project_id") String project_id) {
-        Task newTask = taskService.create(taskToSave);
-
-        return projectService.addTask(newTask.getId(), project_id);
-    }
-
-    @DeleteMapping("/admin/{project_id}/{task_id}")
-    public ResponseEntity<HttpStatus> deleteTaskFromProject(@PathVariable("project_id") String project_id,
-                                                            @PathVariable("task_id") String task_id) {
-        projectService.deleteTask(task_id, project_id);
-        return ResponseEntity.ok(HttpStatus.OK);
-    }
 
     @PostMapping("/admin/{project_id}/person/{person_id}")
     public Person personToProject(@PathVariable("project_id") String project_id,
@@ -87,7 +82,7 @@ public class ProjectController {
         return ResponseEntity.ok(HttpStatus.OK);
     }
 
-    @GetMapping("/find")
+    @PostMapping("/find")
     public Project projectByName(String projectName) {
         if (projectRepository.findByName(projectName).isPresent()){
             return projectRepository.findByName(projectName).get();
@@ -98,11 +93,11 @@ public class ProjectController {
     }
 
     public ProjectDTO convertToProjectDTO(Project project) {
-        return new ProjectDTO(project.getId(), project.getName(), project.getStatus().name());
+        return modelMapper.map(project, ProjectDTO.class);
     }
 
     public Project convertToProject(ProjectDTO projectDTO) {
-        return new Project(projectDTO.getId(), projectDTO.getName(), ProjectStatus.valueOf(projectDTO.getStatus()));
+        return modelMapper.map(projectDTO, Project.class);
     }
 
 }

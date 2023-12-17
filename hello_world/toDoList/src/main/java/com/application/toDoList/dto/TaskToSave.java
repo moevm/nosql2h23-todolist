@@ -1,12 +1,10 @@
 package com.application.toDoList.dto;
 
 import com.application.toDoList.domains.Person;
-import com.application.toDoList.domains.Project;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDateTime;
 
