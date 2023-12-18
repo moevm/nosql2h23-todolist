@@ -3,7 +3,6 @@ package com.application.toDoList.services;
 import com.application.toDoList.domains.Person;
 import com.application.toDoList.domains.Subtask;
 import com.application.toDoList.domains.Task;
-import com.application.toDoList.dto.SubtaskToUpdate;
 import com.application.toDoList.dto.TaskToSave;
 import com.application.toDoList.dto.TaskToUpdate;
 import com.application.toDoList.enums.TaskStatus;
@@ -18,7 +17,6 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
 
@@ -35,10 +33,7 @@ public class TaskService {
         task.setDateOfCreation(LocalDateTime.now());
         task.setDateOfDeadline(taskToSave.getDateOfDeadline());
 
-        if (!EnumSet.allOf(TaskStatus.class).contains(taskToSave.getStatus())) {
-            throw new IllegalArgumentException("Incorrect status argument.");
-        }
-        task.setStatus(Enum.valueOf(TaskStatus.class, taskToSave.getStatus()));
+        task.setStatus(Enum.valueOf(TaskStatus.class, "INCOMPLETE"));
 
         task.setSubtasks(new ArrayList<>());
 
@@ -47,7 +42,7 @@ public class TaskService {
         return taskRepository.save(task);
     }
 
-    public Task uodateTaskInDB(String taskId) {
+    public Task updateTaskInDB(String taskId) {
         if (taskRepository.findById(taskId).isEmpty())
             throw new TaskNotFoundException();
 
@@ -86,9 +81,6 @@ public class TaskService {
         Task task = taskRepository.findById(taskId).get();
         task.setTitle(taskToUpdate.getTitle());
 
-        if (!EnumSet.allOf(TaskStatus.class).contains(taskToUpdate.getStatus())) {
-            throw new IllegalArgumentException("Incorrect status argument.");
-        }
         task.setStatus(Enum.valueOf(TaskStatus.class, taskToUpdate.getStatus()));
 
         task.setDateOfDeadline(taskToUpdate.getDateOfDeadline());

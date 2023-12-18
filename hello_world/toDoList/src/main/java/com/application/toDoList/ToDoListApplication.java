@@ -2,8 +2,6 @@ package com.application.toDoList;
 
 
 import com.application.toDoList.domains.Person;
-import com.application.toDoList.domains.Project;
-import com.application.toDoList.dto.ProjectDTO;
 import com.application.toDoList.services.ProjectService;
 import com.application.toDoList.services.RegistrationService;
 import com.application.toDoList.services.TaskService;
