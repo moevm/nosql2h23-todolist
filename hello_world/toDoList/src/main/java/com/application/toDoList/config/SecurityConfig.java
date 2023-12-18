@@ -4,9 +4,9 @@ import com.application.toDoList.services.PersonDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
-import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -37,9 +37,9 @@ public class SecurityConfig {
                 http
                         .csrf().disable()
                         .authorizeRequests()
-                        .antMatchers("/project/admin/*").hasRole("ADMIN")
                         .antMatchers("/auth/*").permitAll()
-                        .anyRequest().hasAnyRole("USER", "ADMIN")
+                        .antMatchers(HttpMethod.GET).hasAnyRole("ADMIN","USER")
+                        .anyRequest().hasAnyRole("ADMIN")
                         .and()
                         .formLogin().loginPage("/auth/login")
                         .loginProcessingUrl("/auth/process_login")
