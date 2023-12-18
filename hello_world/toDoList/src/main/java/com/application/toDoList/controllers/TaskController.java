@@ -3,7 +3,6 @@ package com.application.toDoList.controllers;
 import com.application.toDoList.domains.Subtask;
 import com.application.toDoList.domains.Task;
 import com.application.toDoList.dto.SubtaskToSave;
-import com.application.toDoList.dto.SubtaskToUpdate;
 import com.application.toDoList.dto.TaskToSave;
 import com.application.toDoList.dto.TaskToUpdate;
 import com.application.toDoList.services.ProjectService;
@@ -35,9 +34,14 @@ public class TaskController {
         return projectService.findAllTasks(project_id);
     }
 
-    @GetMapping("/{project_id}/incomplete")
-    public List<Task> getAllIncompleteTasks(@PathVariable("project_id") String project_id) {
-        return projectService.findAllTasks(project_id);
+    @GetMapping("/all")
+    public List<Task> findAll() {
+        return taskService.findAll();
+    }
+
+    @PostMapping("/save-task")
+    public Task saveNewTask(@RequestBody TaskToSave taskToSave) {
+        return taskService.create(taskToSave);
     }
 
     @PostMapping("/{project_id}")
@@ -48,11 +52,23 @@ public class TaskController {
         return projectService.addTask(newTask.getId(), project_id);
     }
 
+    @GetMapping("/{taskId}")
+    Task getTaskById(@PathVariable("taskId") String taskId) {
+        return taskService.findById(taskId);
+    }
+
     @DeleteMapping("/{project_id}/{task_id}")
     public ResponseEntity<HttpStatus> deleteTaskFromProject(@PathVariable("project_id") String project_id,
                                                             @PathVariable("task_id") String task_id) {
         projectService.deleteTask(task_id, project_id);
         return ResponseEntity.ok(HttpStatus.OK);
+    }
+
+    @PostMapping("/add-subtask")
+    public Task addNewSubtaskToTask(@RequestBody SubtaskToSave subtaskToSave) {
+        Subtask subtask = subtaskService.create(subtaskToSave);
+        Task task = taskService.addSubtaskToTask(subtaskToSave.getTaskId(), subtask);
+        return task;
     }
 
     @PatchMapping ("/{project_id}/{task_id}")

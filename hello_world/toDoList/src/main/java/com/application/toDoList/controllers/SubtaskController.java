@@ -4,8 +4,6 @@ import com.application.toDoList.domains.Subtask;
 import com.application.toDoList.domains.Task;
 import com.application.toDoList.dto.SubtaskToSave;
 import com.application.toDoList.dto.SubtaskToUpdate;
-import com.application.toDoList.dto.TaskToSave;
-import com.application.toDoList.dto.TaskToUpdate;
 import com.application.toDoList.services.ProjectService;
 import com.application.toDoList.services.SubtaskService;
 import com.application.toDoList.services.TaskService;
@@ -29,25 +27,24 @@ public class SubtaskController {
      *
      * Методы для subtask
      */
-    @GetMapping("/{project_id}/{task_id}/subtasks")
-    public List<Subtask> getAllSubtasksOfTask(@PathVariable("project_id") String project_id,
-                                              @PathVariable("task_id") String task_id)         {
+    @GetMapping("/{task_id}/subtasks")
+    public List<Subtask> getAllSubtasksOfTask(@PathVariable("task_id") String task_id)         {
         return taskService.findAllSubtasks(task_id);
     }
 
     @PostMapping("/{project_id}/{task_id}/add-subtask")
-    public ResponseEntity<?> addNewSubtaskToTask(@PathVariable("project_id") String project_id,
+    public Task addNewSubtaskToTask(@PathVariable("project_id") String project_id,
                                                  @PathVariable("task_id") String task_id,
                                                  @RequestBody SubtaskToSave subtaskToSave) {
         Subtask subtask = subtaskService.create(subtaskToSave);
         Task task = taskService.addSubtaskToTask(task_id, subtask);
         projectService.updateProject(project_id);
 
-        return new ResponseEntity<>(task, HttpStatus.OK);
+        return task;
     }
 
     @PatchMapping("/{project_id}/{task_id}/{subtask_id}")
-    public ResponseEntity<?> updateSubtask(@PathVariable("project_id") String project_id,
+    public Subtask updateSubtask(@PathVariable("project_id") String project_id,
                                            @PathVariable("task_id") String task_id,
                                            @PathVariable("subtask_id") String subtask_id,
                                            @RequestBody SubtaskToUpdate subtaskToUpdate) {
@@ -56,7 +53,7 @@ public class SubtaskController {
         taskService.uodateTaskInDB(task_id);
         projectService.updateProject(project_id);
 
-        return new ResponseEntity<>(subtask, HttpStatus.OK);
+        return subtask;
     }
 
     @DeleteMapping("/{project_id}/{task_id}/{subtask_id}")
