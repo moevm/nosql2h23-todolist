@@ -2,6 +2,9 @@ package com.application.toDoList;
 
 
 import com.application.toDoList.domains.Person;
+import com.application.toDoList.domains.Project;
+import com.application.toDoList.dto.ProjectDTO;
+import com.application.toDoList.services.ProjectService;
 import com.application.toDoList.services.RegistrationService;
 import com.application.toDoList.services.TaskService;
 import org.modelmapper.ModelMapper;
@@ -24,7 +27,7 @@ public class ToDoListApplication {
 	}
 
 	@Bean
-	CommandLineRunner run(RegistrationService registrationService, TaskService taskService){
+	CommandLineRunner run(RegistrationService registrationService, TaskService taskService, ProjectService projectService){
 
 		return args -> {
 			Person Nataly = new Person("Наталья", "Евгенина", "nataly@gmail.com", "1234");
@@ -43,6 +46,7 @@ public class ToDoListApplication {
 			registrationService.register(Ann);
 			registrationService.register(Danil);
 			registrationService.register(Daria);
+
 
 		};
 	}

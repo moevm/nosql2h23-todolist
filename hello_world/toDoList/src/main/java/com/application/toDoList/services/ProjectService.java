@@ -2,14 +2,13 @@ package com.application.toDoList.services;
 
 import com.application.toDoList.domains.Person;
 import com.application.toDoList.domains.Project;
+import com.application.toDoList.domains.Task;
 import com.application.toDoList.dto.ProjectDTO;
 import com.application.toDoList.enums.ProjectStatus;
-import com.application.toDoList.exceptions.PersonNotFoundException;
-import com.application.toDoList.exceptions.PersonNotInProjectException;
-import com.application.toDoList.exceptions.ProjectNameException;
-import com.application.toDoList.exceptions.ProjectNotFoundException;
+import com.application.toDoList.exceptions.*;
 import com.application.toDoList.repositories.PersonRepository;
 import com.application.toDoList.repositories.ProjectRepository;
+import com.application.toDoList.repositories.TaskRepository;
 import com.application.toDoList.security.PersonDetails;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,12 +26,14 @@ public class ProjectService {
     private final PersonService personService;
     private final PersonRepository personRepository;
     private final ModelMapper modelMapper;
+    private final TaskRepository taskRepository;
 
     @Autowired
-    public ProjectService(ProjectRepository projectRepository, PersonService personService, PersonRepository personRepository, ModelMapper modelMapper) {
+    public ProjectService(ProjectRepository projectRepository, PersonService personService, PersonRepository personRepository, TaskRepository taskRepository, ModelMapper modelMapper) {
         this.projectRepository = projectRepository;
         this.personService = personService;
         this.personRepository = personRepository;
+        this.taskRepository = taskRepository;
         this.modelMapper = modelMapper;
     }
 
@@ -83,6 +84,53 @@ public class ProjectService {
         throw new PersonNotInProjectException();
     }
 
+    public Task addTask(String task_id, String project_id) {
+        if (taskRepository.findById(task_id).isEmpty())
+            throw new TaskNotFoundException();
+
+        if(projectRepository.findById(project_id).isEmpty())
+            throw new ProjectNotFoundException();
+
+        Project project = projectRepository.findById(project_id).get();
+        Task task = taskRepository.findById(task_id).get();
+
+        project.getTasks().add(task);
+        projectRepository.save(project);
+
+        return task;
+    }
+
+    public void deleteTask(String task_id, String project_id) {
+        if (taskRepository.findById(task_id).isEmpty())
+            throw new TaskNotFoundException();
+
+        if(projectRepository.findById(project_id).isEmpty())
+            throw new ProjectNotFoundException();
+
+        Project project = projectRepository.findById(project_id).get();
+        Task task = taskRepository.findById(task_id).get();
+
+        project.getTasks().remove(task);
+        projectRepository.save(project);
+    }
+
+    public List<Task> findAllTasks(String project_id) {
+        if(projectRepository.findById(project_id).isEmpty())
+            throw new ProjectNotFoundException();
+
+        return projectRepository.findById(project_id).get().getTasks();
+    }
+
+//    public List<Task> findAllIncompleteTasks(String project_id) {
+//        if(projectRepository.findById(project_id).isEmpty())
+//            throw new ProjectNotFoundException();
+//
+//        Project project = projectRepository.findById(project_id).get();
+//
+//        Bson filter = Filters.eq("")
+//
+//        return .getTasks();
+//    }
 
     public Person addPerson(String project_id, String person_id) {
         Project project = this.findById(project_id);
@@ -107,6 +155,15 @@ public class ProjectService {
         return foundProject.orElseThrow(ProjectNotFoundException::new);
     }
 
+    public void updateProject(String projectId) {
+        if(projectRepository.findById(projectId).isEmpty())
+            throw new ProjectNotFoundException();
+
+        Project project = projectRepository.findById(projectId).get();
+
+        projectRepository.save(project);
+    }
+
     public void nameException(String name) {
         Optional<Project> foundProject = projectRepository.findByName(name);
         foundProject.ifPresent(value -> {
@@ -118,9 +175,7 @@ public class ProjectService {
         return modelMapper.map(project, ProjectDTO.class);
     }
     public Project convertToProject(ProjectDTO projectDTO) {
-
         Project project = modelMapper.map(projectDTO, Project.class);
-
         project.setExecutors(new HashSet<>());
         project.setTasks(new ArrayList<>());
         return project;
