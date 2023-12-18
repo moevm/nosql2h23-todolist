@@ -2,28 +2,24 @@ package com.application.toDoList.controllers;
 
 import com.application.toDoList.domains.Person;
 import com.application.toDoList.domains.Project;
-import com.application.toDoList.domains.Subtask;
-import com.application.toDoList.domains.Task;
-import com.application.toDoList.dto.*;
+import com.application.toDoList.dto.ProjectDTO;
 import com.application.toDoList.exceptions.ProjectNotFoundException;
 import com.application.toDoList.repositories.ProjectRepository;
 import com.application.toDoList.security.PersonDetails;
 import com.application.toDoList.services.PersonService;
 import com.application.toDoList.services.ProjectService;
-import com.application.toDoList.services.SubtaskService;
-import com.application.toDoList.services.TaskService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @RestController
 @RequestMapping("/project")
@@ -31,49 +27,52 @@ public class ProjectController {
     private final ProjectRepository projectRepository;
     private final ProjectService projectService;
     private final PersonService personService;
-    private final TaskService taskService;
-    private final SubtaskService subtaskService;
     private final ModelMapper modelMapper;
 
     @Autowired
-    public ProjectController(ProjectRepository projectRepository, ProjectService projectService, PersonService personService, TaskService taskService, SubtaskService subtaskService, ModelMapper modelMapper) {
+    public ProjectController(ProjectRepository projectRepository, ProjectService projectService, PersonService personService, ModelMapper modelMapper) {
         this.projectRepository = projectRepository;
         this.projectService = projectService;
         this.personService = personService;
-        this.taskService = taskService;
-        this.subtaskService = subtaskService;
-        this.modelMapper = modelMapper;
     }
 
-    /**
-     *
-     * Методы для Project
-     */
-    @GetMapping("/admin/all")
+    @GetMapping("/all")
     public List<Project> findAll() {
-        return projectService.findAll();
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        PersonDetails personDetails = (PersonDetails) authentication.getPrincipal();
+        if (Objects.equals(personService.findEmail(personDetails.getUsername()).getRole(), "ROLE_ADMIN")){
+            return projectService.findAll();
+        }
+        return projectService.findAllForPerson(personService.findEmail(personDetails.getUsername()).getId());
     }
 
-    @GetMapping("/admin/all/{status}")
-    public List<Project> getAllByStatus(@PathVariable("status") String status) {
-        return projectService.findAllByStatus(status);
+    @PostMapping("/find/{person_id}")
+    public List<Project> findAllForPerson(@PathVariable("person_id") String person_id) {
+        return projectService.findAllForPerson(person_id);
     }
 
-
-    @PostMapping("/admin/create")
-    public Project createProject(@RequestBody @Valid ProjectDTO projectDTO) {
+    @PostMapping("/create")
+    public Project createProject(@RequestBody @Valid ProjectDTO projectDTO,
+                                 BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            throw new IllegalArgumentException("Incorrect project argument.");
+        }
         return projectService.create(projectDTO);
     }
 
-    @DeleteMapping("/admin/delete/{project_id}")
+    @DeleteMapping("/delete/{project_id}")
     public ResponseEntity<HttpStatus> deleteProject(@PathVariable("project_id") String project_id) {
         projectService.delete(project_id);
         return ResponseEntity.ok(HttpStatus.OK);
     }
 
-    @PatchMapping("/admin/{project_id}")
+    @PatchMapping("/{project_id}")
     public Project changeProject(@RequestBody @Valid ProjectDTO projectDTO,
-                                 @PathVariable("project_id") String project_id) {
+                                 @PathVariable("project_id") String project_id,
+                                 BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            throw new IllegalArgumentException("Incorrect project argument.");
+        }
         return projectService.change(projectDTO, project_id);
     }
 
@@ -82,17 +81,17 @@ public class ProjectController {
      * Методы для Tasks
      */
 
-    @GetMapping("/admin/{project_id}")
+    @GetMapping("/project_id}")
     public List<Task> getAllTasks(@PathVariable("project_id") String project_id) {
         return projectService.findAllTasks(project_id);
     }
 
-    @GetMapping("/admin/{project_id}/incomplete")
+    @GetMapping("/{project_id}/incomplete")
     public List<Task> getAllIncompleteTasks(@PathVariable("project_id") String project_id) {
         return projectService.findAllTasks(project_id);
     }
 
-    @PostMapping("/admin/{project_id}")
+    @PostMapping("/{project_id}")
     public Task addTaskToProject(@RequestBody TaskToSave taskToSave,
                                  @PathVariable("project_id") String project_id) {
         Task newTask = taskService.create(taskToSave);
@@ -100,14 +99,14 @@ public class ProjectController {
         return projectService.addTask(newTask.getId(), project_id);
     }
 
-    @DeleteMapping("/admin/{project_id}/{task_id}")
+    @DeleteMapping("/{project_id}/{task_id}")
     public ResponseEntity<HttpStatus> deleteTaskFromProject(@PathVariable("project_id") String project_id,
                                                             @PathVariable("task_id") String task_id) {
         projectService.deleteTask(task_id, project_id);
         return ResponseEntity.ok(HttpStatus.OK);
     }
 
-    @PatchMapping ("/admin/{project_id}/{task_id}")
+    @PatchMapping ("/{project_id}/{task_id}")
     public Task updateTask(@PathVariable("project_id") String project_id,
                            @PathVariable("task_id") String task_id,
                            @RequestBody TaskToUpdate taskToUpdate) {
@@ -121,13 +120,13 @@ public class ProjectController {
      *
      * Методы для subtask
      */
-    @GetMapping("/admin/{project_id}/{task_id}/subtasks")
+    @GetMapping("/{project_id}/{task_id}/subtasks")
     public List<Subtask> getAllSubtasksOfTask(@PathVariable("project_id") String project_id,
                                                    @PathVariable("task_id") String task_id)         {
         return taskService.findAllSubtasks(task_id);
     }
 
-    @PostMapping("/admin/{project_id}/{task_id}/add-subtask")
+    @PostMapping("/{project_id}/{task_id}/add-subtask")
     public ResponseEntity<?> addNewSubtaskToTask(@PathVariable("project_id") String project_id,
                                                  @PathVariable("task_id") String task_id,
                                                  @RequestBody SubtaskToSave subtaskToSave) {
@@ -138,7 +137,7 @@ public class ProjectController {
         return new ResponseEntity<>(task, HttpStatus.OK);
     }
 
-    @PatchMapping("/admin/{project_id}/{task_id}/{subtask_id}")
+    @PatchMapping("/{project_id}/{task_id}/{subtask_id}")
     public ResponseEntity<?> updateSubtask(@PathVariable("project_id") String project_id,
                                                  @PathVariable("task_id") String task_id,
                                                  @PathVariable("subtask_id") String subtask_id,
@@ -151,7 +150,7 @@ public class ProjectController {
         return new ResponseEntity<>(subtask, HttpStatus.OK);
     }
 
-    @DeleteMapping("/admin/{project_id}/{task_id}/{subtask_id}")
+    @DeleteMapping("/{project_id}/{task_id}/{subtask_id}")
     public ResponseEntity<?> updateSubtask(@PathVariable("project_id") String project_id,
                                            @PathVariable("task_id") String task_id,
                                            @PathVariable("subtask_id") String subtask_id) {
@@ -167,50 +166,27 @@ public class ProjectController {
      * Методы для Person
      */
 
-    @PostMapping("/admin/find/{person_id}")
-    public List<Project> findAllForPerson(@PathVariable("person_id") String person_id) {
-        return projectService.findAllForPerson(person_id);
-    }
 
-    @GetMapping("/all")
-    public List<Project> findAllForPerson() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        PersonDetails personDetails = (PersonDetails) authentication.getPrincipal();
-        return projectService.findAllForPerson(personService.findEmail(personDetails.getUsername()).getId());
-    }
-
-
-
-    @PostMapping("/admin/{project_id}/person/{person_id}")
+    @PostMapping("/{project_id}/person/{person_id}")
     public Person personToProject(@PathVariable("project_id") String project_id,
                                 @PathVariable("person_id") String person_id) {
         return projectService.addPerson(project_id, person_id);
     }
 
-    @DeleteMapping("/admin/{project_id}/person/{person_id}")
+    @DeleteMapping("/{project_id}/person/{person_id}")
     public ResponseEntity<HttpStatus> PersonOutProject(@PathVariable("project_id") String project_id,
                                                        @PathVariable("person_id") String person_id) {
         projectService.deletePerson(project_id, person_id);
         return ResponseEntity.ok(HttpStatus.OK);
     }
 
-    @PostMapping("/find")
-    public Project projectByName(String projectName) {
+    @GetMapping("/find")
+    public Project projectByName(@RequestBody @Valid String projectName) {
         if (projectRepository.findByName(projectName).isPresent()){
             return projectRepository.findByName(projectName).get();
         }
         else {
             throw new ProjectNotFoundException();
         }
-
     }
-
-    public ProjectDTO convertToProjectDTO(Project project) {
-        return modelMapper.map(project, ProjectDTO.class);
-    }
-
-    public Project convertToProject(ProjectDTO projectDTO) {
-        return modelMapper.map(projectDTO, Project.class);
-    }
-
 }

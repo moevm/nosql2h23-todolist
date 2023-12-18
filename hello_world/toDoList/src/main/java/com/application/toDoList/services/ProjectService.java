@@ -10,10 +10,7 @@ import com.application.toDoList.repositories.PersonRepository;
 import com.application.toDoList.repositories.ProjectRepository;
 import com.application.toDoList.repositories.TaskRepository;
 import com.application.toDoList.security.PersonDetails;
-import com.mongodb.client.FindIterable;
-import com.mongodb.client.model.Filters;
-import org.bson.Document;
-import org.bson.conversions.Bson;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -21,33 +18,32 @@ import org.springframework.stereotype.Service;
 
 import java.util.*;
 
+import static com.application.toDoList.enums.ProjectStatus.IN_PROGRESS;
+
 @Service
 public class ProjectService {
     private final ProjectRepository projectRepository;
     private final PersonService personService;
     private final PersonRepository personRepository;
+    private final ModelMapper modelMapper;
     private final TaskRepository taskRepository;
 
     @Autowired
-    public ProjectService(ProjectRepository projectRepository, PersonService personService, PersonRepository personRepository, TaskRepository taskRepository) {
+    public ProjectService(ProjectRepository projectRepository, PersonService personService, PersonRepository personRepository, TaskRepository taskRepository, ModelMapper modelMapper) {
         this.projectRepository = projectRepository;
         this.personService = personService;
         this.personRepository = personRepository;
         this.taskRepository = taskRepository;
+        this.modelMapper = modelMapper;
     }
 
     public Project create(ProjectDTO projectDTO) {
         this.nameException(projectDTO.getName());
-        Project project = new Project();
-        project.setName(projectDTO.getName());
-        project.setStatus(Enum.valueOf(ProjectStatus.class, projectDTO.getStatus()));
-        project.setExecutors(new HashSet<>());
-        project.setTasks(new ArrayList<>());
-
+        Project project = convertToProject(projectDTO);
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         PersonDetails personDetails = (PersonDetails) authentication.getPrincipal();
+        project.setStatus(IN_PROGRESS);
         project.getExecutors().add(personService.findEmail(personDetails.getUsername()));
-
         return projectRepository.save(project);
     }
     public void delete(String project_id) {
@@ -56,10 +52,6 @@ public class ProjectService {
 
     public List<Project> findAll() {
         return projectRepository.findAll();
-    }
-
-    public List<Project> findAllByStatus(String status) {
-        return projectRepository.findAllByStatus(status);
     }
 
     public List<Project> findAllForPerson(String person_id){
@@ -83,7 +75,8 @@ public class ProjectService {
             if (projectRepository.findByName(projectDTO.getName()).isEmpty() ||
                     Objects.equals(projectRepository.findByName(projectDTO.getName()).get().getId(), project_id)){
                 project.setName(projectDTO.getName());
-                project.setStatus(Enum.valueOf(ProjectStatus.class, projectDTO.getStatus()));
+                if (projectDTO.getStatus() != null)
+                    project.setStatus(Enum.valueOf(ProjectStatus.class, projectDTO.getStatus()));
                 return projectRepository.save(project);
             }
             throw new ProjectNameException();
@@ -162,19 +155,21 @@ public class ProjectService {
         return foundProject.orElseThrow(ProjectNotFoundException::new);
     }
 
-    public void updateProject(String projectId) {
-        if(projectRepository.findById(projectId).isEmpty())
-            throw new ProjectNotFoundException();
-
-        Project project = projectRepository.findById(projectId).get();
-
-        projectRepository.save(project);
-    }
-
     public void nameException(String name) {
         Optional<Project> foundProject = projectRepository.findByName(name);
         foundProject.ifPresent(value -> {
             throw new ProjectNameException();
         });
     }
+
+    public ProjectDTO convertToProjectDTO(Project project) {
+        return modelMapper.map(project, ProjectDTO.class);
+    }
+    public Project convertToProject(ProjectDTO projectDTO) {
+        Project project = modelMapper.map(projectDTO, Project.class);
+        project.setExecutors(new HashSet<>());
+        project.setTasks(new ArrayList<>());
+        return project;
+    }
+
 }

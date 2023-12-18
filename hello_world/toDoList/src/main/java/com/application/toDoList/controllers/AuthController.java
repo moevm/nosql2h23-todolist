@@ -45,13 +45,14 @@ public class AuthController {
     @PostMapping("/registration")
     public Map<String, String> performRegistration(@RequestBody @Valid PersonDTO personDTO,
                                                    BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            return Collections.singletonMap("message", "Недостаточно данных при регистрации.");
+        }
+
         Person person = convertToPerson(personDTO);
 
         personValidator.validate(person, bindingResult);
 
-        if (bindingResult.hasErrors()) {
-            return Collections.singletonMap("message", "Registration error");
-        }
 
         registrationService.register(person);
 
@@ -62,11 +63,14 @@ public class AuthController {
 
     //  Аутентификация пользователя
     @PostMapping("/login")
-    public Map<String, String> performLogin(@RequestBody AuthenticationDTO authenticationDTO) {
+    public Map<String, String> performLogin(@RequestBody @Valid AuthenticationDTO authenticationDTO,
+                                            BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            return Collections.singletonMap("message", "Недостаточно данных при регистрации.");
+        }
         UsernamePasswordAuthenticationToken authInputToken =
                 new UsernamePasswordAuthenticationToken(authenticationDTO.getUsername(),
                         authenticationDTO.getPassword());
-
         try {
             authenticationManager.authenticate(authInputToken);
         } catch (BadCredentialsException e) {
@@ -79,7 +83,7 @@ public class AuthController {
 
     //    Преобразование PersonDTO -> Person
     private Person convertToPerson(PersonDTO personDTO) {
-        return this.modelMapper.map(personDTO, Person.class);
+        return modelMapper.map(personDTO, Person.class);
     }
 
     //    Преобразование Person -> PersonDTO
