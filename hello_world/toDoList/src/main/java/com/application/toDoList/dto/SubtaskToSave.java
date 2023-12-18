@@ -9,4 +9,5 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class SubtaskToSave {
     private String title;
+    private String taskId;
 }
