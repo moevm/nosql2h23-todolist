@@ -1,6 +1,5 @@
 package com.application.toDoList.dto;
 
-import com.application.toDoList.domains.Person;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -11,10 +10,9 @@ import java.time.LocalDateTime;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class TaskToSave {
+public class TaskToUpdate {
     private String title;
     private String status;
-    private String executerId;
     @JsonFormat(pattern = "dd.MM.yyyy HH:mm:ss")
     private LocalDateTime dateOfDeadline;
 }

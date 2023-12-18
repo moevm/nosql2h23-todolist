@@ -31,11 +31,4 @@ public class TaskController {
     @GetMapping("/{taskId}") ResponseEntity<?> getTaskById(@PathVariable("taskId") String taskId) {
         return new ResponseEntity<>(taskService.findById(taskId), HttpStatus.OK);
     }
-
-    @PostMapping("/add-subtask")
-    public ResponseEntity<?> addNewSubtaskToTask(@RequestBody SubtaskToSave subtaskToSave) {
-        Subtask subtask = subtaskService.create(subtaskToSave);
-        Task task = taskService.addSubtaskToTask(subtaskToSave.getTaskId(), subtask);
-        return new ResponseEntity<>(task, HttpStatus.OK);
-    }
 }

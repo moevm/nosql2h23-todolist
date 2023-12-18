@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class SubtaskToSave {
+public class SubtaskToUpdate {
     private String title;
+    private Boolean status;
 }

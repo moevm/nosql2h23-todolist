@@ -2,12 +2,10 @@ package com.application.toDoList.services;
 
 import com.application.toDoList.domains.Person;
 import com.application.toDoList.domains.Project;
+import com.application.toDoList.domains.Task;
 import com.application.toDoList.dto.ProjectDTO;
 import com.application.toDoList.enums.ProjectStatus;
-import com.application.toDoList.exceptions.PersonNotFoundException;
-import com.application.toDoList.exceptions.PersonNotInProjectException;
-import com.application.toDoList.exceptions.ProjectNameException;
-import com.application.toDoList.exceptions.ProjectNotFoundException;
+import com.application.toDoList.exceptions.*;
 import com.application.toDoList.repositories.PersonRepository;
 import com.application.toDoList.repositories.ProjectRepository;
 import com.application.toDoList.repositories.TaskRepository;
@@ -17,22 +15,21 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class ProjectService {
     private final ProjectRepository projectRepository;
     private final PersonService personService;
     private final PersonRepository personRepository;
+    private final TaskRepository taskRepository;
 
     @Autowired
-    public ProjectService(ProjectRepository projectRepository, PersonService personService, PersonRepository personRepository) {
+    public ProjectService(ProjectRepository projectRepository, PersonService personService, PersonRepository personRepository, TaskRepository taskRepository) {
         this.projectRepository = projectRepository;
         this.personService = personService;
         this.personRepository = personRepository;
+        this.taskRepository = taskRepository;
     }
 
     public Project create(ProjectDTO projectDTO) {
@@ -40,9 +37,13 @@ public class ProjectService {
         Project project = new Project();
         project.setName(projectDTO.getName());
         project.setStatus(Enum.valueOf(ProjectStatus.class, projectDTO.getStatus()));
+        project.setExecutors(new HashSet<>());
+        project.setTasks(new ArrayList<>());
+
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         PersonDetails personDetails = (PersonDetails) authentication.getPrincipal();
         project.getExecutors().add(personService.findEmail(personDetails.getUsername()));
+
         return projectRepository.save(project);
     }
     public void delete(String project_id) {
@@ -82,6 +83,42 @@ public class ProjectService {
         throw new PersonNotInProjectException();
     }
 
+    public Task addTask(String task_id, String project_id) {
+        if (taskRepository.findById(task_id).isEmpty())
+            throw new TaskNotFoundException();
+
+        if(projectRepository.findById(project_id).isEmpty())
+            throw new ProjectNotFoundException();
+
+        Project project = projectRepository.findById(project_id).get();
+        Task task = taskRepository.findById(task_id).get();
+
+        project.getTasks().add(task);
+        projectRepository.save(project);
+
+        return task;
+    }
+
+    public void deleteTask(String task_id, String project_id) {
+        if (taskRepository.findById(task_id).isEmpty())
+            throw new TaskNotFoundException();
+
+        if(projectRepository.findById(project_id).isEmpty())
+            throw new ProjectNotFoundException();
+
+        Project project = projectRepository.findById(project_id).get();
+        Task task = taskRepository.findById(task_id).get();
+
+        project.getTasks().remove(task);
+        projectRepository.save(project);
+    }
+
+    public List<Task> findAllTasks(String project_id) {
+        if(projectRepository.findById(project_id).isEmpty())
+            throw new ProjectNotFoundException();
+
+        return projectRepository.findById(project_id).get().getTasks();
+    }
 
     public Person addPerson(String project_id, String person_id) {
         Project project = this.findById(project_id);
@@ -104,6 +141,15 @@ public class ProjectService {
     public Project findById(String id) {
         Optional<Project> foundProject = projectRepository.findById(id);
         return foundProject.orElseThrow(ProjectNotFoundException::new);
+    }
+
+    public void updateProject(String projectId) {
+        if(projectRepository.findById(projectId).isEmpty())
+            throw new ProjectNotFoundException();
+
+        Project project = projectRepository.findById(projectId).get();
+
+        projectRepository.save(project);
     }
 
     public void nameException(String name) {
