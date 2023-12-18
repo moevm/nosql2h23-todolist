@@ -54,6 +54,11 @@ public class ProjectController {
         return projectService.findAll();
     }
 
+    @GetMapping("/admin/all/{status}")
+    public List<Project> getAllByStatus(@PathVariable("status") String status) {
+        return projectService.findAllByStatus(status);
+    }
+
 
     @PostMapping("/admin/create")
     public Project createProject(@RequestBody @Valid ProjectDTO projectDTO) {
@@ -81,6 +86,12 @@ public class ProjectController {
     public List<Task> getAllTasks(@PathVariable("project_id") String project_id) {
         return projectService.findAllTasks(project_id);
     }
+
+    @GetMapping("/admin/{project_id}/incomplete")
+    public List<Task> getAllIncompleteTasks(@PathVariable("project_id") String project_id) {
+        return projectService.findAllTasks(project_id);
+    }
+
     @PostMapping("/admin/{project_id}")
     public Task addTaskToProject(@RequestBody TaskToSave taskToSave,
                                  @PathVariable("project_id") String project_id) {

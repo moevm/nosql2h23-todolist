@@ -10,6 +10,10 @@ import com.application.toDoList.repositories.PersonRepository;
 import com.application.toDoList.repositories.ProjectRepository;
 import com.application.toDoList.repositories.TaskRepository;
 import com.application.toDoList.security.PersonDetails;
+import com.mongodb.client.FindIterable;
+import com.mongodb.client.model.Filters;
+import org.bson.Document;
+import org.bson.conversions.Bson;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -52,6 +56,10 @@ public class ProjectService {
 
     public List<Project> findAll() {
         return projectRepository.findAll();
+    }
+
+    public List<Project> findAllByStatus(String status) {
+        return projectRepository.findAllByStatus(status);
     }
 
     public List<Project> findAllForPerson(String person_id){
@@ -119,6 +127,17 @@ public class ProjectService {
 
         return projectRepository.findById(project_id).get().getTasks();
     }
+
+//    public List<Task> findAllIncompleteTasks(String project_id) {
+//        if(projectRepository.findById(project_id).isEmpty())
+//            throw new ProjectNotFoundException();
+//
+//        Project project = projectRepository.findById(project_id).get();
+//
+//        Bson filter = Filters.eq("")
+//
+//        return .getTasks();
+//    }
 
     public Person addPerson(String project_id, String person_id) {
         Project project = this.findById(project_id);
