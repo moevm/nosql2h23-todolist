@@ -155,6 +155,15 @@ public class ProjectService {
         return foundProject.orElseThrow(ProjectNotFoundException::new);
     }
 
+    public void updateProject(String projectId) {
+        if(projectRepository.findById(projectId).isEmpty())
+            throw new ProjectNotFoundException();
+
+        Project project = projectRepository.findById(projectId).get();
+
+        projectRepository.save(project);
+    }
+
     public void nameException(String name) {
         Optional<Project> foundProject = projectRepository.findByName(name);
         foundProject.ifPresent(value -> {
