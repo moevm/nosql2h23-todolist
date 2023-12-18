@@ -3,7 +3,10 @@ package com.application.toDoList.controllers;
 import com.application.toDoList.domains.Subtask;
 import com.application.toDoList.domains.Task;
 import com.application.toDoList.dto.SubtaskToSave;
+import com.application.toDoList.dto.SubtaskToUpdate;
 import com.application.toDoList.dto.TaskToSave;
+import com.application.toDoList.dto.TaskToUpdate;
+import com.application.toDoList.services.ProjectService;
 import com.application.toDoList.services.SubtaskService;
 import com.application.toDoList.services.TaskService;
 import lombok.AllArgsConstructor;
@@ -11,24 +14,54 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @AllArgsConstructor
 @RequestMapping("/tasks")
 public class TaskController {
     private final TaskService taskService;
     private final SubtaskService subtaskService;
+    private final ProjectService projectService;
 
-    @GetMapping("/all")
-    public ResponseEntity<?> findAll() {
-        return new ResponseEntity<>(taskService.findAll(), HttpStatus.OK);
+
+    /**
+     *
+     * Методы для Tasks
+     */
+
+    @GetMapping("/{project_id}")
+    public List<Task> getAllTasks(@PathVariable("project_id") String project_id) {
+        return projectService.findAllTasks(project_id);
     }
 
-    @PostMapping("/save-task")
-    public ResponseEntity<?> saveNewTask(@RequestBody TaskToSave taskToSave) {
-        return new ResponseEntity<>(taskService.create(taskToSave), HttpStatus.OK);
+    @GetMapping("/{project_id}/incomplete")
+    public List<Task> getAllIncompleteTasks(@PathVariable("project_id") String project_id) {
+        return projectService.findAllTasks(project_id);
     }
 
-    @GetMapping("/{taskId}") ResponseEntity<?> getTaskById(@PathVariable("taskId") String taskId) {
-        return new ResponseEntity<>(taskService.findById(taskId), HttpStatus.OK);
+    @PostMapping("/{project_id}")
+    public Task addTaskToProject(@RequestBody TaskToSave taskToSave,
+                                 @PathVariable("project_id") String project_id) {
+        Task newTask = taskService.create(taskToSave);
+
+        return projectService.addTask(newTask.getId(), project_id);
+    }
+
+    @DeleteMapping("/{project_id}/{task_id}")
+    public ResponseEntity<HttpStatus> deleteTaskFromProject(@PathVariable("project_id") String project_id,
+                                                            @PathVariable("task_id") String task_id) {
+        projectService.deleteTask(task_id, project_id);
+        return ResponseEntity.ok(HttpStatus.OK);
+    }
+
+    @PatchMapping ("/{project_id}/{task_id}")
+    public Task updateTask(@PathVariable("project_id") String project_id,
+                           @PathVariable("task_id") String task_id,
+                           @RequestBody TaskToUpdate taskToUpdate) {
+        Task existingTask = taskService.updateTask(task_id, taskToUpdate);
+
+        projectService.updateProject(project_id);
+        return existingTask;
     }
 }

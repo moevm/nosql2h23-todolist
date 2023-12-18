@@ -31,16 +31,12 @@ public class ProjectController {
     private final ProjectRepository projectRepository;
     private final ProjectService projectService;
     private final PersonService personService;
-    private final TaskService taskService;
-    private final SubtaskService subtaskService;
 
     @Autowired
-    public ProjectController(ProjectRepository projectRepository, ProjectService projectService, PersonService personService, ModelMapper modelMapper, TaskService taskService, SubtaskService subtaskService) {
+    public ProjectController(ProjectRepository projectRepository, ProjectService projectService, PersonService personService) {
         this.projectRepository = projectRepository;
         this.projectService = projectService;
         this.personService = personService;
-        this.taskService = taskService;
-        this.subtaskService = subtaskService;
     }
 
     @GetMapping("/all")
@@ -83,90 +79,7 @@ public class ProjectController {
         return projectService.change(projectDTO, project_id);
     }
 
-    /**
-     *
-     * Методы для Tasks
-     */
 
-    @GetMapping("/{project_id}")
-    public List<Task> getAllTasks(@PathVariable("project_id") String project_id) {
-        return projectService.findAllTasks(project_id);
-    }
-
-    @GetMapping("/{project_id}/incomplete")
-    public List<Task> getAllIncompleteTasks(@PathVariable("project_id") String project_id) {
-        return projectService.findAllTasks(project_id);
-    }
-
-    @PostMapping("/{project_id}")
-    public Task addTaskToProject(@RequestBody TaskToSave taskToSave,
-                                 @PathVariable("project_id") String project_id) {
-        Task newTask = taskService.create(taskToSave);
-
-        return projectService.addTask(newTask.getId(), project_id);
-    }
-
-    @DeleteMapping("/{project_id}/{task_id}")
-    public ResponseEntity<HttpStatus> deleteTaskFromProject(@PathVariable("project_id") String project_id,
-                                                            @PathVariable("task_id") String task_id) {
-        projectService.deleteTask(task_id, project_id);
-        return ResponseEntity.ok(HttpStatus.OK);
-    }
-
-    @PatchMapping ("/{project_id}/{task_id}")
-    public Task updateTask(@PathVariable("project_id") String project_id,
-                           @PathVariable("task_id") String task_id,
-                           @RequestBody TaskToUpdate taskToUpdate) {
-        Task existingTask = taskService.updateTask(task_id, taskToUpdate);
-
-        projectService.updateProject(project_id);
-        return existingTask;
-    }
-
-    /**
-     *
-     * Методы для subtask
-     */
-    @GetMapping("/{project_id}/{task_id}/subtasks")
-    public List<Subtask> getAllSubtasksOfTask(@PathVariable("project_id") String project_id,
-                                                   @PathVariable("task_id") String task_id)         {
-        return taskService.findAllSubtasks(task_id);
-    }
-
-    @PostMapping("/{project_id}/{task_id}/add-subtask")
-    public ResponseEntity<?> addNewSubtaskToTask(@PathVariable("project_id") String project_id,
-                                                 @PathVariable("task_id") String task_id,
-                                                 @RequestBody SubtaskToSave subtaskToSave) {
-        Subtask subtask = subtaskService.create(subtaskToSave);
-        Task task = taskService.addSubtaskToTask(task_id, subtask);
-        projectService.updateProject(project_id);
-
-        return new ResponseEntity<>(task, HttpStatus.OK);
-    }
-
-    @PatchMapping("/{project_id}/{task_id}/{subtask_id}")
-    public ResponseEntity<?> updateSubtask(@PathVariable("project_id") String project_id,
-                                                 @PathVariable("task_id") String task_id,
-                                                 @PathVariable("subtask_id") String subtask_id,
-                                                 @RequestBody SubtaskToUpdate subtaskToUpdate) {
-        Subtask subtask = subtaskService.updateSubtask(subtask_id, subtaskToUpdate);
-
-        taskService.uodateTaskInDB(task_id);
-        projectService.updateProject(project_id);
-
-        return new ResponseEntity<>(subtask, HttpStatus.OK);
-    }
-
-    @DeleteMapping("/{project_id}/{task_id}/{subtask_id}")
-    public ResponseEntity<?> updateSubtask(@PathVariable("project_id") String project_id,
-                                           @PathVariable("task_id") String task_id,
-                                           @PathVariable("subtask_id") String subtask_id) {
-
-        taskService.deleteSubtask(task_id, subtask_id);
-        projectService.updateProject(project_id);
-
-        return ResponseEntity.ok(HttpStatus.OK);
-    }
 
     /**
      *
