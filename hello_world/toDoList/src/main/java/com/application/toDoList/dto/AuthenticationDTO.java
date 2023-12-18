@@ -1,8 +1,11 @@
 package com.application.toDoList.dto;
 
-public class AuthenticationDTO {
+import javax.validation.constraints.NotEmpty;
 
+public class AuthenticationDTO {
+    @NotEmpty(message = "Username shouldn't be empty")
     private String username; // Имя пользователя - формат Email
+    @NotEmpty(message = "Password shouldn't be empty")
 
     private String password; // Пароль - кодируется Bcrypt
 

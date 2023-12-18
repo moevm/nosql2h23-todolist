@@ -10,38 +10,38 @@ import com.application.toDoList.exceptions.ProjectNameException;
 import com.application.toDoList.exceptions.ProjectNotFoundException;
 import com.application.toDoList.repositories.PersonRepository;
 import com.application.toDoList.repositories.ProjectRepository;
-import com.application.toDoList.repositories.TaskRepository;
 import com.application.toDoList.security.PersonDetails;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
+
+import static com.application.toDoList.enums.ProjectStatus.IN_PROGRESS;
 
 @Service
 public class ProjectService {
     private final ProjectRepository projectRepository;
     private final PersonService personService;
     private final PersonRepository personRepository;
+    private final ModelMapper modelMapper;
 
     @Autowired
-    public ProjectService(ProjectRepository projectRepository, PersonService personService, PersonRepository personRepository) {
+    public ProjectService(ProjectRepository projectRepository, PersonService personService, PersonRepository personRepository, ModelMapper modelMapper) {
         this.projectRepository = projectRepository;
         this.personService = personService;
         this.personRepository = personRepository;
+        this.modelMapper = modelMapper;
     }
 
     public Project create(ProjectDTO projectDTO) {
         this.nameException(projectDTO.getName());
-        Project project = new Project();
-        project.setName(projectDTO.getName());
-        project.setStatus(Enum.valueOf(ProjectStatus.class, projectDTO.getStatus()));
+        Project project = convertToProject(projectDTO);
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         PersonDetails personDetails = (PersonDetails) authentication.getPrincipal();
+        project.setStatus(IN_PROGRESS);
         project.getExecutors().add(personService.findEmail(personDetails.getUsername()));
         return projectRepository.save(project);
     }
@@ -74,7 +74,8 @@ public class ProjectService {
             if (projectRepository.findByName(projectDTO.getName()).isEmpty() ||
                     Objects.equals(projectRepository.findByName(projectDTO.getName()).get().getId(), project_id)){
                 project.setName(projectDTO.getName());
-                project.setStatus(Enum.valueOf(ProjectStatus.class, projectDTO.getStatus()));
+                if (projectDTO.getStatus() != null)
+                    project.setStatus(Enum.valueOf(ProjectStatus.class, projectDTO.getStatus()));
                 return projectRepository.save(project);
             }
             throw new ProjectNameException();
@@ -112,4 +113,17 @@ public class ProjectService {
             throw new ProjectNameException();
         });
     }
+
+    public ProjectDTO convertToProjectDTO(Project project) {
+        return modelMapper.map(project, ProjectDTO.class);
+    }
+    public Project convertToProject(ProjectDTO projectDTO) {
+
+        Project project = modelMapper.map(projectDTO, Project.class);
+
+        project.setExecutors(new HashSet<>());
+        project.setTasks(new ArrayList<>());
+        return project;
+    }
+
 }

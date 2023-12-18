@@ -2,6 +2,7 @@ package com.application.toDoList.exceptions;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
@@ -26,7 +27,7 @@ public class AwesomeExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(PersonAlreadyExistsException.class)
     protected ResponseEntity<AwesomeException> handlePersonAlreadyExistsException() {
-        return new ResponseEntity<>(new AwesomeException("Person with this email already exists"), HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(new AwesomeException("Имя пользователя должно быть уникальным."), HttpStatus.BAD_REQUEST);
     }
     @ExceptionHandler(PersonNotInProjectException.class)
     protected ResponseEntity<AwesomeException> handlePersonNotInProjectException() {
@@ -38,6 +39,10 @@ public class AwesomeExceptionHandler extends ResponseEntityExceptionHandler {
         return new ResponseEntity<>(new AwesomeException("Задачи не существует."), HttpStatus.NOT_FOUND);
     }
 
+    @ExceptionHandler(BadCredentialsException.class)
+    protected ResponseEntity<AwesomeException> handleBadCredentialsException() {
+        return new ResponseEntity<>(new AwesomeException("Неверные данные (логин или пароль)."), HttpStatus.NOT_FOUND);
+    }
 
     private static class AwesomeException {
         private String message;

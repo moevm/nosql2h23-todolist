@@ -8,12 +8,12 @@ import com.application.toDoList.repositories.ProjectRepository;
 import com.application.toDoList.security.PersonDetails;
 import com.application.toDoList.services.PersonService;
 import com.application.toDoList.services.ProjectService;
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -26,14 +26,12 @@ public class ProjectController {
     private final ProjectRepository projectRepository;
     private final ProjectService projectService;
     private final PersonService personService;
-    private final ModelMapper modelMapper;
 
     @Autowired
-    public ProjectController(ProjectRepository projectRepository, ProjectService projectService, PersonService personService, ModelMapper modelMapper) {
+    public ProjectController(ProjectRepository projectRepository, ProjectService projectService, PersonService personService) {
         this.projectRepository = projectRepository;
         this.projectService = projectService;
         this.personService = personService;
-        this.modelMapper = modelMapper;
     }
 
     @GetMapping("/all")
@@ -52,7 +50,11 @@ public class ProjectController {
     }
 
     @PostMapping("/create")
-    public Project createProject(@RequestBody @Valid ProjectDTO projectDTO) {
+    public Project createProject(@RequestBody @Valid ProjectDTO projectDTO,
+                                 BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            throw new IllegalArgumentException("Incorrect project argument.");
+        }
         return projectService.create(projectDTO);
     }
 
@@ -64,7 +66,11 @@ public class ProjectController {
 
     @PatchMapping("/{project_id}")
     public Project changeProject(@RequestBody @Valid ProjectDTO projectDTO,
-                                 @PathVariable("project_id") String project_id) {
+                                 @PathVariable("project_id") String project_id,
+                                 BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            throw new IllegalArgumentException("Incorrect project argument.");
+        }
         return projectService.change(projectDTO, project_id);
     }
 
@@ -91,13 +97,4 @@ public class ProjectController {
             throw new ProjectNotFoundException();
         }
     }
-
-    public ProjectDTO convertToProjectDTO(Project project) {
-        return modelMapper.map(project, ProjectDTO.class);
-    }
-
-    public Project convertToProject(ProjectDTO projectDTO) {
-        return modelMapper.map(projectDTO, Project.class);
-    }
-
 }

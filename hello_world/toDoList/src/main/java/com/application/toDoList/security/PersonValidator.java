@@ -29,6 +29,8 @@ public class PersonValidator implements Validator {
     @Override
     public void validate(Object o, Errors errors) {
         Person person = (Person) o;
+        System.out.println(person.getEmail());
+        System.out.println(personRepository.findByEmail(person.getEmail()).isPresent());
         if (personRepository.findByEmail(person.getEmail()).isEmpty()) return;
         throw new PersonAlreadyExistsException();
     }
