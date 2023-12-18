@@ -4,7 +4,6 @@ import com.application.toDoList.domains.Subtask;
 import com.application.toDoList.dto.SubtaskToSave;
 import com.application.toDoList.dto.SubtaskToUpdate;
 import com.application.toDoList.exceptions.SubtaskNotFoundException;
-import com.application.toDoList.exceptions.TaskNotFoundException;
 import com.application.toDoList.repositories.SubtaskRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;

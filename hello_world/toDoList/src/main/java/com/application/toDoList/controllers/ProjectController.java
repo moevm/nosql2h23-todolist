@@ -2,17 +2,10 @@ package com.application.toDoList.controllers;
 
 import com.application.toDoList.domains.Person;
 import com.application.toDoList.domains.Project;
-import com.application.toDoList.domains.Subtask;
-import com.application.toDoList.domains.Task;
-import com.application.toDoList.dto.*;
-import com.application.toDoList.exceptions.ProjectNotFoundException;
-import com.application.toDoList.repositories.ProjectRepository;
+import com.application.toDoList.dto.ProjectDTO;
 import com.application.toDoList.security.PersonDetails;
 import com.application.toDoList.services.PersonService;
 import com.application.toDoList.services.ProjectService;
-import com.application.toDoList.services.SubtaskService;
-import com.application.toDoList.services.TaskService;
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -28,13 +21,11 @@ import java.util.Objects;
 @RestController
 @RequestMapping("/project")
 public class ProjectController {
-    private final ProjectRepository projectRepository;
     private final ProjectService projectService;
     private final PersonService personService;
 
     @Autowired
-    public ProjectController(ProjectRepository projectRepository, ProjectService projectService, PersonService personService) {
-        this.projectRepository = projectRepository;
+    public ProjectController(ProjectService projectService, PersonService personService) {
         this.projectService = projectService;
         this.personService = personService;
     }
@@ -49,9 +40,30 @@ public class ProjectController {
         return projectService.findAllForPerson(personService.findEmail(personDetails.getUsername()).getId());
     }
 
-    @PostMapping("/find/{person_id}")
+    @PostMapping("/find_person/{person_id}")
     public List<Project> findAllForPerson(@PathVariable("person_id") String person_id) {
         return projectService.findAllForPerson(person_id);
+    }
+
+    @GetMapping("/find/{project_id}")
+    public Project findById(@PathVariable("project_id") String project_id) {
+        return projectService.findById(project_id);
+    }
+    @GetMapping("/find_name/{project_name}")
+    public Project projectByName(@RequestBody @Valid String projectName) {
+        /*if (projectRepository.findByName(projectName).isPresent()){
+            Project project = projectRepository.findByName(projectName).get();
+            if (project.getExecutors().contains()){
+                return project;
+            }
+        }
+        else {
+            throw new ProjectNotFoundException();
+        }
+        // TODO ПЕРЕНЕСТИ В СЕРВИС ЛОГИКУ И ПРОВЕРЯТЬ ЕСТЬ ЛИ ЧЕЛ НА ПРОЕКТЕ
+
+         */
+        return null;
     }
 
     @PostMapping("/create")
@@ -63,7 +75,7 @@ public class ProjectController {
         return projectService.create(projectDTO);
     }
 
-    @DeleteMapping("/delete/{project_id}")
+    @DeleteMapping("/{project_id}")
     public ResponseEntity<HttpStatus> deleteProject(@PathVariable("project_id") String project_id) {
         projectService.delete(project_id);
         return ResponseEntity.ok(HttpStatus.OK);
@@ -100,13 +112,5 @@ public class ProjectController {
         return ResponseEntity.ok(HttpStatus.OK);
     }
 
-    @GetMapping("/find")
-    public Project projectByName(@RequestBody @Valid String projectName) {
-        if (projectRepository.findByName(projectName).isPresent()){
-            return projectRepository.findByName(projectName).get();
-        }
-        else {
-            throw new ProjectNotFoundException();
-        }
-    }
+
 }
