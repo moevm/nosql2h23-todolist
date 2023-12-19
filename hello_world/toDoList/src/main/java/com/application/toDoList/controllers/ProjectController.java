@@ -50,20 +50,8 @@ public class ProjectController {
         return projectService.findById(project_id);
     }
     @GetMapping("/find_name/{project_name}")
-    public Project projectByName(@RequestBody @Valid String projectName) {
-        /*if (projectRepository.findByName(projectName).isPresent()){
-            Project project = projectRepository.findByName(projectName).get();
-            if (project.getExecutors().contains()){
-                return project;
-            }
-        }
-        else {
-            throw new ProjectNotFoundException();
-        }
-        // TODO ПЕРЕНЕСТИ В СЕРВИС ЛОГИКУ И ПРОВЕРЯТЬ ЕСТЬ ЛИ ЧЕЛ НА ПРОЕКТЕ
-
-         */
-        return null;
+    public Project projectByName(@PathVariable("project_name")  String projectName) {
+        return projectService.findByName(projectName);
     }
 
     @PostMapping("/create")

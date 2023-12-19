@@ -3,7 +3,10 @@ package com.application.toDoList.services;
 import com.application.toDoList.domains.Person;
 import com.application.toDoList.exceptions.PersonNotFoundException;
 import com.application.toDoList.repositories.PersonRepository;
+import com.application.toDoList.security.PersonDetails;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,16 +22,17 @@ public class PersonService {
     public PersonService(PersonRepository personRepository){
         this.personRepository = personRepository;
     }
-    // Поиск в БД человека с заданным ID
-    public Person findOne(String id) {
-        Optional<Person> foundPerson = personRepository.findById(id);
-        return foundPerson.orElseThrow(PersonNotFoundException::new);
-    }
 
     // Поиск в БД человека с заданным email
     public Person findEmail(String email) {
         Optional<Person> foundPerson = personRepository.findByEmail(email);
         return foundPerson.orElseThrow(PersonNotFoundException::new);
+    }
+
+    public Person getUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        PersonDetails personDetails = (PersonDetails) authentication.getPrincipal();
+        return this.findEmail(personDetails.getUsername());
     }
 
 }
