@@ -5,6 +5,7 @@ import com.application.toDoList.dto.AuthenticationDTO;
 import com.application.toDoList.dto.PersonDTO;
 import com.application.toDoList.security.JWTUtil;
 import com.application.toDoList.security.PersonValidator;
+import com.application.toDoList.services.PersonService;
 import com.application.toDoList.services.RegistrationService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 
 @RestController
@@ -26,15 +28,17 @@ import java.util.Map;
 public class AuthController {
 
     private final RegistrationService registrationService;
+    private final PersonService personService;
     private final PersonValidator personValidator;
     private final JWTUtil jwtUtil;
     private final ModelMapper modelMapper;
     private final AuthenticationManager authenticationManager;
 
     @Autowired
-    public AuthController(RegistrationService registrationService, PersonValidator personValidator,
+    public AuthController(RegistrationService registrationService, PersonService personService, PersonValidator personValidator,
                           JWTUtil jwtUtil, ModelMapper modelMapper, AuthenticationManager authenticationManager) {
         this.registrationService = registrationService;
+        this.personService = personService;
         this.jwtUtil = jwtUtil;
         this.personValidator = personValidator;
         this.modelMapper = modelMapper;
@@ -43,7 +47,7 @@ public class AuthController {
 
     //    Регистрация нового пользователя
     @PostMapping("/registration")
-    public Map<String, String> performRegistration(@RequestBody @Valid PersonDTO personDTO,
+    public Map<String, Object> performRegistration(@RequestBody @Valid PersonDTO personDTO,
                                                    BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             return Collections.singletonMap("message", "Недостаточно данных при регистрации.");
@@ -58,12 +62,15 @@ public class AuthController {
 
         String token = jwtUtil.generateToken(person.getEmail());
 
-        return Collections.singletonMap("jwt-token", token);
+        Map<String, Object> response = new HashMap<>();
+        response.put("user", personService.findEmail(person.getEmail()));
+        response.put("jwt-token", token);
+        return response;
     }
 
     //  Аутентификация пользователя
     @PostMapping("/login")
-    public Map<String, String> performLogin(@RequestBody @Valid AuthenticationDTO authenticationDTO,
+    public Map<String, Object> performLogin(@RequestBody @Valid AuthenticationDTO authenticationDTO,
                                             BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             return Collections.singletonMap("message", "Недостаточно данных при регистрации.");
@@ -78,7 +85,11 @@ public class AuthController {
         }
 
         String token = jwtUtil.generateToken(authenticationDTO.getUsername());
-        return Collections.singletonMap("jwt-token", token);
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("user", personService.findEmail(authenticationDTO.getUsername()));
+        response.put("jwt-token", token);
+        return response;
     }
 
     //    Преобразование PersonDTO -> Person
