@@ -50,7 +50,7 @@ public class SubtaskController {
                                            @RequestBody SubtaskToUpdate subtaskToUpdate) {
         Subtask subtask = subtaskService.updateSubtask(subtask_id, subtaskToUpdate);
 
-        taskService.uodateTaskInDB(task_id);
+        taskService.updateTaskInDB(task_id);
         projectService.updateProject(project_id);
 
         return subtask;

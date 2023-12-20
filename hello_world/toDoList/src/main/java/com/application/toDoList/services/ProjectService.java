@@ -9,11 +9,8 @@ import com.application.toDoList.exceptions.*;
 import com.application.toDoList.repositories.PersonRepository;
 import com.application.toDoList.repositories.ProjectRepository;
 import com.application.toDoList.repositories.TaskRepository;
-import com.application.toDoList.security.PersonDetails;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -40,10 +37,8 @@ public class ProjectService {
     public Project create(ProjectDTO projectDTO) {
         this.nameException(projectDTO.getName());
         Project project = convertToProject(projectDTO);
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        PersonDetails personDetails = (PersonDetails) authentication.getPrincipal();
         project.setStatus(IN_PROGRESS);
-        project.getExecutors().add(personService.findEmail(personDetails.getUsername()));
+        project.getExecutors().add(personService.getUser());
         return projectRepository.save(project);
     }
     public void delete(String project_id) {
@@ -69,9 +64,7 @@ public class ProjectService {
 
     public Project change(ProjectDTO projectDTO, String project_id) {
         Project project = this.findById(project_id);
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        PersonDetails personDetails = (PersonDetails) authentication.getPrincipal();
-        if (project.getExecutors().contains(personService.findEmail(personDetails.getUsername()))){
+        if (project.getExecutors().contains(personService.getUser())){
             if (projectRepository.findByName(projectDTO.getName()).isEmpty() ||
                     Objects.equals(projectRepository.findByName(projectDTO.getName()).get().getId(), project_id)){
                 project.setName(projectDTO.getName());
@@ -150,9 +143,26 @@ public class ProjectService {
         }
         throw new PersonNotFoundException();
     }
+    public Project findCheck(Optional<Project> foundProject) {
+        Person person = personService.getUser();
+        if (foundProject.isPresent()){
+            if (foundProject.get().getExecutors().contains(person)
+                    || Objects.equals(person.getRole(), "ROLE_ADMIN")){
+                return foundProject.get();
+            }
+            else throw new PersonNotInProjectException();
+        }
+        throw new ProjectNotFoundException();
+    }
     public Project findById(String id) {
         Optional<Project> foundProject = projectRepository.findById(id);
-        return foundProject.orElseThrow(ProjectNotFoundException::new);
+        return this.findCheck(foundProject);
+    }
+
+    public Project findByName(String name) {
+        Optional<Project> foundProject = projectRepository.findByName(name);
+        return this.findCheck(foundProject);
+
     }
 
     public void updateProject(String projectId) {
@@ -180,5 +190,6 @@ public class ProjectService {
         project.setTasks(new ArrayList<>());
         return project;
     }
+
 
 }
