@@ -47,7 +47,7 @@
         <v-list-item
           class="pl-5"
           v-for="(project, index) in projects"
-          :to="{name: 'projects', params: {projectName: project.name}}"
+          :to="{name: 'projects', params: {id: project.id}}"
           :key="index"
           link
         >
@@ -60,6 +60,15 @@
           <v-list-item-icon>
             <span>1/3</span>
           </v-list-item-icon>
+        </v-list-item>
+        <v-list-item
+          class="pl-5 new-project-item"
+          link
+          @click="addNewProject"
+        >
+          <v-list-item-content>
+            <v-list-item-title v-text="'Add New Project'"/>
+          </v-list-item-content>
         </v-list-item>
       </v-list-group>
     </v-list>
@@ -75,9 +84,11 @@ export default {
       required: true
     }
   },
+  inject: ['projectService'],
   data() {
     return {
       projects: [{
+        id: '1',
         name: 'Проект №1',
         executers: [],
         status: 'Открыт',
@@ -89,7 +100,27 @@ export default {
   methods: {
     onToggle(value) {
       this.$emit('update:isToggled', value);
+    },
+    addNewProject() {
+      this.projectService.createProject({}).catch((e) => e);
+      const newId = Math.random();
+      this.projects.push({
+        id: newId,
+        name: 'Проект №2',
+        executers: [],
+        status: 'Открыт',
+        tasks: [],
+        log: {},
+      })
+      this.$router.push(`/projects/${newId}`)
     }
   }
 }
 </script>
+
+<style scoped>
+.new-project-item {
+  color: rgba(25, 118, 210, 0.98) !important;
+  border: 2px dashed #1976d266;
+}
+</style>

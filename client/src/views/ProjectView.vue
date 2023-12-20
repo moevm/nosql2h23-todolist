@@ -3,8 +3,8 @@
     class="container"
     fluid
   >
-    <div class="d-flex flex-row pl-2 mb-1">
-      <h1>{{ $route.params.projectName }}</h1>
+    <div class="d-flex flex-row pl-2 mb-1 align-center">
+      <h1>{{ $route.params.id }}</h1>
       <v-spacer/>
       <v-tooltip content-class="executers-tooltip" left>
         <template v-slot:activator="{ on, attrs }">
@@ -31,6 +31,12 @@
             {{ user.name + ' ' + user.surname }}
           </v-list-item>
         </v-list>
+      </v-tooltip>
+      <v-tooltip bottom>
+        <template v-slot:activator="{ on, attrs }">
+          <v-btn v-bind="attrs" v-on="on" icon flat @click="removeProject('Проект успешно удален')"><v-icon>mdi-delete</v-icon></v-btn>
+        </template>
+        Remove Project
       </v-tooltip>
     </div>
     <v-row
@@ -123,6 +129,7 @@
       <TaskList />
     </v-container>
     <SuccessAlert/>
+    <ConfirmAlert ref="confirmMainTaskAddDialogue"/>
   </v-container>
 </template>
 
@@ -131,10 +138,13 @@ import TaskList from "../components/TaskList.vue";
 import AddTaskDialog from "../components/AddTaskDialog.vue";
 import SuccessAlert from "../components/SuccessAlert.vue";
 import FiltersPanel from "@/components/FiltersPanel.vue";
+import ConfirmAlert from "@/components/ConfirmAlert.vue";
+import {mapActions} from "vuex";
 
 export default {
   name: "ProjectView",
-  components: {FiltersPanel, SuccessAlert, AddTaskDialog, TaskList},
+  components: {ConfirmAlert, FiltersPanel, SuccessAlert, AddTaskDialog, TaskList},
+  inject: ['projectService'],
   data() {
     return {
       date: (new Date(Date.now() - (new Date()).getTimezoneOffset() * 60000)).toISOString().substr(0, 10),
@@ -153,6 +163,22 @@ export default {
       ]
     }
   },
+  methods: {
+    ...mapActions('alert', {
+      hideAlert: "hideAlert",
+      showAlert: "showAlert"
+    }),
+    async removeProject(alertMessage) {
+      await this.hideAlert();
+      const isConfirmed = await this.$refs.confirmMainTaskAddDialogue.show({
+        message: "Are you sure?"
+      });
+      if (isConfirmed) {
+        this.projectService.deleteProject(this.$route.params.id ).catch((e) => console.log(e));
+        await this.showAlert({message: alertMessage});
+      }
+    },
+  }
 }
 </script>
 

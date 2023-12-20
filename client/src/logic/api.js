@@ -1,5 +1,13 @@
+const getToken = () => {
+  return localStorage.getItem('user');
+};
+
+const getAuthHeader = () => {
+  return 'Bearer ' + getToken();
+};
+
 export default class Api {
-  static baseUrl = 'http://localhost:8067';
+  static baseUrl = 'http://localhost:8080';
 
   static login(data) {
     return fetch(`${this.baseUrl}/auth/login`, {
@@ -8,7 +16,7 @@ export default class Api {
         Accept: 'application/json',
         'Content-Type': 'application/json',
       },
-      body: data,
+      body: JSON.stringify(data),
     }).then((response) => {
       if (response.status !== 200) {
         return Promise.reject(new Error(`${response.status} ${response.statusText}`));
@@ -72,6 +80,7 @@ export default class Api {
       headers: {
         Accept: 'application/json',
         'Content-Type': 'application/json',
+        Authorization: getAuthHeader(),
       },
       body: data,
     }).then((response) => {

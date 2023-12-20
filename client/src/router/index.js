@@ -19,7 +19,7 @@ const routes = [
         component: () => import('../views/StatsView.vue'),
       },
       {
-        path: '/projects/:projectName',
+        path: '/projects/:id',
         name: 'projects',
         component: () => import('../views/ProjectView.vue'),
       }
@@ -54,7 +54,7 @@ const router = new VueRouter({
 })
 
 const isLoggedIn = () => {
-  return localStorage.getItem('user')
+  return localStorage.getItem('user');
 }
 
 const protectedRoutes = [
@@ -71,5 +71,6 @@ router.beforeEach((to, from, next) => {
   } else next()
 })
 
+localStorage.removeItem('user');
 
 export default router

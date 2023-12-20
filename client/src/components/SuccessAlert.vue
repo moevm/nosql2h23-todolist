@@ -10,13 +10,13 @@
     <v-icon class="mr-2">mdi-check</v-icon>
     {{ message }}
     <template v-slot:action>
-      <v-btn
-        :disabled="false"
-        @click="onUndo()"
-        icon
-      >
-        <v-icon>mdi-arrow-u-left-top</v-icon>
-      </v-btn>
+<!--      <v-btn-->
+<!--        :disabled="false"-->
+<!--        @click="onUndo()"-->
+<!--        icon-->
+<!--      >-->
+<!--        <v-icon>mdi-arrow-u-left-top</v-icon>-->
+<!--      </v-btn>-->
       <v-btn
         icon
         @click="hideAlert()"
@@ -41,10 +41,10 @@ export default {
   },
   methods: {
     ...mapActions('alert', {hideAlert: 'hideAlert'}),
-    onUndo(mutate) {
-      mutate();
-      this.hideAlert();
-    }
+    // onUndo(mutate) {
+    //   mutate();
+    //   this.hideAlert();
+    // }
   }
 }
 </script>

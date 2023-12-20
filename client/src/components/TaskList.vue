@@ -322,13 +322,12 @@ export default {
       hideAlert: "hideAlert",
       showAlert: "showAlert"
     }),
-    async onSubmit(mutate, alertMessage) {
+    async onSubmit(alertMessage) {
       await this.hideAlert();
       const isConfirmed = await this.$refs.confirmMainTaskAddDialogue.show({
         message: "Are you sure?"
       });
       if (isConfirmed) {
-        mutate();
         await this.showAlert({message: alertMessage});
       }
     },

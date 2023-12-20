@@ -100,6 +100,7 @@ import {mapMutations} from "vuex";
 
 export default {
   name: 'HomeView',
+  inject: ['projectService'],
   data: () => ({
     dialog: true,
     tab: 0,
@@ -144,28 +145,38 @@ export default {
           email: this.email,
           password: this.password,
         }
-        const user = {
-          name: "Артем",
-          surname: "Смирнов",
-          email: "aschiam.net@gmail.com",
-          password: "pass",
-          role: "admin",
-        };
-        const tempPromise = new Promise((resolve, reject) => {
-          //fetch server
-          setTimeout(() => {
-            if (!loginInfo) reject(loginInfo);
-            resolve(user);
-          }, 2000);
-        });
         this.isLoading = true;
-        await tempPromise.then((res) => {
-          localStorage.setItem('user', JSON.stringify(res));
-          this.setUser(user);
+        this.projectService.login(loginInfo).then((res) => {
+          localStorage.setItem('user', res['jwt-token']);
+          this.setUser(res.user);
+          this.$router.push({name: 'home'});
+        }).catch((e) => {
+          console.error('Error: ', e);
         }).finally(() => {
           this.isLoading = false;
-          this.$router.push({name: 'home'});
-        })
+        });
+        // const user = {
+        //   name: "Артем",
+        //   surname: "Смирнов",
+        //   email: "aschiam.net@gmail.com",
+        //   password: "pass",
+        //   role: "admin",
+        // };
+        // const tempPromise = new Promise((resolve, reject) => {
+        //   //fetch server
+        //   setTimeout(() => {
+        //     if (!loginInfo) reject(loginInfo);
+        //     resolve(user);
+        //   }, 2000);
+        // });
+        // this.isLoading = true;
+        // await tempPromise.then((res) => {
+        //   localStorage.setItem('user', JSON.stringify(res));
+        //   this.setUser(user);
+        // }).finally(() => {
+        //   this.isLoading = false;
+        //   this.$router.push({name: 'home'});
+        // })
       }
     },
     reset() {
