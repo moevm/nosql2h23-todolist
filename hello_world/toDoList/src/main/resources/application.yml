@@ -1,0 +1,9 @@
+spring:
+  data:
+    mongodb:
+      #      for local work
+     uri: mongodb://localhost:27017
+      #      for docker
+    # uri: mongodb://mongodb/ToDoListDemo
+
+jwt_secret: SECRET
