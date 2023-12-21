@@ -40,6 +40,7 @@ public class SecurityConfig {
         AuthenticationManager authenticationManager = authenticationManagerBuilder.build();
         return
                 http
+                        .cors().and()
                         .csrf().disable()
                         .authorizeRequests()
                         .antMatchers("/auth/*").permitAll()
@@ -80,11 +81,11 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration().applyPermitDefaultValues();
-        configuration.setAllowedHeaders(List.of("Accept", "Access-Control-Request-Method", "Access-Control-Request-Headers",
-                "Accept-Language", "Authorization", "Content-Type", "Request-Name", "Request-Surname", "Origin", "X-Request-AppVersion",
-                "X-Request-OsVersion", "X-Request-Device", "X-Requested-With"));
+//        configuration.setAllowedHeaders(List.of("Accept", "Access-Control-Request-Method", "Access-Control-Request-Headers",
+//                "Accept-Language", "Authorization", "Content-Type", "Request-Name", "Request-Surname", "Origin", "X-Request-AppVersion",
+//                "X-Request-OsVersion", "X-Request-Device", "X-Requested-With"));
         configuration.setAllowedOrigins(List.of(
-                "http://localhost:8080"
+                "http://localhost:8080", "http://localhost:8081"
         ));
         configuration.setAllowedMethods(List.of("GET", "POST", "PATCH", "DELETE"));
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
