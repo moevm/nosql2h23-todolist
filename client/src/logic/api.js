@@ -9,6 +9,7 @@ const getAuthHeader = () => {
 export default class Api {
   static baseUrl = 'http://localhost:8080';
 
+  // АВТОРИЗАЦИЯ И АУТЕНТИФИКАЦИЯ
   static login(data) {
     return fetch(`${this.baseUrl}/auth/login`, {
       method: 'POST',
@@ -32,7 +33,7 @@ export default class Api {
         Accept: 'application/json',
         'Content-Type': 'application/json',
       },
-      body: data,
+      body: JSON.stringify(data),
     }).then((response) => {
       if (response.status !== 200) {
         return Promise.reject(new Error(`${response.status} ${response.statusText}`));
@@ -41,6 +42,7 @@ export default class Api {
     }).then((res) => res.json());
   }
 
+  // РАБОТА С ПРОЕКТАМИ
   static getAllProjects() {
     return fetch(`${this.baseUrl}/project/all`, {
       headers: {
@@ -56,16 +58,47 @@ export default class Api {
     }).then((res) => res.json());
   }
 
-  static postAllProjectsForPerson(person_id) {
-    return fetch(`${this.baseUrl}/projects/find_person/${person_id}`, {
+  static findProjectByName(project_name) {
+    return fetch(`${this.baseUrl}/project/find_name/${project_name}`, {
+      method: 'GET',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+        Authorization: getAuthHeader(),
+      },
+    }).then((response) => {
+      if (response.status !== 200) {
+        return Promise.reject(new Error(`${response.status} ${response.statusText}`));
+      }
+      return Promise.resolve(response);
+    }).then((res) => res.json());
+  }
+
+  static findProjectById(project_id) {
+    return fetch(`${this.baseUrl}/project/find/${project_id}`, {
+      method: 'GET',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+        Authorization: getAuthHeader(),
+      },
+    }).then((response) => {
+      if (response.status !== 200) {
+        return Promise.reject(new Error(`${response.status} ${response.statusText}`));
+      }
+      return Promise.resolve(response);
+    }).then((res) => res.json());
+  }
+
+  static findProjectsByPerson(person_id) {
+    return fetch(`${this.baseUrl}/project/find_person/${person_id}`, {
       method: 'POST',
       headers: {
         Accept: 'application/json',
         'Content-Type': 'application/json',
-        'Authorization': getAuthHeader(),
+        Authorization: getAuthHeader(),
       },
-    }).then(response => Promise.all([response, response.json()]))
-      .then((response) => {
+    }).then((response) => {
       if (response.status !== 200) {
         return Promise.reject(new Error(`${response.status} ${response.statusText}`));
       }
@@ -90,6 +123,22 @@ export default class Api {
     }).then((res) => res.json());
   }
 
+  static postPersonForProject(project_id, person_id) {
+    return fetch(`${this.baseUrl}/project/${project_id}/person/${person_id}`, {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+        Authorization: getAuthHeader(),
+      },
+    }).then((response) => {
+      if (response.status !== 200) {
+        return Promise.reject(new Error(`${response.status} ${response.statusText}`));
+      }
+      return Promise.resolve(response);
+    }).then((res) => res.json());
+  }
+
   static deleteProject(project_id) {
     return fetch(`${this.baseUrl}/project/${project_id}`, {
       method: 'DELETE',
@@ -106,8 +155,42 @@ export default class Api {
     }).then((res) => res.json());
   }
 
-  static findProject(project_id) {
-    return fetch(`${this.baseUrl}/project/find/${project_id}`, {
+  static removePersonFromProject(project_id, person_id) {
+    return fetch(`${this.baseUrl}/project/${project_id}/person/${person_id}`, {
+      method: 'DELETE',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+        Authorization: getAuthHeader(),
+      },
+    }).then((response) => {
+      if (response.status !== 200) {
+        return Promise.reject(new Error(`${response.status} ${response.statusText}`));
+      }
+      return Promise.resolve(response);
+    }).then((res) => res.json());
+  }
+
+  static editProject(project_id, data) {
+    return fetch(`${this.baseUrl}/project/${project_id}`, {
+      method: 'PATCH',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+        Authorization: getAuthHeader(),
+      },
+      body: JSON.stringify(data),
+    }).then((response) => {
+      if (response.status !== 200) {
+        return Promise.reject(new Error(`${response.status} ${response.statusText}`));
+      }
+      return Promise.resolve(response);
+    }).then((res) => res.json());
+  }
+
+  // РАБОТА С ТАСКАМИ
+  static getProjectTasks(project_id) {
+    return fetch(`${this.baseUrl}/tasks/${project_id}`, {
       method: 'GET',
       headers: {
         Accept: 'application/json',
@@ -122,14 +205,15 @@ export default class Api {
     }).then((res) => res.json());
   }
 
-  static patchProject(project_id, data) {
-    return fetch(`${this.baseUrl}/project/admin/${project_id}`, {
-      method: 'PATCH',
+  static addNewTask(project_id, data) {
+    return fetch(`${this.baseUrl}/tasks/${project_id}`, {
+      method: 'POST',
       headers: {
         Accept: 'application/json',
         'Content-Type': 'application/json',
+        Authorization: getAuthHeader(),
       },
-      body: data,
+      body: JSON.stringify(data),
     }).then((response) => {
       if (response.status !== 200) {
         return Promise.reject(new Error(`${response.status} ${response.statusText}`));
@@ -138,9 +222,9 @@ export default class Api {
     }).then((res) => res.json());
   }
 
-  static postPersonForProject(project_id, person_id) {
-    return fetch(`${this.baseUrl}/project/admin/${project_id}/person/${person_id}`, {
-      method: 'POST',
+  static removeTask(project_id, task_id) {
+    return fetch(`${this.baseUrl}/tasks/${project_id}/${task_id}`, {
+      method: 'DELETE',
       headers: {
         Accept: 'application/json',
         'Content-Type': 'application/json',
@@ -154,12 +238,13 @@ export default class Api {
     }).then((res) => res.json());
   }
 
-  static deletePersonForProject(project_id, person_id) {
-    return fetch(`${this.baseUrl}/project/admin/${project_id}/person/${person_id}`, {
-      method: 'DELETE',
+  static editTask(project_id, task_id) {
+    return fetch(`${this.baseUrl}/tasks/${project_id}/${task_id}`, {
+      method: 'PATCH',
       headers: {
         Accept: 'application/json',
         'Content-Type': 'application/json',
+        Authorization: getAuthHeader(),
       },
     }).then((response) => {
       if (response.status !== 200) {
@@ -169,21 +254,8 @@ export default class Api {
     }).then((res) => res.json());
   }
 
-  static postFind(data) {
-    return fetch(`${this.baseUrl}/project/find`, {
-      method: 'POST',
-      headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json',
-      },
-      body: data
-    }).then((response) => {
-      if (response.status !== 200) {
-        return Promise.reject(new Error(`${response.status} ${response.statusText}`));
-      }
-      return Promise.resolve(response);
-    }).then((res) => res.json());
-  }
+
+
 
   static getAllTasks() {
     return fetch(`${this.baseUrl}/tasks/all`, {
@@ -223,14 +295,64 @@ export default class Api {
     }).then((res) => res.json());
   }
 
-  static postAddSubTask(data) {
-    return fetch(`${this.baseUrl}/tasks/add-subtask`, {
+  // РАБОТА С ПОДТАСКАМИ
+  static getSubtasksForTask(task_id) {
+    return fetch(`${this.baseUrl}/subtasks/${task_id}`, {
+      method: 'GET',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+        Authorization: getAuthHeader(),
+      },
+    }).then((response) => {
+      if (response.status !== 200) {
+        return Promise.reject(new Error(`${response.status} ${response.statusText}`));
+      }
+      return Promise.resolve(response);
+    }).then((res) => res.json());
+  }
+
+  static addNewSubtask(project_id, task_id, data) {
+    return fetch(`${this.baseUrl}/subtasks/add-subtask/${project_id}/${task_id} `, {
       method: 'POST',
       headers: {
         Accept: 'application/json',
         'Content-Type': 'application/json',
+        Authorization: getAuthHeader(),
       },
-      body: data
+      body: JSON.stringify(data),
+    }).then((response) => {
+      if (response.status !== 200) {
+        return Promise.reject(new Error(`${response.status} ${response.statusText}`));
+      }
+      return Promise.resolve(response);
+    }).then((res) => res.json());
+  }
+
+  static removeSubtask(project_id, task_id, subtask_id) {
+    return fetch(`${this.baseUrl}/subtasks/${project_id}/${task_id}/${subtask_id}`, {
+      method: 'DELETE',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+        Authorization: getAuthHeader(),
+      },
+    }).then((response) => {
+      if (response.status !== 200) {
+        return Promise.reject(new Error(`${response.status} ${response.statusText}`));
+      }
+      return Promise.resolve(response);
+    }).then((res) => res.json());
+  }
+
+  static editSubtask(project_id, task_id, subtask_id) {
+    return fetch(`${this.baseUrl} /subtasks/${project_id}/${task_id}/${subtask_id}`, {
+      method: 'PATCH',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+        Authorization: getAuthHeader(),
+      },
     }).then((response) => {
       if (response.status !== 200) {
         return Promise.reject(new Error(`${response.status} ${response.statusText}`));
