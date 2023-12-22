@@ -10,6 +10,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -27,6 +28,10 @@ public class PersonService {
     public Person findEmail(String email) {
         Optional<Person> foundPerson = personRepository.findByEmail(email);
         return foundPerson.orElseThrow(PersonNotFoundException::new);
+    }
+
+    public List<Person> findAll() {
+        return personRepository.findAll();
     }
 
     public Person getUser() {
