@@ -10,10 +10,6 @@ export default class ProjectService {
     return Api.register(data);
   }
 
-  static async getAllProjectsAdmin() {
-    return Api.getAllProjectsAdmin();
-  }
-
   static async getAllProjects() {
     return Api.getAllProjects();
   }

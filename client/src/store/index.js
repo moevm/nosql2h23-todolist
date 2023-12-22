@@ -33,7 +33,7 @@ export default new Vuex.Store({
   mutations: {
     setUser(state, user) {
       state.user = user;
-      state.userRole = user.role;
+      state.userRole = user.role === 'ROLE_ADMIN' ? 'admin' : 'user';
     },
     setFilter(state, filter) {
       state.currentFilter = filter;

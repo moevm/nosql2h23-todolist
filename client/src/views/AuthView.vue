@@ -142,8 +142,8 @@ export default {
     async validate() {
       if (this.$refs.loginForm.validate()) {
         const loginInfo = {
-          email: this.email,
-          password: this.password,
+          username: this.loginEmail,
+          password: this.loginPassword,
         }
         this.isLoading = true;
         this.projectService.login(loginInfo).then((res) => {

@@ -87,22 +87,22 @@ export default {
   inject: ['projectService'],
   data() {
     return {
-      projects: [{
-        id: '1',
-        name: 'Проект №1',
-        executers: [],
-        status: 'Открыт',
-        tasks: [],
-        log: {},
-      }]
+      projects: [],
     }
+  },
+  created() {
+    this.projectService.getAllProjects().then((res) => {
+     console.log(res);
+    }).catch((e) => console.log(e));
   },
   methods: {
     onToggle(value) {
       this.$emit('update:isToggled', value);
     },
     addNewProject() {
-      this.projectService.createProject({}).catch((e) => e);
+      this.projectService.createProject({name: 'New Project'}).then((res) => {
+        console.log(res);
+      }).catch((e) => e);
       const newId = Math.random();
       this.projects.push({
         id: newId,

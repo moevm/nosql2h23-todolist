@@ -3,13 +3,14 @@ const getToken = () => {
 };
 
 const getAuthHeader = () => {
-  return 'Bearer ' + getToken();
+  return `Bearer ${getToken()}`;
 };
 
 export default class Api {
   static baseUrl = 'http://localhost:8080';
 
   static login(data) {
+    console.log(data)
     return fetch(`${this.baseUrl}/auth/login`, {
       method: 'POST',
       headers: {
@@ -41,30 +42,12 @@ export default class Api {
     }).then((res) => res.json());
   }
 
-  static getAllProjectsAdmin() {
-    return fetch(`${this.baseUrl}/project/admin/all`).then((response) => {
-      if (response.status !== 200) {
-        return Promise.reject(new Error(`${response.status} ${response.statusText}`));
-      }
-      return Promise.resolve(response);
-    }).then((res) => res.json());
-  }
-
   static getAllProjects() {
-    return fetch(`${this.baseUrl}/project/all`).then((response) => {
-      if (response.status !== 200) {
-        return Promise.reject(new Error(`${response.status} ${response.statusText}`));
-      }
-      return Promise.resolve(response);
-    }).then((res) => res.json());
-  }
-
-  static postAllProjectsForPerson(person_id) {
-    return fetch(`${this.baseUrl}/project/admin/find/${person_id}`, {
-      method: 'POST',
+    return fetch(`${this.baseUrl}/project/all`, {
       headers: {
         Accept: 'application/json',
         'Content-Type': 'application/json',
+        'Authorization': getAuthHeader(),
       },
     }).then((response) => {
       if (response.status !== 200) {
@@ -74,15 +57,32 @@ export default class Api {
     }).then((res) => res.json());
   }
 
+  static postAllProjectsForPerson(person_id) {
+    return fetch(`${this.baseUrl}/projects/find_person/${person_id}`, {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+        'Authorization': getAuthHeader(),
+      },
+    }).then(response => Promise.all([response, response.json()]))
+      .then((response) => {
+      if (response.status !== 200) {
+        return Promise.reject(new Error(`${response.status} ${response.statusText}`));
+      }
+      return Promise.resolve(response);
+    }).then((res) => res.json());
+  }
+
   static postCreateProject(data) {
-    return fetch(`${this.baseUrl}/project/admin/create`, {
+    return fetch(`${this.baseUrl}/project/create`, {
       method: 'POST',
       headers: {
         Accept: 'application/json',
         'Content-Type': 'application/json',
         Authorization: getAuthHeader(),
       },
-      body: data,
+      body: JSON.stringify(data),
     }).then((response) => {
       if (response.status !== 200) {
         return Promise.reject(new Error(`${response.status} ${response.statusText}`));
@@ -128,6 +128,7 @@ export default class Api {
       headers: {
         Accept: 'application/json',
         'Content-Type': 'application/json',
+        Authorization: getAuthHeader(),
       },
     }).then((response) => {
       if (response.status !== 200) {
@@ -169,7 +170,11 @@ export default class Api {
   }
 
   static getAllTasks() {
-    return fetch(`${this.baseUrl}/tasks/all`).then((response) => {
+    return fetch(`${this.baseUrl}/tasks/all`, {
+      headers: {
+        Authorization: getAuthHeader(),
+      }
+    }).then((response) => {
       if (response.status !== 200) {
         return Promise.reject(new Error(`${response.status} ${response.statusText}`));
       }
