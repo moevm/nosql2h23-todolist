@@ -24,7 +24,6 @@ public class Project {
     private ProjectStatus status;
     private Set<Person> executors;
     private ArrayList<Task> tasks;
-    private Logging log;
 
     public Project(String id, String name, ProjectStatus status) {
         this.id = id;
