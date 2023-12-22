@@ -45,6 +45,7 @@ public class SecurityConfig {
                         .authorizeRequests()
                         .antMatchers("/auth/*").permitAll()
                         .antMatchers(HttpMethod.GET).hasAnyRole("ADMIN","USER")
+                        .antMatchers(HttpMethod.PATCH).hasAnyRole("ADMIN","USER")
                         .anyRequest().hasAnyRole("ADMIN")
                         .and()
                         .formLogin().loginPage("/auth/login")

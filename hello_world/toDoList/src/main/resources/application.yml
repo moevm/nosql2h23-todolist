@@ -2,8 +2,8 @@ spring:
   data:
     mongodb:
       #      for local work
-     uri: mongodb://localhost:27017/ToDoListDemo
+      uri: mongodb://localhost:27017/ToDoListDemo
       #      for docker
-    # uri: mongodb://mongodb/ToDoListDemo
+    #  uri: mongodb://mongodb/ToDoListDemo
 
 jwt_secret: SECRET
