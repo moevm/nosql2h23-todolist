@@ -52,32 +52,53 @@
           link
         >
           <v-list-item-icon>
-            <v-icon color="green">mdi-circle</v-icon>
+            <v-icon :color="project.status === 'IN_PROGRESS' ? 'green' : 'red'">mdi-circle</v-icon>
           </v-list-item-icon>
           <v-list-item-content>
             <v-list-item-title v-text="project.name"/>
           </v-list-item-content>
-          <v-list-item-icon>
-            <span>1/3</span>
-          </v-list-item-icon>
+<!--          <v-list-item-icon>-->
+<!--            <span>1/3</span>-->
+<!--          </v-list-item-icon>-->
         </v-list-item>
+        <span v-if="projects.length === 0" class="d-flex justify-center">
+          Нет активных проектов
+        </span>
         <v-list-item
-          class="pl-5 new-project-item"
+          class="pl-2 new-project-item"
           link
-          @click="addNewProject"
         >
-          <v-list-item-content>
-            <v-list-item-title v-text="'Add New Project'"/>
-          </v-list-item-content>
+          <v-text-field
+            v-if="$store.state.userRole === 'admin'"
+            v-model="newProjectName"
+            :color="inputStateColor"
+            placeholder="Добавить новый проект"
+            text
+          >
+            <template v-slot:append>
+              <v-icon
+                @click="onSubmit('SubTask added successfully!')"
+                :disabled="!isInputValid"
+                :color="inputStateColor"
+              >
+                mdi-plus
+              </v-icon>
+            </template>
+          </v-text-field>
         </v-list-item>
       </v-list-group>
     </v-list>
+    <ConfirmAlert ref="confirmMainTaskAddDialogue"/>
   </v-navigation-drawer>
 </template>
 
 <script>
+import {mapActions, mapMutations, mapState} from "vuex";
+import ConfirmAlert from "@/components/ConfirmAlert.vue";
+
 export default {
   name: "AppDrawer",
+  components: {ConfirmAlert},
   props: {
     isToggled: {
       type: Boolean,
@@ -87,40 +108,52 @@ export default {
   inject: ['projectService'],
   data() {
     return {
-      projects: [],
+      newProjectName: '',
+    }
+  },
+  computed: {
+    ...mapState(['projects']),
+    isInputValid() {
+      return this.newProjectName.length > 3;
+    },
+    inputStateColor() {
+      return !this.isInputValid ? 'grey' : 'green';
     }
   },
   created() {
     this.projectService.getAllProjects().then((res) => {
-     console.log(res);
+      this.setProjects(res || []);
     }).catch((e) => console.log(e));
   },
   methods: {
+    ...mapActions('alert', {
+      hideAlert: "hideAlert",
+      showAlert: "showAlert"
+    }),
+    ...mapActions(['getActiveProject']),
+    ...mapMutations(['addProject', 'setProjects', 'setActiveProject']),
     onToggle(value) {
       this.$emit('update:isToggled', value);
     },
-    addNewProject() {
-      this.projectService.createProject({name: 'New Project'}).then((res) => {
-        console.log(res);
-      }).catch((e) => e);
-      const newId = Math.random();
-      this.projects.push({
-        id: newId,
-        name: 'Проект №2',
-        executers: [],
-        status: 'Открыт',
-        tasks: [],
-        log: {},
-      })
-      this.$router.push(`/projects/${newId}`)
-    }
+    async onSubmit(alertMessage) {
+      await this.hideAlert();
+      const isConfirmed = await this.$refs.confirmMainTaskAddDialogue.show({
+        message: "Are you sure?"
+      });
+      if (isConfirmed) {
+        if (this.projects.some((el) => el.name === this.newProjectName)) {
+          await this.showAlert({message: 'Проект с таким именем уже существует', type: 'error'});
+        } else {
+          this.projectService.createProject({id: Math.floor(Math.random() * 1000), name: this.newProjectName}).then((res) => {
+            this.newProjectName = '';
+            this.showAlert({message: alertMessage});
+            this.setActiveProject(res);
+            this.addProject(res);
+            this.$router.push(`/projects/${res.id}`)
+          }).catch(() => this.showAlert({message: 'Проект с таким именем уже существует', type: 'error'}));
+        }
+      }
+    },
   }
 }
 </script>
-
-<style scoped>
-.new-project-item {
-  color: rgba(25, 118, 210, 0.98) !important;
-  border: 2px dashed #1976d266;
-}
-</style>

@@ -10,7 +10,6 @@ export default class Api {
   static baseUrl = 'http://localhost:8080';
 
   static login(data) {
-    console.log(data)
     return fetch(`${this.baseUrl}/auth/login`, {
       method: 'POST',
       headers: {
@@ -92,11 +91,28 @@ export default class Api {
   }
 
   static deleteProject(project_id) {
-    return fetch(`${this.baseUrl}/project/admin/delete/${project_id}`, {
+    return fetch(`${this.baseUrl}/project/${project_id}`, {
       method: 'DELETE',
       headers: {
         Accept: 'application/json',
         'Content-Type': 'application/json',
+        Authorization: getAuthHeader(),
+      },
+    }).then((response) => {
+      if (response.status !== 200) {
+        return Promise.reject(new Error(`${response.status} ${response.statusText}`));
+      }
+      return Promise.resolve(response);
+    }).then((res) => res.json());
+  }
+
+  static findProject(project_id) {
+    return fetch(`${this.baseUrl}/project/find/${project_id}`, {
+      method: 'GET',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+        Authorization: getAuthHeader(),
       },
     }).then((response) => {
       if (response.status !== 200) {

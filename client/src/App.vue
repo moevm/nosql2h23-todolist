@@ -1,14 +1,17 @@
 <template>
   <v-app>
     <router-view/>
+    <SuccessAlert/>
   </v-app>
 </template>
 
 <script>
 import projectService from '@/logic/services/projectService';
+import SuccessAlert from "@/components/SuccessAlert.vue";
 
 export default {
   name: 'App',
+  components: {SuccessAlert},
   provide: {
     projectService,
   }

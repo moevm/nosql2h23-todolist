@@ -1,5 +1,6 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
+import service from '../logic/services/projectService';
 
 Vue.use(Vuex)
 
@@ -28,6 +29,8 @@ export default new Vuex.Store({
       name: 'all',
       text: 'Все',
     },
+    projects: [],
+    activeProject: {},
   },
   getters: {},
   mutations: {
@@ -37,9 +40,29 @@ export default new Vuex.Store({
     },
     setFilter(state, filter) {
       state.currentFilter = filter;
-    }
+    },
+    setProjects(state, projects) {
+      state.projects = projects;
+    },
+    addProject(state, project) {
+      state.projects.push(project);
+    },
+    deleteProject(state, id) {
+      state.projects = state.projects.filter((el) => el.id !== id);
+    },
+    setActiveProject(state, project) {
+      state.activeProject = {...project};
+    },
   },
-  actions: {},
+  actions: {
+    getActiveProject: async ({ commit}, id) => {
+      await service.findProjectById(id)
+        .then((res) => {
+          commit('setActiveProject', res);
+        })
+        .catch((e) => console.log(e));
+    },
+  },
   modules: {
     alert,
     validators

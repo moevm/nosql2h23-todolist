@@ -1,13 +1,13 @@
 <template>
   <v-snackbar
-    color="green"
+    :color="color"
     :value="visible"
     :timeout="timeout"
     min-width="100px"
     top
     right
   >
-    <v-icon class="mr-2">mdi-check</v-icon>
+    <v-icon v-if="type === 'success'" class="mr-2">mdi-check</v-icon>
     {{ message }}
     <template v-slot:action>
 <!--      <v-btn-->
@@ -36,8 +36,12 @@ export default {
     ...mapState('alert', {
       message: state => state.alertMessage,
       visible: state => state.isVisible,
-      timeout: state => state.timeoutValue
-    })
+      timeout: state => state.timeoutValue,
+      type: state => state.alertType,
+    }),
+    color() {
+      return this.type === 'success' ? 'green' : 'red';
+    }
   },
   methods: {
     ...mapActions('alert', {hideAlert: 'hideAlert'}),

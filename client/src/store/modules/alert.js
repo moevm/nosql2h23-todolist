@@ -5,6 +5,7 @@ export default {
         alertMessage: '',
         timeoutValue: 10000,
         timeout: null,
+        alertType: 'success',
     },
     getters: {
     },
@@ -17,6 +18,7 @@ export default {
             state.isVisible = true;
         },
         setAlertMessage(state, payload) {
+            state.alertType = payload.type || 'success';
             state.alertMessage = payload.message;
         },
         setTimeout(state, payload) {

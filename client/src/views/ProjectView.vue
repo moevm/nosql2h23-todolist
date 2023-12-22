@@ -4,7 +4,7 @@
     fluid
   >
     <div class="d-flex flex-row pl-2 mb-1 align-center">
-      <h1>{{ $route.params.id }}</h1>
+      <h1>{{ project.name }}</h1>
       <v-spacer/>
       <v-tooltip content-class="executers-tooltip" left>
         <template v-slot:activator="{ on, attrs }">
@@ -128,7 +128,6 @@
     >
       <TaskList />
     </v-container>
-    <SuccessAlert/>
     <ConfirmAlert ref="confirmMainTaskAddDialogue"/>
   </v-container>
 </template>
@@ -136,14 +135,14 @@
 <script>
 import TaskList from "../components/TaskList.vue";
 import AddTaskDialog from "../components/AddTaskDialog.vue";
-import SuccessAlert from "../components/SuccessAlert.vue";
 import FiltersPanel from "@/components/FiltersPanel.vue";
 import ConfirmAlert from "@/components/ConfirmAlert.vue";
-import {mapActions} from "vuex";
+import {mapActions, mapMutations, mapState} from "vuex";
+import store from "@/store";
 
 export default {
   name: "ProjectView",
-  components: {ConfirmAlert, FiltersPanel, SuccessAlert, AddTaskDialog, TaskList},
+  components: {ConfirmAlert, FiltersPanel, AddTaskDialog, TaskList},
   inject: ['projectService'],
   data() {
     return {
@@ -163,18 +162,35 @@ export default {
       ]
     }
   },
+  computed: {
+    ...mapState({
+      project: state => state.activeProject,
+    })
+  },
+  beforeRouteEnter: async (to, from, next) => {
+    await store.dispatch('getActiveProject', to.params.id);
+    next()
+  },
+  beforeRouteUpdate: async (to, from, next) => {
+    await store.dispatch('getActiveProject', to.params.id);
+    next()
+  },
   methods: {
     ...mapActions('alert', {
       hideAlert: "hideAlert",
       showAlert: "showAlert"
     }),
+    ...mapActions(['getActiveProject']),
+    ...mapMutations(['deleteProject']),
     async removeProject(alertMessage) {
       await this.hideAlert();
       const isConfirmed = await this.$refs.confirmMainTaskAddDialogue.show({
         message: "Are you sure?"
       });
       if (isConfirmed) {
-        this.projectService.deleteProject(this.$route.params.id ).catch((e) => console.log(e));
+        this.projectService.deleteProject(this.$route.params.id).catch((e) => console.log(e));
+        this.deleteProject(this.project.id);
+        this.$router.push({ name: 'home' });
         await this.showAlert({message: alertMessage});
       }
     },

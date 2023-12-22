@@ -63,7 +63,7 @@
                       <v-text-field v-model="password" :append-icon="show1 ? 'mdi-eye' : 'mdi-eye-off'"
                                     :rules="[rules.required, rules.min]" :type="show1 ? 'text' : 'password'"
                                     name="input-10-1" label="Password" hint="At least 3 characters" counter
-                                    @click:append="show1 = !show1" autocomplete="off"/>
+                                    @click:append="show1 = !show1" autocomplete="new-password"/>
                     </v-col>
                     <v-col cols="12">
                       <v-text-field block v-model="verify" :append-icon="show1 ? 'mdi-eye' : 'mdi-eye-off'"
@@ -155,28 +155,6 @@ export default {
         }).finally(() => {
           this.isLoading = false;
         });
-        // const user = {
-        //   name: "Артем",
-        //   surname: "Смирнов",
-        //   email: "aschiam.net@gmail.com",
-        //   password: "pass",
-        //   role: "admin",
-        // };
-        // const tempPromise = new Promise((resolve, reject) => {
-        //   //fetch server
-        //   setTimeout(() => {
-        //     if (!loginInfo) reject(loginInfo);
-        //     resolve(user);
-        //   }, 2000);
-        // });
-        // this.isLoading = true;
-        // await tempPromise.then((res) => {
-        //   localStorage.setItem('user', JSON.stringify(res));
-        //   this.setUser(user);
-        // }).finally(() => {
-        //   this.isLoading = false;
-        //   this.$router.push({name: 'home'});
-        // })
       }
     },
     reset() {

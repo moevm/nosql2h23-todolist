@@ -10,6 +10,11 @@ export default class ProjectService {
     return Api.register(data);
   }
 
+  static async findProjectById(id) {
+    return Api.findProject(id);
+  }
+
+
   static async getAllProjects() {
     return Api.getAllProjects();
   }
