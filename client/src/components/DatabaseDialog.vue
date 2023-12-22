@@ -21,8 +21,6 @@
       </v-btn>
     </template>
     <v-toolbar
-        color="deep-purple lighten-2"
-        dark
         flat
         dense
     >
@@ -30,7 +28,7 @@
           v-model="tab"
           fixed-tabs
       >
-        <v-tabs-slider color="deep-purple lighten-5"/>
+        <v-tabs-slider/>
 
         <v-tab
             v-for="item in items"

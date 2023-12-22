@@ -30,4 +30,8 @@ html {
   top: 4px;
   z-index: 999;
 }
+
+.label-span {
+  font-size: 16px;
+}
 </style>

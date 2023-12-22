@@ -4,8 +4,13 @@
       <v-card-actions>
         <v-row>
           <v-expansion-panels>
+            <v-expansion-panel v-if="!project.tasks?.length">
+              <v-expansion-panel-header>
+                <span>Список задач пуст</span>
+              </v-expansion-panel-header>
+            </v-expansion-panel>
             <v-expansion-panel
-              v-for="(task, index) in mainTasks"
+              v-for="(task, index) in project.tasks"
               :key="task.id"
             >
               <v-expansion-panel-header class="pa-2" disable-icon-rotate>
@@ -34,25 +39,40 @@
                         </v-icon>
                       </v-btn>
                     </template>
+                    <v-tooltip bottom>
+                      <template v-slot:activator="{ on, attrs }">
+                        <v-btn
+                          v-bind="attrs"
+                          v-on="on"
+                          fab
+                          dark
+                          small
+                          color="green"
+                          @click.native.stop="openUpdateDialog(task)"
+                        >
+                          <v-icon>mdi-pencil</v-icon>
+                        </v-btn>
+                      </template>
+                      <span>Редактировать</span>
+                    </v-tooltip>
 
-                    <v-btn
-                      fab
-                      dark
-                      small
-                      color="green"
-                      @click.native.stop="openUpdateDialog(task)"
-                    >
-                      <v-icon>mdi-pencil</v-icon>
-                    </v-btn>
-                    <v-btn
-                      fab
-                      dark
-                      small
-                      color="red"
-                      @click.native.stop="onSubmit('Task deleted successfully!')"
-                    >
-                      <v-icon>mdi-delete</v-icon>
-                    </v-btn>
+                    <v-tooltip bottom>
+                      <template v-slot:activator="{ on, attrs }">
+                        <v-btn
+                          v-bind="attrs"
+                          v-on="on"
+                          fab
+                          dark
+                          small
+                          color="red"
+                          @click.native.stop="onTaskDelete('Задача успешно удалена!', task.id)"
+                        >
+                          <v-icon>mdi-delete</v-icon>
+                        </v-btn>
+                      </template>
+                      <span>Удалить</span>
+                    </v-tooltip>
+
                   </v-speed-dial>
                 </template>
               </v-expansion-panel-header>
@@ -78,10 +98,9 @@
         type="card"
       />
     </v-sheet>
-    <ConfirmAlert ref="confirmMainTaskAddDialogue"/>
+    <ConfirmAlert ref="confirmDialogue"/>
     <UpdateDialog
       ref="updateDialogue"
-      field-to-update="title"
       :mutation="''"
     />
   </div>
@@ -89,7 +108,7 @@
 <script>
 import SubTaskList from "./SubTaskList.vue";
 
-import {mapActions} from 'vuex';
+import {mapActions, mapGetters} from 'vuex';
 import ConfirmAlert from "@/components/ConfirmAlert.vue";
 import UpdateDialog from "@/components/UpdateDialog.vue";
 
@@ -317,38 +336,32 @@ export default {
       mainTasks,
     }
   },
+  inject: ['projectService'],
+  computed: {
+    ...mapGetters(['project']),
+  },
   methods: {
     ...mapActions('alert', {
       hideAlert: "hideAlert",
       showAlert: "showAlert"
     }),
-    async onSubmit(alertMessage) {
+    ...mapActions(['removeTask']),
+    async onTaskDelete(alertMessage, task_id) {
       await this.hideAlert();
-      const isConfirmed = await this.$refs.confirmMainTaskAddDialogue.show({
-        message: "Are you sure?"
+      const isConfirmed = await this.$refs.confirmDialogue.show({
+        message: "Удалить задачу?"
       });
       if (isConfirmed) {
+        this.projectService.removeTask(this.$route.params.id, task_id).then(() => {
+          this.removeTask(task_id);
+        }).catch(() => this.showAlert({message: 'Не удалось удалить задачу.'}));
         await this.showAlert({message: alertMessage});
       }
     },
     openUpdateDialog(task) {
       this.$refs.updateDialogue.openDialog({
-        taskId: task.id,
-        initialValue: task.title,
+        task,
       })
-    },
-    onMainTaskAdded(previousResult, {subscriptionData}) {
-      return {
-        mainTasks: [...previousResult.mainTasks, subscriptionData.data.mainTaskAdded],
-      }
-    },
-    onMainTaskDeleted(previousResult, {subscriptionData}) {
-      previousResult.mainTasks = previousResult.mainTasks.filter((mainTask) => {
-        return mainTask.id !== subscriptionData.data.mainTaskDeleted.id;
-      });
-      return {
-        mainTasks: [...previousResult.mainTasks],
-      }
     },
   },
   components: {UpdateDialog, ConfirmAlert, SubTaskList}

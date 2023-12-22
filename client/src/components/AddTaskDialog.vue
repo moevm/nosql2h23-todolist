@@ -19,64 +19,21 @@
             hide-details="auto"
             dense
             solo
-          >
-            <template #append>
-              <v-menu
-                ref="menu"
-                v-model="menu"
-                :close-on-content-click="false"
-                :return-value.sync="date"
-                transition="scale-transition"
-                offset-y
-                left
-                min-width="auto"
-              >
-                <template v-slot:activator="{ on, attrs }">
-                  <v-text-field
-                    v-model="date"
-                    label="Срок выполнения"
-                    prepend-inner-icon="mdi-calendar"
-                    readonly
-                    v-bind="attrs"
-                    v-on="on"
-                    filled
-                    hide-details
-                    style="max-width:160px"
-                    dense
-                  ></v-text-field>
-                </template>
-                <v-date-picker
-                  v-model="date"
-                  no-title
-                  scrollable
-                >
-                  <v-spacer></v-spacer>
-                  <v-btn
-                    text
-                    color="primary"
-                    @click="menu = false"
-                  >
-                    Cancel
-                  </v-btn>
-                  <v-btn
-                    text
-                    color="primary"
-                    @click="$refs.menu.save(date)"
-                  >
-                    OK
-                  </v-btn>
-                </v-date-picker>
-              </v-menu>
-            </template>
-          </v-text-field>
+          />
+          <el-date-picker
+            v-model="date"
+            class="elevation-2 mb-2"
+            style="width: 100%"
+            type="datetime"
+            placeholder="Срок исполнения, до"
+          />
+
           <v-combobox
-            label="Исполнители"
-            v-model="newTask"
+            label="Исполнитель"
+            v-model="executerId"
             :items="['asd']"
             hide-details="auto"
             solo
-            multiple
-            chips
           />
         </v-card-text>
         <v-card-actions>
@@ -108,6 +65,7 @@
 <script>
 import ConfirmAlert from "./ConfirmAlert.vue";
 import {mapActions, mapState} from "vuex";
+import moment from "moment";
 
 export default {
   name: "AddTaskDialog",
@@ -118,17 +76,20 @@ export default {
       required: true
     }
   },
+  inject: ['projectService'],
   data() {
     return {
       newTask: '',
       date: (new Date(Date.now() - (new Date()).getTimezoneOffset() * 60000)).toISOString().substr(0, 10),
       menu: false,
+      executerId: [],
     }
   },
   computed: {
     ...mapState('validators', {
       rules: state => state.taskInputRules
     }),
+    ...mapState(['user']),
     isConfirmButtonDisabled() {
       return !!this.newTask && this.newTask.length >= 3;
     }
@@ -138,14 +99,23 @@ export default {
       hideAlert: "hideAlert",
       showAlert: "showAlert"
     }),
-    async onSubmit(mutate) {
+    ...mapActions(['addTask']),
+    async onSubmit() {
       await this.hideAlert();
       const isConfirmed = await this.$refs.confirmDialogue.show({
-        message: "Confirm adding?"
+        message: "Добавить задачу?"
       });
       if (isConfirmed) {
-        mutate();
-        await this.showAlert({message: 'Task added successfully!'});
+        const newTask = {
+          title: this.newTask,
+          executerId: this.user.id,
+          dateOfDeadline: moment(this.date).format('DD.MM.yyyy HH:mm:ss'),
+        }
+        this.projectService.addNewTask(this.$route.params.id, newTask).then((res) => {
+          console.log(res);
+          this.addTask(res);
+        }).catch((e) => console.log(e));
+        await this.showAlert({message: 'Задача успешно создана!'});
         this.$emit('update:opened', false);
       }
     },

@@ -7,17 +7,54 @@
   >
     <v-card>
       <v-card-title class="text-h5">
-        Enter task title
+        Редактирование задачи
       </v-card-title>
       <v-card-text>
+        <span class="label-span">Описание</span>
         <v-text-field
-          label="Task description"
+          label="Описание"
+          class="task-input mb-3"
           :rules="rules"
-          v-model="taskText"
-          hide-details="auto"
-          flat
-          @change="onInputChange"
+          v-model="value.title"
+          hide-details
+          dense
+          solo
         />
+
+        <span class="label-span">Срок исполнения</span>
+        <el-date-picker
+          v-model="value.dateOfDeadline"
+          class="elevation-2 mb-3"
+          style="width: 100%"
+          type="datetime"
+          placeholder="Срок исполнения, до"
+        />
+
+        <span class="label-span">Исполнитель</span>
+        <v-combobox
+          label="Исполнитель"
+          v-model="value.executer"
+          item-value="id"
+          item-text="name"
+          :items="[{id: 34, name: 'Fedor'}]"
+          class="mb-3"
+          hide-details="auto"
+          solo
+        />
+
+        <v-radio-group
+          v-model="value.status"
+          row
+        >
+          <v-radio
+            label="Выполнена"
+            value="COMPLETE"
+          ></v-radio>
+          <v-radio
+            label="В процессе"
+            value="INCOMPLETE"
+          ></v-radio>
+        </v-radio-group>
       </v-card-text>
       <v-card-actions>
         <v-spacer/>
@@ -46,7 +83,8 @@
 
 <script>
 import ConfirmAlert from "./ConfirmAlert.vue";
-import {mapState} from "vuex";
+import {mapActions, mapState} from "vuex";
+import moment from "moment";
 
 export default {
   name: "UpdateDialog",
@@ -54,19 +92,16 @@ export default {
   props: {
     mutation: {
       type: String,
-      required: true,
     },
     fieldToUpdate: {
       type: String,
-      required: true
-    }
+    },
   },
+  inject: ['projectService'],
   data() {
     return {
-      taskId: '',
+      value: {},
       isDialogShown: false,
-      taskText: '',
-      variables: {input: {id: undefined}}
     }
   },
   computed: {
@@ -74,31 +109,39 @@ export default {
       rules: state => state.taskInputRules
     }),
     isConfirmButtonDisabled() {
-      return !!this.taskText && this.taskText.length >= 3;
+      return !!this.value.title && this.value.dateOfDeadline;
     }
   },
   methods: {
-    async onSubmit(mutate) {
+    ...mapActions(['updateTask']),
+    async onSubmit() {
       const isConfirmed = await this.$refs.confirmUpdateDialogue.show({
-        message: "Confirm update?"
+        message: "Сохранить изменения?"
       });
       if (isConfirmed) {
-        mutate();
-        this.closeDialog();
+        const valueToSend = {...this.value};
+        valueToSend.dateOfDeadline = moment(valueToSend.dateOfDeadline).format('DD.MM.yyyy HH:mm:ss');
+        this.projectService.editTask(this.$route.params.id, this.value.id, valueToSend).then((res) => {
+          this.closeDialog();
+          console.log(res)
+          this.updateTask(res);
+        })
       }
     },
     closeDialog() {
       this.isDialogShown = false;
     },
     openDialog(opts) {
-      this.taskText = opts.initialValue;
-      this.taskId = opts.taskId;
-      this.variables.input.id = this.taskId;
+      this.value = {...opts.task};
+      this.value.dateOfDeadline = moment(this.value.dateOfDeadline, 'DD.MM.yyyy HH:mm:ss');
       this.isDialogShown = true;
     },
-    onInputChange() {
-      this.variables.input[this.fieldToUpdate] = this.taskText;
-    }
   }
 }
 </script>
+
+<style scoped>
+.label-span {
+  font-size: 17px;
+}
+</style>

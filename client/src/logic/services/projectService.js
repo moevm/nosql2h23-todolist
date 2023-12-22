@@ -61,8 +61,8 @@ export default class ProjectService {
     return Api.removeTask(project_id, task_id);
   }
 
-  static async editTask(project_id, task_id) {
-    return Api.editTask(project_id, task_id);
+  static async editTask(project_id, task_id, data) {
+    return Api.editTask(project_id, task_id, data);
   }
 
   static async getAllTasks() {
@@ -89,7 +89,7 @@ export default class ProjectService {
     return Api.removeTask(project_id, task_id, subtask_id);
   }
 
-  static async editSubtask(project_id, task_id, subtask_id) {
-    return Api.editSubtask(project_id, task_id, subtask_id);
+  static async editSubtask(project_id, task_id, subtask_id, data) {
+    return Api.editSubtask(project_id, task_id, subtask_id, data);
   }
 }
