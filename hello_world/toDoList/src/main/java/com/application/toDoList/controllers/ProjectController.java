@@ -71,7 +71,7 @@ public class ProjectController {
     }
 
     @PatchMapping("/{project_id}")
-    public Project changeProject(@RequestBody @Valid ProjectDTO projectDTO,
+    public Project updateProject(@RequestBody @Valid ProjectDTO projectDTO,
                                  @PathVariable("project_id") String project_id,
                                  BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {

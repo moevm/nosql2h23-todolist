@@ -10,14 +10,9 @@ import javax.validation.constraints.NotNull;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ProjectDTO {
-    @NotNull
-    private String id;
+
     @NotNull
     private String name;
     private String status;
 
-    public ProjectDTO(String name, String status) {
-        this.name = name;
-        this.status = status;
-    }
 }

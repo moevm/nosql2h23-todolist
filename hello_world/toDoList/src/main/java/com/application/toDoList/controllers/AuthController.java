@@ -71,7 +71,7 @@ public class AuthController {
     public Map<String, Object> performLogin(@RequestBody @Valid AuthenticationDTO authenticationDTO,
                                             BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
-            return Collections.singletonMap("message", "Недостаточно данных при регистрации.");
+            return Collections.singletonMap("message", "Недостаточно данных при входе в аккаунт.");
         }
         UsernamePasswordAuthenticationToken authInputToken =
                 new UsernamePasswordAuthenticationToken(authenticationDTO.getUsername(),
@@ -79,7 +79,7 @@ public class AuthController {
         try {
             authenticationManager.authenticate(authInputToken);
         } catch (BadCredentialsException e) {
-            throw new BadCredentialsException("Incorrect credentials");
+            return Collections.singletonMap("message", "Некорректные данные (логин/пароль).");
         }
 
         String token = jwtUtil.generateToken(authenticationDTO.getUsername());
