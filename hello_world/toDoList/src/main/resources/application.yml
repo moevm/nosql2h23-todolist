@@ -2,7 +2,7 @@ spring:
   data:
     mongodb:
       #      for local work
-     uri: mongodb://localhost:27017
+     uri: mongodb://localhost:27017/ToDoListDemo
       #      for docker
     # uri: mongodb://mongodb/ToDoListDemo
 
