@@ -17,3 +17,11 @@
 <a href=" ./../../../actions/workflows/7_app_is_ready.yml" >![7. App is ready]( ./../../actions/workflows/7_app_is_ready.yml/badge.svg)</a>
 
 
+### Отладочные пользователи
+Админ:
+login: katy@gmail.com
+password: 77711
+
+Обычный пользователь:
+login: daria@gmail.com
+password: 82846
