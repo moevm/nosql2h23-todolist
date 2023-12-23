@@ -12,6 +12,9 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+
 @SpringBootApplication
 public class ToDoListApplication {
 
@@ -47,7 +50,7 @@ public class ToDoListApplication {
 			registrationService.register(Danil);
 			registrationService.register(Daria);
 
-			/*
+/*
 			String json = "[\n" +
 					"    {\n" +
 					"        \"id\": \"6586034502bf81310b2db2fe\",\n" +
@@ -164,10 +167,11 @@ public class ToDoListApplication {
 					"    }\n" +
 					"]\n";
 			byte[] bytes = json.getBytes();
-
 			InputStream inputStream = new ByteArrayInputStream(bytes);
 			databaseLoaderService.loadDataFromFile(inputStream);
-		*/
+
+ */
+
 		};
 
 	}

@@ -32,4 +32,14 @@ public class DatabaseLoaderService {
             e.printStackTrace();
         }
     }
+    public byte[] saveDataToJsonFile() {
+        try {
+            List<Project> projects = projectRepository.findAll();
+            ObjectMapper objectMapper = new ObjectMapper();
+            return objectMapper.writeValueAsString(projects).getBytes();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
 }

@@ -1,14 +1,13 @@
 package com.application.toDoList.controllers;
 
-import com.application.toDoList.domains.Person;
 import com.application.toDoList.services.DatabaseLoaderService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-
-import java.util.List;
 
 @CrossOrigin("*")
 @RestController
@@ -22,8 +21,12 @@ public class DatabaseLoaderController {
     }
 
     @GetMapping("/download")
-    public List<Person> download() {
-        return null;
+    public ResponseEntity<?> download() {
+        byte[] file = databaseLoaderService.saveDataToJsonFile();
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+        headers.setContentDispositionFormData("attachment", "ToDoList.txt");
+        return ResponseEntity.ok().headers(headers).body(file);
     }
 
     @PostMapping("/load")
