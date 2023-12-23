@@ -29,4 +29,14 @@ public class Task {
     private Person creator;
     private Person executer;
     private ArrayList<Subtask> subtasks;
+
+    public Task(String title, LocalDateTime dateOfCreation, LocalDateTime dateOfDeadline, TaskStatus status, Person creator, Person executer, ArrayList<Subtask> subtasks) {
+        this.title = title;
+        this.dateOfCreation = dateOfCreation;
+        this.dateOfDeadline = dateOfDeadline;
+        this.status = status;
+        this.creator = creator;
+        this.executer = executer;
+        this.subtasks = subtasks;
+    }
 }

@@ -18,4 +18,10 @@ public class Subtask {
     private String title;
     private LocalDateTime dateOfCreation;
     private Boolean status;
+
+    public Subtask(String title, LocalDateTime dateOfCreation, Boolean status) {
+        this.title = title;
+        this.dateOfCreation = dateOfCreation;
+        this.status = status;
+    }
 }

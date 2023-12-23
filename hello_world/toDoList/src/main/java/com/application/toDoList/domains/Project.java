@@ -24,7 +24,7 @@ public class Project {
     private ProjectStatus status;
     private Set<Person> executors;
     private ArrayList<Task> tasks;
-    private Logging log;
+//    private Logging log;
 
     public Project(String id, String name, ProjectStatus status) {
         this.id = id;
@@ -32,5 +32,12 @@ public class Project {
         this.status = status;
         this.executors = new HashSet<>();
         this.tasks = new ArrayList<>();
+    }
+
+    public Project(String name, ProjectStatus status, Set<Person> executors, ArrayList<Task> tasks) {
+        this.name = name;
+        this.status = status;
+        this.executors = executors;
+        this.tasks = tasks;
     }
 }

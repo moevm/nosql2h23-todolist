@@ -34,14 +34,10 @@ public class SubtaskController {
     }
 
     @PostMapping("/{project_id}/{task_id}/add-subtask")
-    public Task addNewSubtaskToTask(@PathVariable("project_id") String project_id,
+    public Subtask addNewSubtaskToTask(@PathVariable("project_id") String project_id,
                                                  @PathVariable("task_id") String task_id,
                                                  @RequestBody SubtaskToSave subtaskToSave) {
-        Subtask subtask = subtaskService.create(subtaskToSave);
-        Task task = taskService.addSubtaskToTask(task_id, subtask);
-        projectService.updateProject(project_id);
-
-        return task;
+        return subtaskService.create(project_id, task_id, subtaskToSave);
     }
 
     @PatchMapping("/{project_id}/{task_id}/{subtask_id}")
@@ -49,21 +45,17 @@ public class SubtaskController {
                                            @PathVariable("task_id") String task_id,
                                            @PathVariable("subtask_id") String subtask_id,
                                            @RequestBody SubtaskToUpdate subtaskToUpdate) {
-        Subtask subtask = subtaskService.updateSubtask(subtask_id, subtaskToUpdate);
-
-        taskService.updateTaskInDB(task_id);
-        projectService.updateProject(project_id);
+        Subtask subtask = subtaskService.updateSubtask(project_id, task_id, subtask_id, subtaskToUpdate);
 
         return subtask;
     }
 
     @DeleteMapping("/{project_id}/{task_id}/{subtask_id}")
-    public ResponseEntity<?> updateSubtask(@PathVariable("project_id") String project_id,
+    public ResponseEntity<?> deleteSubtask(@PathVariable("project_id") String project_id,
                                            @PathVariable("task_id") String task_id,
                                            @PathVariable("subtask_id") String subtask_id) {
 
-        taskService.deleteSubtask(task_id, subtask_id);
-        projectService.updateProject(project_id);
+        subtaskService.deleteSubtask(project_id, task_id, subtask_id);
 
         return ResponseEntity.ok(HttpStatus.OK);
     }
