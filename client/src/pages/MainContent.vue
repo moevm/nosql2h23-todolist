@@ -7,16 +7,31 @@
       <v-app-bar-nav-icon @click="onDrawerToggle"/>
       <v-app-bar-title>TODO App</v-app-bar-title>
       <v-spacer/>
-      <v-text-field
+      <v-combobox
           outlined
           filled
           rounded
           hide-details
+          :item-text="itemText"
+          item-value="id"
+          return-object
+          :search-input.sync="searchFilter"
           label="Сотрудник или проект"
           prepend-inner-icon="mdi-magnify"
+          :items="filteredData"
           dense
           style="max-width: 270px"
-      ></v-text-field>
+      >
+        <template v-slot:no-data>
+          <v-list-item>
+            <v-list-item-content>
+              <v-list-item-title>
+                Нет результатов для "<strong>{{ searchFilter }}</strong>".
+              </v-list-item-title>
+            </v-list-item-content>
+          </v-list-item>
+        </template>
+      </v-combobox>
       <DatabaseDialog/>
       <v-tooltip bottom>
         <template v-slot:activator="{ on, attrs }">
@@ -70,8 +85,16 @@ export default defineComponent({
   components: {DatabaseDialog, AppDrawer},
   data: () => ({
     drawerToggled: true,
+    searchFilter: '',
+    filteredData: [{
+      id: 1,
+      name: 'fsdgh',
+    }],
   }),
   methods: {
+    itemText(item) {
+      return item.surname ?  `${item.name} ${item.surname}` : item.name;
+    },
     onDrawerToggle(){
       this.drawerToggled = !this.drawerToggled;
     },

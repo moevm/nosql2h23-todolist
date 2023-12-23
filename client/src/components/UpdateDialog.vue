@@ -33,13 +33,15 @@
         <span class="label-span">Исполнитель</span>
         <v-combobox
           label="Исполнитель"
-          v-model="value.executer"
+          :value="value.executer"
+          :item-text="(item) => item.name + ' ' + item.surname"
           item-value="id"
-          item-text="name"
-          :items="[{id: 34, name: 'Fedor'}]"
+          :items="$store.state.persons"
           class="mb-3"
           hide-details="auto"
+          return-object
           solo
+          @input="(val) => this.executer = val"
         />
 
         <v-radio-group
@@ -102,6 +104,7 @@ export default {
     return {
       value: {},
       isDialogShown: false,
+      executer: {},
     }
   },
   computed: {
@@ -119,12 +122,11 @@ export default {
         message: "Сохранить изменения?"
       });
       if (isConfirmed) {
-        const valueToSend = {...this.value};
+        const valueToSend = {...this.value, executer: {...this.executer}};
         valueToSend.dateOfDeadline = moment(valueToSend.dateOfDeadline).format('DD.MM.yyyy HH:mm:ss');
-        this.projectService.editTask(this.$route.params.id, this.value.id, valueToSend).then((res) => {
+        this.projectService.editTask(this.$route.params.id, this.value.id, valueToSend).then(() => {
           this.closeDialog();
-          console.log(res)
-          this.updateTask(res);
+          this.updateTask(this.$route.params.id);
         })
       }
     },
@@ -133,6 +135,7 @@ export default {
     },
     openDialog(opts) {
       this.value = {...opts.task};
+      this.executer = {...opts.task.executer};
       this.value.dateOfDeadline = moment(this.value.dateOfDeadline, 'DD.MM.yyyy HH:mm:ss');
       this.isDialogShown = true;
     },

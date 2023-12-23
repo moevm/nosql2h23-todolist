@@ -31,11 +31,15 @@ export default new Vuex.Store({
     },
     projects: [],
     activeProject: {},
+    persons: [],
   },
   getters: {
     project: state => state.activeProject,
   },
   mutations: {
+    setPersons(state, persons) {
+      state.persons = [...persons];
+    },
     setUser(state, user) {
       state.user = user;
       state.userRole = user.role === 'ROLE_ADMIN' ? 'admin' : 'user';
@@ -54,6 +58,9 @@ export default new Vuex.Store({
     },
     setActiveProject(state, project) {
       state.activeProject = {...project};
+    },
+    setActiveProjectById(state, project_id) {
+      state.activeProject = {...state.projects.find((el) => el.id === project_id)};
     },
     addTask(state, task) {
       state.activeProject.tasks.push(task);
@@ -82,9 +89,13 @@ export default new Vuex.Store({
       await service.getAllProjects().then((res) => commit('setProjects', res)).catch((e) => console.log(e));
       commit('removeTask', task_id);
     },
-    updateTask: async ({ commit }, task) => {
+    updateTask: async ({ commit }, project_id) => {
       await service.getAllProjects().then((res) => commit('setProjects', res)).catch((e) => console.log(e));
-      commit('editTask', task);
+      commit('setActiveProjectById', project_id);
+    },
+    addSubTask: async ({ commit }, project_id) => {
+      await service.getAllProjects().then((res) => commit('setProjects', res)).catch((e) => console.log(e));
+      commit('setActiveProjectById', project_id);
     },
   },
   modules: {

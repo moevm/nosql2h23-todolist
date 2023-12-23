@@ -113,8 +113,12 @@
         </v-menu>
         <v-select
           v-if="$store.state.userRole === 'admin'"
-          :items="items"
+          v-model="personToFilter"
+          :items="$store.state.persons"
+          item-value="id"
+          :item-text="(item) => item.name + ' ' + item.surname"
           label="Сотрудник"
+          return-object
           dense
           solo
           hide-details
@@ -159,7 +163,8 @@ export default {
           name: 'Иван',
           surname: 'Иванов',
         }
-      ]
+      ],
+      personToFilter: {},
     }
   },
   computed: {

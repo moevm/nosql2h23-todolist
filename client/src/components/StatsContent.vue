@@ -4,8 +4,9 @@
     <v-row class="mb-2">
       <v-col>
         <v-combobox
-            v-model="projects"
-            :items="items"
+            v-model="projectsToFilter"
+            :items="$store.state.projects"
+            item-text="name"
             :search-input.sync="search"
             prepend-inner-icon="mdi-magnify"
             clearable
@@ -20,12 +21,15 @@
       </v-col>
       <v-col v-if="$store.state.userRole === 'admin'">
         <v-select
-            v-model="sortBy"
+            v-model="personToFilter"
+            :item-text="(item) => item.name + ' ' + item.surname"
+            item-value="id"
             hide-details
             clearable
             solo
             dense
-            :items="keys"
+            return-object
+            :items="$store.state.persons"
             prepend-inner-icon="mdi-magnify"
             label="Сотрудник"
         ></v-select>
@@ -115,7 +119,7 @@ export default defineComponent({
   },
   data() {
     return {
-      projects: [],
+      projectsToFilter: [],
       items: ['Проект 1', 'Проект 2', 'Проект 3', 'Проект 4'],
       search: '',
       sortBy: 'name',
@@ -154,9 +158,10 @@ export default defineComponent({
       chartOptions: {
         responsive: true,
         maintainAspectRatio: false
-      }
+      },
+      personToFilter: {},
     }
-  }
+  },
 })
 </script>
 

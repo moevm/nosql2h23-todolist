@@ -74,7 +74,7 @@
             >
               <template v-slot:append>
                 <v-icon
-                  @click="onSubmit('SubTask added successfully!')"
+                  @click="onSubmit()"
                   :disabled="!isInputValid"
                   :color="inputStateColor"
                 >
@@ -113,6 +113,7 @@ export default {
       default: () => [],
     },
   },
+  inject: ['projectService'],
   data() {
     return {
       newSubTask: '',
@@ -123,14 +124,19 @@ export default {
       hideAlert: "hideAlert",
       showAlert: "showAlert"
     }),
-    async onSubmit(mutate, alertMessage) {
+    ...mapActions(['addSubTask']),
+    async onSubmit() {
       await this.hideAlert();
       const isConfirmed = await this.$refs.confirmDeletingSubTaskAlert.show({
-        message: "Are you sure?"
+        message: "Создать подзадачу?"
       });
       if (isConfirmed) {
-        mutate();
-        await this.showAlert({message: alertMessage});
+        const newSubTask = {
+          title: this.newSubTask,
+        };
+        this.projectService.addNewSubtask(this.$route.params.id, this.taskId, newSubTask).then(() => {
+          this.addSubTask(this.$route.params.id);
+        }).catch(() => this.showAlert({message: 'Не удалось создать подзадачу', type: 'error'}))
       }
     },
     filteredData(data) {
@@ -149,26 +155,6 @@ export default {
         completed: task.completed
       })
     },
-    onSubTaskAdded(previousResult, {subscriptionData}) {
-      if (subscriptionData.data.subTaskAdded.taskID === this.taskId) {
-        return {
-          subTasks: [...previousResult.subTasks, subscriptionData.data.subTaskAdded],
-        }
-      } else {
-        return {
-          subTasks: [...previousResult.subTasks]
-        }
-      }
-
-    },
-    onSubTaskDeleted(previousResult, {subscriptionData}) {
-      previousResult.subTasks = previousResult.subTasks.filter((subTask) => {
-        return subTask.id !== subscriptionData.data.subTaskDeleted.id;
-      });
-      return {
-        subTasks: [...previousResult.subTasks],
-      }
-    }
   },
   computed: {
     ...mapState(['currentFilter']),

@@ -42,6 +42,23 @@ export default class Api {
     }).then((res) => res.json());
   }
 
+  // РАБОТА С ПОЛЬЗОВАТЕЛЯМИ
+  static getPersons() {
+    return fetch(`${this.baseUrl}/person/all`, {
+      method: 'GET',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+        Authorization: getAuthHeader(),
+      },
+    }).then((response) => {
+      if (response.status !== 200) {
+        return Promise.reject(new Error(`${response.status} ${response.statusText}`));
+      }
+      return Promise.resolve(response);
+    }).then((res) => res.json());
+  }
+
   // РАБОТА С ПРОЕКТАМИ
   static getAllProjects() {
     return fetch(`${this.baseUrl}/project/all`, {

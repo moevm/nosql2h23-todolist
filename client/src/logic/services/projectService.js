@@ -11,6 +11,11 @@ export default class ProjectService {
     return Api.register(data);
   }
 
+  // РАБОТА С ПОЛЬЗОВАТЕЛЯМИ
+  static async getPersons() {
+    return Api.getPersons();
+  }
+
   // РАБОТА С ПРОЕКТАМИ
   static async getAllProjects() {
     return Api.getAllProjects();

@@ -11,26 +11,31 @@
           Создать новую задачу
         </v-card-title>
         <v-card-text>
+          <span class="label-span">Описание</span>
           <v-text-field
             label="Task description"
-            class="task-input mb-2"
+            class="task-input mb-3 mt-1"
             :rules="rules"
             v-model="newTask"
             hide-details="auto"
             dense
             solo
           />
+
+          <span class="label-span">Срок исполнения</span>
           <el-date-picker
             v-model="date"
-            class="elevation-2 mb-2"
+            class="elevation-2 mb-3 mt-1"
             style="width: 100%"
             type="datetime"
             placeholder="Срок исполнения, до"
           />
 
+          <span class="label-span">Исполнитель</span>
           <v-combobox
             label="Исполнитель"
             v-model="executerId"
+            class="mt-1"
             :items="['asd']"
             hide-details="auto"
             solo
