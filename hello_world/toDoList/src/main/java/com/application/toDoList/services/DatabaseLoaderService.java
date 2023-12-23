@@ -9,9 +9,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
 import java.util.List;
-import java.util.zip.DataFormatException;
 
 @Service
 public class DatabaseLoaderService {
@@ -29,29 +27,27 @@ public class DatabaseLoaderService {
         this.subtaskRepository = subtaskRepository;
     }
 
-    public void loadDataFromFile(byte[] file) throws DataFormatException {
-        try {
-            // Используем ObjectMapper для чтения JSON из файла
-            ObjectMapper objectMapper = new ObjectMapper();
-            List<Project> projects = List.of(objectMapper.readValue(file, Project[].class));
+    public void loadDataFromFile(List<Project> projects) {
+            if (projects == null) return;
             projectRepository.saveAll(projects);
-
             projects.forEach(project -> {
-                project.getExecutors().forEach(person -> {
-                    if (personRepository.findByEmail(person.getEmail()).isEmpty())
-                        personRepository.save(person);
-                });
-                taskRepository.saveAll(project.getTasks());
-                project.getTasks().forEach(task -> {
-                    subtaskRepository.saveAll(task.getSubtasks());
-                });
+                if (project.getExecutors() != null){
+                    project.getExecutors().forEach(person -> {
+                        if (personRepository.findByEmail(person.getEmail()).isEmpty())
+                            personRepository.save(person);
+                    });
+                }
+                if (project.getTasks() != null){
+                    taskRepository.saveAll(project.getTasks());
+                    project.getTasks().forEach(task -> {
+                        subtaskRepository.saveAll(task.getSubtasks());
+                    });
+                }
+
             });
 
             // Сохраняем данные в базу данных
             projectRepository.saveAll(projects);
-        } catch (IOException e) {
-            throw new DataFormatException("Неподходящий формат хранения данных.");
-        }
     }
     public byte[] saveDataToJsonFile() {
         try {
