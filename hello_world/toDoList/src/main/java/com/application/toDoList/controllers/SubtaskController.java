@@ -1,7 +1,6 @@
 package com.application.toDoList.controllers;
 
 import com.application.toDoList.domains.Subtask;
-import com.application.toDoList.domains.Task;
 import com.application.toDoList.dto.SubtaskToSave;
 import com.application.toDoList.dto.SubtaskToUpdate;
 import com.application.toDoList.services.ProjectService;
