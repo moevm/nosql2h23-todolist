@@ -10,7 +10,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.List;
 import java.util.zip.DataFormatException;
 
@@ -30,11 +29,11 @@ public class DatabaseLoaderService {
         this.subtaskRepository = subtaskRepository;
     }
 
-    public void loadDataFromFile(InputStream inputStream) throws DataFormatException {
+    public void loadDataFromFile(byte[] file) throws DataFormatException {
         try {
             // Используем ObjectMapper для чтения JSON из файла
             ObjectMapper objectMapper = new ObjectMapper();
-            List<Project> projects = List.of(objectMapper.readValue(inputStream, Project[].class));
+            List<Project> projects = List.of(objectMapper.readValue(file, Project[].class));
             projectRepository.saveAll(projects);
 
             projects.forEach(project -> {

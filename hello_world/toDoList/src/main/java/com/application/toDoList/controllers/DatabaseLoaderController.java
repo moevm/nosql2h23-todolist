@@ -1,5 +1,7 @@
 package com.application.toDoList.controllers;
 
+import com.application.toDoList.domains.FileEntity;
+import com.application.toDoList.domains.FileRequest;
 import com.application.toDoList.services.DatabaseLoaderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -7,7 +9,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 @CrossOrigin("*")
 @RestController
@@ -30,12 +31,14 @@ public class DatabaseLoaderController {
     }
 
     @PostMapping("/load")
-    public ResponseEntity<HttpStatus> uploadFile(@RequestParam("file") MultipartFile file) {
-        if (file.isEmpty()) {
+    public ResponseEntity<HttpStatus> uploadFile(@RequestBody FileRequest fileRequest) {
+        FileEntity fileEntity = fileRequest.getFile();
+        byte[] file = fileEntity.getFileContent();
+        if (file == null) {
             return ResponseEntity.badRequest().build();
         }
         try {
-            databaseLoaderService.loadDataFromFile(file.getInputStream());
+            databaseLoaderService.loadDataFromFile(file);
             return ResponseEntity.ok(HttpStatus.OK);
         } catch (Exception e) {
             e.printStackTrace();

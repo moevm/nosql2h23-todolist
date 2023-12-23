@@ -5,7 +5,6 @@ import com.application.toDoList.domains.Subtask;
 import com.application.toDoList.domains.Task;
 import com.application.toDoList.dto.SubtaskToSave;
 import com.application.toDoList.dto.SubtaskToUpdate;
-import com.application.toDoList.enums.TaskStatus;
 import com.application.toDoList.exceptions.ProjectNotFoundException;
 import com.application.toDoList.exceptions.SubtaskNotFoundException;
 import com.application.toDoList.exceptions.TaskNotFoundException;

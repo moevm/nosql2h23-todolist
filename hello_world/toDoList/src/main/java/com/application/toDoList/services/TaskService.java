@@ -9,7 +9,6 @@ import com.application.toDoList.dto.TaskToUpdate;
 import com.application.toDoList.enums.TaskStatus;
 import com.application.toDoList.exceptions.PersonNotFoundException;
 import com.application.toDoList.exceptions.ProjectNotFoundException;
-import com.application.toDoList.exceptions.SubtaskNotFoundException;
 import com.application.toDoList.exceptions.TaskNotFoundException;
 import com.application.toDoList.repositories.PersonRepository;
 import com.application.toDoList.repositories.ProjectRepository;
