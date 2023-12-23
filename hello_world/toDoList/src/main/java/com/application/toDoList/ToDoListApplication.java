@@ -12,9 +12,6 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-
 @SpringBootApplication
 public class ToDoListApplication {
 
