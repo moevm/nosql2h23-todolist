@@ -1,14 +1,17 @@
 package com.application.toDoList.controllers;
 
-import com.application.toDoList.domains.FileEntity;
-import com.application.toDoList.domains.FileRequest;
+import com.application.toDoList.domains.Project;
 import com.application.toDoList.services.DatabaseLoaderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+
+import javax.validation.Valid;
+import java.util.List;
 
 @CrossOrigin("*")
 @RestController
@@ -31,19 +34,13 @@ public class DatabaseLoaderController {
     }
 
     @PostMapping("/load")
-    public ResponseEntity<HttpStatus> uploadFile(@RequestBody FileRequest fileRequest) {
-        FileEntity fileEntity = fileRequest.getFile();
-        byte[] file = fileEntity.getFileContent();
-        if (file == null) {
-            return ResponseEntity.badRequest().build();
+    public ResponseEntity<HttpStatus> uploadFile(@RequestBody @Valid List<Project> projects,
+                                                 BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            throw new IllegalArgumentException("Данные не соответствуют формату.");
         }
-        try {
-            databaseLoaderService.loadDataFromFile(file);
+        databaseLoaderService.loadDataFromFile(projects);
             return ResponseEntity.ok(HttpStatus.OK);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
     }
 
 }
