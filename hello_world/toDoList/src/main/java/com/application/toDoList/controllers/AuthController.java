@@ -3,6 +3,7 @@ package com.application.toDoList.controllers;
 import com.application.toDoList.domains.Person;
 import com.application.toDoList.dto.AuthenticationDTO;
 import com.application.toDoList.dto.PersonDTO;
+import com.application.toDoList.exceptions.EmailValidationException;
 import com.application.toDoList.security.JWTUtil;
 import com.application.toDoList.security.PersonValidator;
 import com.application.toDoList.services.PersonService;
@@ -15,6 +16,8 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
+import javax.mail.internet.AddressException;
+import javax.mail.internet.InternetAddress;
 import javax.validation.Valid;
 import java.util.Collections;
 import java.util.HashMap;
@@ -49,6 +52,12 @@ public class AuthController {
                                                    BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             return Collections.singletonMap("message", "Недостаточно данных при регистрации.");
+        }
+        try {
+            InternetAddress internetAddress = new InternetAddress(personDTO.getEmail());
+            internetAddress.validate();
+        } catch (AddressException e) {
+            throw new EmailValidationException();
         }
 
         Person person = convertToPerson(personDTO);

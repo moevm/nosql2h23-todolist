@@ -39,6 +39,11 @@ public class AwesomeExceptionHandler extends ResponseEntityExceptionHandler {
         return new ResponseEntity<>(new AwesomeException("Задачи не существует."), HttpStatus.NOT_FOUND);
     }
 
+    @ExceptionHandler(EmailValidationException.class)
+    protected ResponseEntity<AwesomeException> handleEmailValidationException() {
+        return new ResponseEntity<>(new AwesomeException("Email не соответствует формату электронной почты."), HttpStatus.NOT_FOUND);
+    }
+
     @ExceptionHandler(BadCredentialsException.class)
     protected ResponseEntity<AwesomeException> handleBadCredentialsException() {
         return new ResponseEntity<>(new AwesomeException("Неверные данные (логин или пароль)."), HttpStatus.NOT_FOUND);
