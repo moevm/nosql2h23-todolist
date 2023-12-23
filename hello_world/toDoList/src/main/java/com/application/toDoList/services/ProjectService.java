@@ -78,22 +78,6 @@ public class ProjectService {
         throw new PersonNotInProjectException();
     }
 
-    public Task addTask(String task_id, String project_id) {
-        if (taskRepository.findById(task_id).isEmpty())
-            throw new TaskNotFoundException();
-
-        if(projectRepository.findById(project_id).isEmpty())
-            throw new ProjectNotFoundException();
-
-        Project project = projectRepository.findById(project_id).get();
-        Task task = taskRepository.findById(task_id).get();
-
-        project.getTasks().add(task);
-        projectRepository.save(project);
-
-        return task;
-    }
-
     public void deleteTask(String task_id, String project_id) {
         if (taskRepository.findById(task_id).isEmpty())
             throw new TaskNotFoundException();
@@ -105,6 +89,7 @@ public class ProjectService {
         Task task = taskRepository.findById(task_id).get();
 
         project.getTasks().remove(task);
+        taskRepository.delete(task);
         projectRepository.save(project);
     }
 
@@ -115,22 +100,13 @@ public class ProjectService {
         return projectRepository.findById(project_id).get().getTasks();
     }
 
-//    public List<Task> findAllIncompleteTasks(String project_id) {
-//        if(projectRepository.findById(project_id).isEmpty())
-//            throw new ProjectNotFoundException();
-//
-//        Project project = projectRepository.findById(project_id).get();
-//
-//        Bson filter = Filters.eq("")
-//
-//        return .getTasks();
-//    }
-
     public Person addPerson(String project_id, String person_id) {
         Project project = this.findById(project_id);
         if (personRepository.findById(person_id).isPresent()) {
             Person person = personRepository.findById(person_id).get();
             project.getExecutors().add(person);
+
+            projectRepository.save(project);
             return person;
         }
         throw new PersonNotFoundException();
@@ -141,6 +117,7 @@ public class ProjectService {
         if (personRepository.findById(person_id).isPresent()) {
             Person person = personRepository.findById(person_id).get();
             project.getExecutors().remove(person);
+            projectRepository.save(project);
         }
         throw new PersonNotFoundException();
     }
@@ -164,15 +141,6 @@ public class ProjectService {
         Optional<Project> foundProject = projectRepository.findByName(name);
         return this.findCheck(foundProject);
 
-    }
-
-    public void updateProject(String projectId) {
-        if(projectRepository.findById(projectId).isEmpty())
-            throw new ProjectNotFoundException();
-
-        Project project = projectRepository.findById(projectId).get();
-
-        projectRepository.save(project);
     }
 
     public void nameException(String name) {

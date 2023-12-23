@@ -32,4 +32,11 @@ public class Project {
         this.executors = new HashSet<>();
         this.tasks = new ArrayList<>();
     }
+
+    public Project(String name, ProjectStatus status, Set<Person> executors, ArrayList<Task> tasks) {
+        this.name = name;
+        this.status = status;
+        this.executors = executors;
+        this.tasks = tasks;
+    }
 }

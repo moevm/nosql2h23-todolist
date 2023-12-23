@@ -5,15 +5,20 @@ import com.application.toDoList.domains.Task;
 import com.application.toDoList.dto.SubtaskToSave;
 import com.application.toDoList.dto.TaskToSave;
 import com.application.toDoList.dto.TaskToUpdate;
+import com.application.toDoList.security.PersonDetails;
+import com.application.toDoList.services.PersonService;
 import com.application.toDoList.services.ProjectService;
 import com.application.toDoList.services.SubtaskService;
 import com.application.toDoList.services.TaskService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Objects;
 
 @CrossOrigin("*")
 @RestController
@@ -23,6 +28,7 @@ public class TaskController {
     private final TaskService taskService;
     private final SubtaskService subtaskService;
     private final ProjectService projectService;
+    private final PersonService personService;
 
 
     /**
@@ -37,20 +43,40 @@ public class TaskController {
 
     @GetMapping("/all")
     public List<Task> findAll() {
-        return taskService.findAll();
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        PersonDetails personDetails = (PersonDetails) authentication.getPrincipal();
+
+        if (Objects.equals(personService.findEmail(personDetails.getUsername()).getRole(), "ROLE_ADMIN")) {
+            return taskService.findAll();
+        }
+
+        return taskService.findAllForPerson(personService.findEmail(personDetails.getUsername()).getId());
     }
 
-    @PostMapping("/save-task")
-    public Task saveNewTask(@RequestBody TaskToSave taskToSave) {
-        return taskService.create(taskToSave);
+    @GetMapping("/all/{project_id}")
+    public List<Task> findAllForPersonForProject(@PathVariable("project_id") String project_id) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        PersonDetails personDetails = (PersonDetails) authentication.getPrincipal();
+
+        return  taskService.findAllTasksForPersonForProject(personService.
+                findEmail(personDetails.getUsername()).getId(),
+                project_id);
+    }
+
+    @GetMapping("/{person_id}")
+    public List<Task> findAllForPerson(@PathVariable("person_id") String person_id) {
+        return taskService.findAllForPerson(person_id);
     }
 
     @PostMapping("/{project_id}")
     public Task addTaskToProject(@RequestBody TaskToSave taskToSave,
                                  @PathVariable("project_id") String project_id) {
-        Task newTask = taskService.create(taskToSave);
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        PersonDetails personDetails = (PersonDetails) authentication.getPrincipal();
 
-        return projectService.addTask(newTask.getId(), project_id);
+        String person_id = personService.findEmail(personDetails.getUsername()).getId();
+
+        return taskService.create(taskToSave, project_id, person_id);
     }
 
     @GetMapping("/{taskId}")
@@ -65,20 +91,11 @@ public class TaskController {
         return ResponseEntity.ok(HttpStatus.OK);
     }
 
-    @PostMapping("/add-subtask")
-    public Task addNewSubtaskToTask(@RequestBody SubtaskToSave subtaskToSave) {
-        Subtask subtask = subtaskService.create(subtaskToSave);
-        Task task = taskService.addSubtaskToTask(subtaskToSave.getTaskId(), subtask);
-        return task;
-    }
-
     @PatchMapping ("/{project_id}/{task_id}")
     public Task updateTask(@PathVariable("project_id") String project_id,
                            @PathVariable("task_id") String task_id,
                            @RequestBody TaskToUpdate taskToUpdate) {
-        Task existingTask = taskService.updateTask(task_id, taskToUpdate);
 
-        projectService.updateProject(project_id);
-        return existingTask;
+        return taskService.updateTask(task_id, project_id, taskToUpdate);
     }
 }

@@ -7,6 +7,8 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class SubtaskToSave {
-    private String title;
+public class StatsForEachProject {
+    private String projectName;
+    private int incomplete;
+    private int complete;
 }

@@ -26,4 +26,10 @@ public class Subtask {
     @JsonFormat(pattern = "dd.MM.yyyy HH:mm:ss")
     private LocalDateTime dateOfCreation;
     private Boolean status;
+
+    public Subtask(String title, LocalDateTime dateOfCreation, Boolean status) {
+        this.title = title;
+        this.dateOfCreation = dateOfCreation;
+        this.status = status;
+    }
 }
