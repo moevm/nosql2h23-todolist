@@ -2,14 +2,7 @@ package com.application.toDoList;
 
 
 import com.application.toDoList.domains.Person;
-import com.application.toDoList.domains.Project;
-import com.application.toDoList.domains.Subtask;
-import com.application.toDoList.domains.Task;
-import com.application.toDoList.enums.ProjectStatus;
-import com.application.toDoList.enums.TaskStatus;
-import com.application.toDoList.repositories.ProjectRepository;
-import com.application.toDoList.repositories.SubtaskRepository;
-import com.application.toDoList.repositories.TaskRepository;
+import com.application.toDoList.services.DatabaseLoaderService;
 import com.application.toDoList.services.ProjectService;
 import com.application.toDoList.services.RegistrationService;
 import com.application.toDoList.services.TaskService;
@@ -18,12 +11,6 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
-
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 
 @SpringBootApplication
 public class ToDoListApplication {
@@ -39,8 +26,8 @@ public class ToDoListApplication {
 	}
 
 	@Bean
-	CommandLineRunner run(RegistrationService registrationService, ProjectRepository projectRepository,
-						  TaskRepository taskRepository, SubtaskRepository subtaskRepository){
+	CommandLineRunner run(RegistrationService registrationService, TaskService taskService, ProjectService projectService,
+						  DatabaseLoaderService databaseLoaderService){
 
 		return args -> {
 			Person Nataly = new Person("Наталья", "Евгенина", "nataly@gmail.com", "1234");
@@ -60,53 +47,129 @@ public class ToDoListApplication {
 			registrationService.register(Danil);
 			registrationService.register(Daria);
 
-			Subtask SubtaskForCalc1 = new Subtask("Подсчет бумажек", LocalDateTime.now(), false);
-			Subtask SubtaskForCalc2 = new Subtask("Подсчет расходов", LocalDateTime.now(), true);
-			Subtask SubtaskForCalc3 = new Subtask("Подписать документы", LocalDateTime.now(), false);
-//			subtaskRepository.save(SubtaskForCalc1);
-//			subtaskRepository.save(SubtaskForCalc2);
-//			subtaskRepository.save(SubtaskForCalc3);
-			ArrayList<Subtask> subtaskForCal = new ArrayList<>();
-			subtaskForCal.add(SubtaskForCalc1);
-			subtaskForCal.add(SubtaskForCalc2);
-			subtaskForCal.add(SubtaskForCalc3);
+/*
+			String json = "[\n" +
+					"    {\n" +
+					"        \"id\": \"6586034502bf81310b2db2fe\",\n" +
+					"        \"name\": \"Эконом\",\n" +
+					"        \"status\": \"IN_PROGRESS\",\n" +
+					"        \"executors\": [\n" +
+					"            {\n" +
+					"                \"id\": null,\n" +
+					"                \"name\": \"Екатерина\",\n" +
+					"                \"surname\": \"Смирнова\",\n" +
+					"                \"email\": \"katy@gmail.com\",\n" +
+					"                \"password\": \"$2a$10$cggRyKQw3B5LhavYbyjuJuO7Tr1oczFseBF301g6L5cka29Fm4rq6\",\n" +
+					"                \"role\": \"ROLE_ADMIN\"\n" +
+					"            },\n" +
+					"            {\n" +
+					"                \"id\": null,\n" +
+					"                \"name\": \"Дарья\",\n" +
+					"                \"surname\": \"Потомова\",\n" +
+					"                \"email\": \"daria@gmail.com\",\n" +
+					"                \"password\": \"$2a$10$bWOkf9LtR3Bm43EfXbDveOnIjqhpK0Obxf5/KU6Bx3mw5mCPbndeK\",\n" +
+					"                \"role\": \"ROLE_USER\"\n" +
+					"            },\n" +
+					"            {\n" +
+					"                \"id\": null,\n" +
+					"                \"name\": \"Ксения\",\n" +
+					"                \"surname\": \"Львова\",\n" +
+					"                \"email\": \"xeniaL@gmail.com\",\n" +
+					"                \"password\": \"$2a$10$eal.kDdWh.QJwp8uFSSsCOWXUoHHaBd2wdj/OARcGZTLJDyuu8GU2\",\n" +
+					"                \"role\": \"ROLE_USER\"\n" +
+					"            }\n" +
+					"        ],\n" +
+					"        \"tasks\": [\n" +
+					"            {\n" +
+					"                \"id\": \"6586034502bf81310b2db2fc\",\n" +
+					"                \"title\": \"Подсчитать затраты\",\n" +
+					"                \"dateOfCreation\": \"23.12.2023 00:44:37\",\n" +
+					"                \"dateOfDeadline\": \"23.11.2023 11:30:46\",\n" +
+					"                \"status\": \"INCOMPLETE\",\n" +
+					"                \"creator\": {\n" +
+					"                    \"id\": null,\n" +
+					"                    \"name\": \"Екатерина\",\n" +
+					"                    \"surname\": \"Смирнова\",\n" +
+					"                    \"email\": \"katy@gmail.com\",\n" +
+					"                    \"password\": \"$2a$10$cggRyKQw3B5LhavYbyjuJuO7Tr1oczFseBF301g6L5cka29Fm4rq6\",\n" +
+					"                    \"role\": \"ROLE_ADMIN\"\n" +
+					"                },\n" +
+					"                \"executer\": {\n" +
+					"                    \"id\": null,\n" +
+					"                    \"name\": \"Ксения\",\n" +
+					"                    \"surname\": \"Львова\",\n" +
+					"                    \"email\": \"xeniaL@gmail.com\",\n" +
+					"                    \"password\": \"$2a$10$eal.kDdWh.QJwp8uFSSsCOWXUoHHaBd2wdj/OARcGZTLJDyuu8GU2\",\n" +
+					"                    \"role\": \"ROLE_USER\"\n" +
+					"                },\n" +
+					"                \"subtasks\": [\n" +
+					"                    {\n" +
+					"                        \"id\": \"6586034502bf81310b2db2f7\",\n" +
+					"                        \"title\": \"Подсчет бумажек\",\n" +
+					"                        \"dateOfCreation\": \"23.12.2023 00:44:37\",\n" +
+					"                        \"status\": false\n" +
+					"                    },\n" +
+					"                    {\n" +
+					"                        \"id\": \"6586034502bf81310b2db2f8\",\n" +
+					"                        \"title\": \"Подсчет расходов\",\n" +
+					"                        \"dateOfCreation\": \"23.12.2023 00:44:37\",\n" +
+					"                        \"status\": true\n" +
+					"                    },\n" +
+					"                    {\n" +
+					"                        \"id\": \"6586034502bf81310b2db2f9\",\n" +
+					"                        \"title\": \"Подписать документы\",\n" +
+					"                        \"dateOfCreation\": \"23.12.2023 00:44:37\",\n" +
+					"                        \"status\": false\n" +
+					"                    }\n" +
+					"                ]\n" +
+					"            },\n" +
+					"            {\n" +
+					"                \"id\": \"6586034502bf81310b2db2fd\",\n" +
+					"                \"title\": \"Подключить скрипт\",\n" +
+					"                \"dateOfCreation\": \"23.12.2023 00:44:37\",\n" +
+					"                \"dateOfDeadline\": \"23.12.2023 11:30:46\",\n" +
+					"                \"status\": \"INCOMPLETE\",\n" +
+					"                \"creator\": {\n" +
+					"                    \"id\": null,\n" +
+					"                    \"name\": \"Екатерина\",\n" +
+					"                    \"surname\": \"Смирнова\",\n" +
+					"                    \"email\": \"katy@gmail.com\",\n" +
+					"                    \"password\": \"$2a$10$cggRyKQw3B5LhavYbyjuJuO7Tr1oczFseBF301g6L5cka29Fm4rq6\",\n" +
+					"                    \"role\": \"ROLE_ADMIN\"\n" +
+					"                },\n" +
+					"                \"executer\": {\n" +
+					"                    \"id\": null,\n" +
+					"                    \"name\": \"Дарья\",\n" +
+					"                    \"surname\": \"Потомова\",\n" +
+					"                    \"email\": \"daria@gmail.com\",\n" +
+					"                    \"password\": \"$2a$10$bWOkf9LtR3Bm43EfXbDveOnIjqhpK0Obxf5/KU6Bx3mw5mCPbndeK\",\n" +
+					"                    \"role\": \"ROLE_USER\"\n" +
+					"                },\n" +
+					"                \"subtasks\": [\n" +
+					"                    {\n" +
+					"                        \"id\": \"6586034502bf81310b2db2fa\",\n" +
+					"                        \"title\": \"Инициализировать проект\",\n" +
+					"                        \"dateOfCreation\": \"23.12.2023 00:44:37\",\n" +
+					"                        \"status\": true\n" +
+					"                    },\n" +
+					"                    {\n" +
+					"                        \"id\": \"6586034502bf81310b2db2fb\",\n" +
+					"                        \"title\": \"Настроить сервер\",\n" +
+					"                        \"dateOfCreation\": \"23.12.2023 00:44:37\",\n" +
+					"                        \"status\": false\n" +
+					"                    }\n" +
+					"                ]\n" +
+					"            }\n" +
+					"        ]\n" +
+					"    }\n" +
+					"]\n";
+			byte[] bytes = json.getBytes();
+			InputStream inputStream = new ByteArrayInputStream(bytes);
+			databaseLoaderService.loadDataFromFile(inputStream);
 
-			Subtask SubtaskForCoding1 = new Subtask("Инициализировать проект", LocalDateTime.now(), true);
-			Subtask SubtaskForCoding2 = new Subtask("Настроить сервер", LocalDateTime.now(), false);
-//			subtaskRepository.save(SubtaskForCoding1);
-//			subtaskRepository.save(SubtaskForCoding2);
-			ArrayList<Subtask> subtaskForCoding = new ArrayList<>();
-			subtaskForCoding.add(SubtaskForCoding1);
-			subtaskForCoding.add(SubtaskForCoding2);
+ */
 
-
-//			Subtask SubtaskForFlight1 = new Subtask("Написать метод подсчетов", LocalDateTime.now(), false);
-//			Subtask SubtaskForFlight2 = new Subtask("Протестировать метод", LocalDateTime.now(), false);
-//
-//			Subtask SubtaskForFlight3 = new Subtask("Сделать интерактив карты", LocalDateTime.now(), false);
-//			Subtask SubtaskForFlight4 = new Subtask("Обеспечить подключение к БД", LocalDateTime.now(), false);
-
-			Task TaskForCalc = new Task("Подсчитать затраты", LocalDateTime.now(),
-					LocalDateTime.of(2023, 11, 23,11,30,46),
-					TaskStatus.INCOMPLETE, Katy, Xenia, subtaskForCal);
-			Task TaskForCoding = new Task("Подключить скрипт", LocalDateTime.now(),
-					LocalDateTime.of(2023, 12, 23,11,30,46),
-					TaskStatus.INCOMPLETE, Katy, Daria, subtaskForCoding);
-//			taskRepository.save(TaskForCalc);
-//			taskRepository.save(TaskForCoding);
-			ArrayList<Task> TasksForCode = new ArrayList<>();
-			TasksForCode.add(TaskForCalc);
-			TasksForCode.add(TaskForCoding);
-
-			Set<Person> Executers = new HashSet<>();
-			Executers.add(Xenia);
-			Executers.add(Daria);
-			Executers.add(Katy);
-
-			Project ProjectCode = new Project("Эконом", ProjectStatus.IN_PROGRESS, Executers,
-					TasksForCode);
-//			projectRepository.save(ProjectCode);
 		};
-	}
 
+	}
 }

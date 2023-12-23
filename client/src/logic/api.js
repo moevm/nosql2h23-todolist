@@ -238,7 +238,7 @@ export default class Api {
     }).then((res) => res.json());
   }
 
-  static editTask(project_id, task_id) {
+  static editTask(project_id, task_id, data) {
     return fetch(`${this.baseUrl}/tasks/${project_id}/${task_id}`, {
       method: 'PATCH',
       headers: {
@@ -246,6 +246,7 @@ export default class Api {
         'Content-Type': 'application/json',
         Authorization: getAuthHeader(),
       },
+      body: JSON.stringify(data),
     }).then((response) => {
       if (response.status !== 200) {
         return Promise.reject(new Error(`${response.status} ${response.statusText}`));
@@ -345,7 +346,7 @@ export default class Api {
     }).then((res) => res.json());
   }
 
-  static editSubtask(project_id, task_id, subtask_id) {
+  static editSubtask(project_id, task_id, subtask_id, data) {
     return fetch(`${this.baseUrl} /subtasks/${project_id}/${task_id}/${subtask_id}`, {
       method: 'PATCH',
       headers: {
@@ -353,6 +354,7 @@ export default class Api {
         'Content-Type': 'application/json',
         Authorization: getAuthHeader(),
       },
+      body: JSON.stringify(data),
     }).then((response) => {
       if (response.status !== 200) {
         return Promise.reject(new Error(`${response.status} ${response.statusText}`));

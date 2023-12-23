@@ -3,6 +3,7 @@ package com.application.toDoList.controllers;
 import com.application.toDoList.domains.Person;
 import com.application.toDoList.dto.AuthenticationDTO;
 import com.application.toDoList.dto.PersonDTO;
+import com.application.toDoList.exceptions.EmailValidationException;
 import com.application.toDoList.security.JWTUtil;
 import com.application.toDoList.security.PersonValidator;
 import com.application.toDoList.services.PersonService;
@@ -15,6 +16,8 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
+import javax.mail.internet.AddressException;
+import javax.mail.internet.InternetAddress;
 import javax.validation.Valid;
 import java.util.Collections;
 import java.util.HashMap;
@@ -50,6 +53,12 @@ public class AuthController {
         if (bindingResult.hasErrors()) {
             return Collections.singletonMap("message", "Недостаточно данных при регистрации.");
         }
+        try {
+            InternetAddress internetAddress = new InternetAddress(personDTO.getEmail());
+            internetAddress.validate();
+        } catch (AddressException e) {
+            throw new EmailValidationException();
+        }
 
         Person person = convertToPerson(personDTO);
 
@@ -71,7 +80,7 @@ public class AuthController {
     public Map<String, Object> performLogin(@RequestBody @Valid AuthenticationDTO authenticationDTO,
                                             BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
-            return Collections.singletonMap("message", "Недостаточно данных при регистрации.");
+            return Collections.singletonMap("message", "Недостаточно данных при входе в аккаунт.");
         }
         UsernamePasswordAuthenticationToken authInputToken =
                 new UsernamePasswordAuthenticationToken(authenticationDTO.getUsername(),
@@ -79,7 +88,7 @@ public class AuthController {
         try {
             authenticationManager.authenticate(authInputToken);
         } catch (BadCredentialsException e) {
-            throw new BadCredentialsException("Incorrect credentials");
+            return Collections.singletonMap("message", "Некорректные данные (логин/пароль).");
         }
 
         String token = jwtUtil.generateToken(authenticationDTO.getUsername());

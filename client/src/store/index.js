@@ -17,11 +17,11 @@ export default new Vuex.Store({
         text: 'Все',
       },
       {
-        name: 'complete',
+        name: 'COMPLETE',
         text: 'Завершенные',
       },
       {
-        name: 'incomplete',
+        name: 'INCOMPLETE',
         text: 'Незавершенные',
       }
     ],
@@ -32,7 +32,9 @@ export default new Vuex.Store({
     projects: [],
     activeProject: {},
   },
-  getters: {},
+  getters: {
+    project: state => state.activeProject,
+  },
   mutations: {
     setUser(state, user) {
       state.user = user;
@@ -53,6 +55,16 @@ export default new Vuex.Store({
     setActiveProject(state, project) {
       state.activeProject = {...project};
     },
+    addTask(state, task) {
+      state.activeProject.tasks.push(task);
+    },
+    removeTask(state, task_id) {
+      state.activeProject.tasks = state.activeProject.tasks.filter((el) => el.id !== task_id);
+    },
+    editTask(state, task) {
+      const index = state.activeProject.tasks.findIndex((el) => el.id === task.id);
+      state.activeProject.tasks[index] = {...task};
+    }
   },
   actions: {
     getActiveProject: async ({ commit}, id) => {
@@ -61,6 +73,18 @@ export default new Vuex.Store({
           commit('setActiveProject', res);
         })
         .catch((e) => console.log(e));
+    },
+    addTask: async ({ commit }, task) => {
+      await service.getAllProjects().then((res) => commit('setProjects', res)).catch((e) => console.log(e));
+      commit('addTask', task);
+    },
+    removeTask: async ({ commit }, task_id) => {
+      await service.getAllProjects().then((res) => commit('setProjects', res)).catch((e) => console.log(e));
+      commit('removeTask', task_id);
+    },
+    updateTask: async ({ commit }, task) => {
+      await service.getAllProjects().then((res) => commit('setProjects', res)).catch((e) => console.log(e));
+      commit('editTask', task);
     },
   },
   modules: {

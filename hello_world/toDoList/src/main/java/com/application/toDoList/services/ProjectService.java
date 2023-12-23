@@ -53,7 +53,8 @@ public class ProjectService {
         if (personRepository.findById(person_id).isPresent()) {
             List<Project> allProjectsForPerson = new ArrayList<>();
             for (Project project : this.findAll()){
-                if (project.getExecutors() != null && project.getExecutors().contains(personRepository.findById(person_id).get())){
+                if (project.getExecutors() != null &&
+                        project.getExecutors().contains(personRepository.findById(person_id).get())){
                     allProjectsForPerson.add(project);
                 }
             }

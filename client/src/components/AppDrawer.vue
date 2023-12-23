@@ -57,9 +57,9 @@
           <v-list-item-content>
             <v-list-item-title v-text="project.name"/>
           </v-list-item-content>
-<!--          <v-list-item-icon>-->
-<!--            <span>1/3</span>-->
-<!--          </v-list-item-icon>-->
+          <v-list-item-icon>
+            <span>{{completedTaskCount(project.tasks)}}</span>
+          </v-list-item-icon>
         </v-list-item>
         <span v-if="projects.length === 0" class="d-flex justify-center">
           Нет активных проектов
@@ -77,7 +77,7 @@
           >
             <template v-slot:append>
               <v-icon
-                @click="onSubmit('SubTask added successfully!')"
+                @click="onSubmit('Проект успешно создан!')"
                 :disabled="!isInputValid"
                 :color="inputStateColor"
               >
@@ -135,6 +135,10 @@ export default {
     onToggle(value) {
       this.$emit('update:isToggled', value);
     },
+    completedTaskCount(tasks) {
+      const count = tasks.filter((el) => el.status === 'COMPLETE').length;
+      return `${count}/${tasks.length}`;
+    },
     async onSubmit(alertMessage) {
       await this.hideAlert();
       const isConfirmed = await this.$refs.confirmMainTaskAddDialogue.show({
@@ -144,7 +148,7 @@ export default {
         if (this.projects.some((el) => el.name === this.newProjectName)) {
           await this.showAlert({message: 'Проект с таким именем уже существует', type: 'error'});
         } else {
-          this.projectService.createProject({id: Math.floor(Math.random() * 1000), name: this.newProjectName}).then((res) => {
+          this.projectService.createProject({name: this.newProjectName}).then((res) => {
             this.newProjectName = '';
             this.showAlert({message: alertMessage});
             this.setActiveProject(res);
