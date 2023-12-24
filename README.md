@@ -18,10 +18,15 @@
 
 
 ## Отладочные пользователи
-Админ:
-login: katy@gmail.com
-password: 77711
+#### Админ:
 
-Обычный пользователь:
-login: daria@gmail.com
-password: 82846
+login: `katy@gmail.com`
+
+password: `77711`
+
+
+#### Обычный пользователь:
+
+login: `daria@gmail.com`
+
+password: `82846`
