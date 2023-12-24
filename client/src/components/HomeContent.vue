@@ -124,7 +124,7 @@ export default defineComponent({
   },
   methods: {
     headerText() {
-      let text = `Все ${this.person.role === 'ADMIN' ? '' : 'мои'} проекты`;
+      let text = `Все ${this.person.role === 'ROLE_ADMIN' ? '' : 'мои'} проекты`;
       if (this.personToFilter) {
         text += ` с исполнителем ${this.personToFilter.name} ${this.personToFilter.surname}`
       }
