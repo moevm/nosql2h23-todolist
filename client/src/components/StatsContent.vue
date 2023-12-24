@@ -1,6 +1,6 @@
 <template>
   <v-container fluid>
-    <h1>Statistics</h1>
+    <h1>Анализ</h1>
     <v-row class="mb-2">
       <v-col>
         <v-combobox
@@ -35,7 +35,7 @@
         ></v-select>
       </v-col>
     </v-row>
-    <h2>Соотношение выполненных задач в проектах</h2>
+    <h2>Соотношение количества задач в проектах</h2>
     <v-row>
       <v-col>
         <Doughnut
@@ -49,6 +49,7 @@
         />
       </v-col>
     </v-row>
+    <h2>Соотношение выполненных задач в проектах</h2>
     <v-row>
       <v-col>
         <Bar
@@ -79,6 +80,7 @@ import {
   CategoryScale,
   LinearScale
 } from 'chart.js'
+import {mapState} from "vuex";
 
 ChartJS.register(Title, Tooltip, Legend, ArcElement, CategoryScale, LinearScale, BarElement)
 
@@ -120,47 +122,75 @@ export default defineComponent({
   data() {
     return {
       projectsToFilter: [],
-      items: ['Проект 1', 'Проект 2', 'Проект 3', 'Проект 4'],
+      personToFilter: null,
       search: '',
-      sortBy: 'name',
-      keys: [
-        'Сотрудник 1',
-        'Сотрудник 2',
-        'Сотрудник 3',
-        'Сотрудник 4',
-        'Сотрудник 5',
-        'Сотрудник 6',
-      ],
-      chartData: {
-        labels: ['Проект 1', 'Проект 2', 'Проект 3', 'Проект 4'],
-        datasets: [
-          {
-            backgroundColor: ['#41B883', '#E46651', '#00D8FF', '#DD1B16'],
-            data: [40, 20, 80, 10]
-          }
-        ],
-      },
-      barChartData: {
-        labels: ['Проект 1', 'Проект 2', 'Проект 3', 'Проект 4'],
-        datasets: [
-          {
-            label: 'Выполненные задачи',
-            backgroundColor: '#41B883',
-            data: [40, 20, 80, 10]
-          },
-          {
-            label: 'Незавершеные задачи',
-            backgroundColor: '#E46651',
-            data: [10, 20, 4, 25]
-          }
-        ],
-      },
       chartOptions: {
         responsive: true,
         maintainAspectRatio: false
       },
-      personToFilter: {},
     }
+  },
+  methods: {
+    randomNum() {
+      return Math.floor(Math.random() * (235 - 52 + 1) + 52);
+    },
+
+    randomRGB() {
+      return `rgb(${this.randomNum()}, ${this.randomNum()}, ${this.randomNum()})`;
+    },
+    getTasksRange(project) {
+      let completed = 0;
+      let incompleted = 0;
+      project.tasks.forEach((el) => {
+        el.status === 'COMPLETE' ? completed += 1 : incompleted += 1;
+      })
+      return [completed, incompleted];
+    },
+    getTaskCount(project) {
+      return project.tasks.length;
+    }
+  },
+  computed: {
+    ...mapState(['projects', 'persons']),
+    computedProjectsData() {
+      let proj = [...this.projects];
+      if (this.projectsToFilter.length !== 0) {
+        proj = proj.filter((el) => this.projectsToFilter.map((el) => el.id).includes(el.id));
+      }
+      if (this.personToFilter) {
+        proj = proj.filter((el) => el.executors.map((el) => el.id).includes(this.projectsToFilter.id));
+      }
+      return proj;
+    },
+    chartData() {
+      const labels = this.computedProjectsData.map((el) => el.name);
+      return {
+        labels,
+        datasets: [
+          {
+            backgroundColor: this.computedProjectsData.map(() => this.randomRGB()),
+            data: this.computedProjectsData.map((el) => this.getTaskCount(el)),
+          }
+        ],
+      };
+    },
+    barChartData() {
+      return {
+        labels: this.computedProjectsData.map((el) => el.name),
+        datasets: [
+          {
+            label: 'Выполненные задачи',
+            backgroundColor: '#41B883',
+            data: this.computedProjectsData.map((el) => this.getTasksRange(el)[0])
+          },
+          {
+            label: 'Незавершеные задачи',
+            backgroundColor: '#E46651',
+            data: this.computedProjectsData.map((el) => this.getTasksRange(el)[1])
+          }
+        ],
+      };
+    },
   },
 })
 </script>

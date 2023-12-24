@@ -74,27 +74,36 @@ export default new Vuex.Store({
     }
   },
   actions: {
+    updateProjects: async ({commit}) => {
+      await service.getAllProjects().then((res) => {
+        commit('setProjects', res);
+      }).catch((e) => console.error(e));
+    },
     getActiveProject: async ({ commit}, id) => {
       await service.findProjectById(id)
         .then((res) => {
           commit('setActiveProject', res);
         })
-        .catch((e) => console.log(e));
+        .catch((e) => console.error(e));
     },
     addTask: async ({ commit }, task) => {
-      await service.getAllProjects().then((res) => commit('setProjects', res)).catch((e) => console.log(e));
+      await service.getAllProjects().then((res) => commit('setProjects', res)).catch((e) => console.error(e));
       commit('addTask', task);
     },
     removeTask: async ({ commit }, task_id) => {
-      await service.getAllProjects().then((res) => commit('setProjects', res)).catch((e) => console.log(e));
+      await service.getAllProjects().then((res) => commit('setProjects', res)).catch((e) => console.error(e));
       commit('removeTask', task_id);
     },
     updateTask: async ({ commit }, project_id) => {
-      await service.getAllProjects().then((res) => commit('setProjects', res)).catch((e) => console.log(e));
+      await service.getAllProjects().then((res) => commit('setProjects', res)).catch((e) => console.error(e));
       commit('setActiveProjectById', project_id);
     },
     addSubTask: async ({ commit }, project_id) => {
-      await service.getAllProjects().then((res) => commit('setProjects', res)).catch((e) => console.log(e));
+      await service.getAllProjects().then((res) => commit('setProjects', res)).catch((e) => console.error(e));
+      commit('setActiveProjectById', project_id);
+    },
+    updateSubTask: async ({ commit }, project_id) => {
+      await service.getAllProjects().then((res) => commit('setProjects', res)).catch((e) => console.error(e));
       commit('setActiveProjectById', project_id);
     },
   },

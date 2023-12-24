@@ -4,17 +4,17 @@
       <v-card-actions>
         <v-row>
           <v-expansion-panels>
-            <v-expansion-panel v-if="!project.tasks?.length">
+            <v-expansion-panel v-if="filteredTasks.length === 0">
               <v-expansion-panel-header>
                 <span>Список задач пуст</span>
               </v-expansion-panel-header>
             </v-expansion-panel>
             <v-expansion-panel
-              v-for="(task, index) in project.tasks"
+              v-for="(task, index) in filteredTasks"
               :key="task.id"
             >
               <v-expansion-panel-header class="pa-2" disable-icon-rotate>
-                <v-chip color="red lighten-1" small style="max-width: min-content; opacity: 0.9" class="mr-3">
+                <v-chip :color="deadlineColor(task.dateOfDeadline)" small style="max-width: min-content; opacity: 0.9" class="mr-3">
                   {{ task.dateOfDeadline }}
                 </v-chip>
                 {{ index + 1 }}. {{ task.title }}
@@ -39,6 +39,40 @@
                         </v-icon>
                       </v-btn>
                     </template>
+                    <v-tooltip content-class="executers-tooltip" left>
+                      <template v-slot:activator="{ on, attrs }">
+                        <v-btn
+                          v-bind="attrs"
+                          v-on="on"
+                          fab
+                          dark
+                          small
+                          color="blue"
+                          @click.native.stop
+                        >
+                          <v-icon>mdi-information</v-icon>
+                        </v-btn>
+                      </template>
+                      <v-list class="executers-list" dense>
+                        <v-row>
+                          <v-col class="ml-4"><span>Исполнитель: </span></v-col>
+                        </v-row>
+                        <v-divider/>
+                        <v-list-item
+                          class="pl-0"
+                        >
+                          <v-list-item-icon class="mr-2 ml-2">
+                            <v-avatar
+                              class="white--text"
+                              color="primary"
+                              size="25"
+                            >{{ task.executer.name[0] + task.executer.surname[0] }}
+                            </v-avatar>
+                          </v-list-item-icon>
+                          {{ task.executer.name + ' ' + task.executer.surname }}
+                        </v-list-item>
+                      </v-list>
+                    </v-tooltip>
                     <v-tooltip bottom>
                       <template v-slot:activator="{ on, attrs }">
                         <v-btn
@@ -72,7 +106,6 @@
                       </template>
                       <span>Удалить</span>
                     </v-tooltip>
-
                   </v-speed-dial>
                 </template>
               </v-expansion-panel-header>
@@ -80,6 +113,7 @@
                 <SubTaskList
                   :task-id="task.id"
                   :subtasks="task.subtasks"
+                  :executer-id="task.executer.id"
                 />
               </v-expansion-panel-content>
             </v-expansion-panel>
@@ -108,9 +142,10 @@
 <script>
 import SubTaskList from "./SubTaskList.vue";
 
-import {mapActions, mapGetters} from 'vuex';
+import {mapActions, mapGetters, mapState} from 'vuex';
 import ConfirmAlert from "@/components/ConfirmAlert.vue";
 import UpdateDialog from "@/components/UpdateDialog.vue";
+import moment from "moment";
 
 const creator = {
   name: "Артем",
@@ -336,9 +371,27 @@ export default {
       mainTasks,
     }
   },
+  props: ['personFilter', 'dateFilter'],
   inject: ['projectService'],
   computed: {
+    ...mapState(['currentFilter']),
     ...mapGetters(['project']),
+    filteredTasks: function () {
+      let filtered = this.project.tasks || [];
+      if (this.personFilter) {
+        filtered = filtered.filter((el) => el.executer.id === this.personFilter);
+      }
+      if (this.dateFilter) {
+        filtered = filtered.filter((el) => moment(el.dateOfDeadline, 'DD.MM.yyyy HH:mm:ss') <= moment(`${this.dateFilter} 23:59:59`, 'yyyy-MM-DD HH:mm:ss'));
+      }
+      if (this.currentFilter.name === 'COMPLETE') {
+        filtered = filtered.filter((task) => task.status === 'COMPLETE');
+      }
+      if (this.currentFilter.name === 'INCOMPLETE') {
+        filtered = filtered.filter((task) => task.status === 'INCOMPLETE');
+      }
+      return filtered;
+    },
   },
   methods: {
     ...mapActions('alert', {
@@ -346,6 +399,11 @@ export default {
       showAlert: "showAlert"
     }),
     ...mapActions(['removeTask']),
+    deadlineColor(date) {
+      const m = moment(date, 'DD.MM.yyyy HH:mm:ss');
+      if (moment().diff(moment(date, 'DD.MM.yyyy HH:mm:ss'), 'days') === 0) return 'orange lighten-3';
+      return m > moment() ? 'green lighten-3' : 'red lighten-3';
+    },
     async onTaskDelete(alertMessage, task_id) {
       await this.hideAlert();
       const isConfirmed = await this.$refs.confirmDialogue.show({

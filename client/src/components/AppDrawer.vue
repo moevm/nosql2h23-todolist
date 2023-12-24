@@ -52,7 +52,7 @@
           link
         >
           <v-list-item-icon>
-            <v-icon :color="project.status === 'IN_PROGRESS' ? 'green' : 'red'">mdi-circle</v-icon>
+            <v-icon :color="project.status === 'IN_PROGRESS' ? 'green lighten-1' : 'red lighten-1'">mdi-circle</v-icon>
           </v-list-item-icon>
           <v-list-item-content>
             <v-list-item-title v-text="project.name"/>
@@ -61,7 +61,7 @@
             <span>{{completedTaskCount(project.tasks)}}</span>
           </v-list-item-icon>
         </v-list-item>
-        <span v-if="projects.length === 0" class="d-flex justify-center">
+        <span v-if="projects && projects.length === 0" class="d-flex justify-center">
           Нет активных проектов
         </span>
         <v-list-item
@@ -123,7 +123,7 @@ export default {
   created() {
     this.projectService.getAllProjects().then((res) => {
       this.setProjects(res || []);
-    }).catch((e) => console.log(e));
+    }).catch((e) => console.error(e));
   },
   methods: {
     ...mapActions('alert', {
@@ -136,8 +136,8 @@ export default {
       this.$emit('update:isToggled', value);
     },
     completedTaskCount(tasks) {
-      const count = tasks.filter((el) => el.status === 'COMPLETE').length;
-      return `${count}/${tasks.length}`;
+      const count = tasks?.filter((el) => el.status === 'COMPLETE')?.length || 0;
+      return `${count}/${tasks?.length || 0}`;
     },
     async onSubmit(alertMessage) {
       await this.hideAlert();

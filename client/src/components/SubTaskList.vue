@@ -16,13 +16,14 @@
             <v-list-item-action>
               <v-checkbox
                 :disabled="false"
-                v-model="task.completed"
+                :input-value="task.status"
                 color="success"
                 on-icon="mdi-radiobox-marked"
                 off-icon="mdi-radiobox-blank"
+                @change="(v) => onChecked(v, task)"
               />
             </v-list-item-action>
-            <v-list-item-content :class="[completedSubTaskClass(task.completed)]">
+            <v-list-item-content :class="[completedSubTaskClass(task.status)]">
               <v-list-item-title>{{ task.title }}</v-list-item-title>
             </v-list-item-content>
             <v-list-item-icon class="ma-1">
@@ -43,7 +44,7 @@
                 <template v-slot:activator="{ on, attrs }">
                   <v-btn
                     :disabled="false"
-                    @click="onSubmit('SubTask deleted successfully!')"
+                    @click="onDelete('Подзадача успешно удалена!', task)"
                     v-bind="attrs"
                     v-on="on"
                     icon
@@ -87,22 +88,20 @@
       </transition>
     </v-list>
     <ConfirmAlert ref="confirmDeletingSubTaskAlert"/>
-    <UpdateDialog
+    <UpdateSubTaskDialog
       ref="updateSubTaskDialogue"
-      field-to-update="title"
-      :mutation="''"
     />
   </div>
 </template>
 <script>
 import ConfirmAlert from "./ConfirmAlert.vue";
-import UpdateDialog from "@/components/UpdateDialog.vue";
 
 import {mapActions, mapState} from "vuex";
+import UpdateSubTaskDialog from "@/components/UpdateSubTaskDialog.vue";
 
 export default {
   name: "SubTask",
-  components: {UpdateDialog, ConfirmAlert},
+  components: {UpdateSubTaskDialog, ConfirmAlert},
   props: {
     taskId: {
       type: String,
@@ -111,6 +110,9 @@ export default {
     subtasks: {
       type: Array,
       default: () => [],
+    },
+    executerId: {
+      type: String,
     },
   },
   inject: ['projectService'],
@@ -124,7 +126,7 @@ export default {
       hideAlert: "hideAlert",
       showAlert: "showAlert"
     }),
-    ...mapActions(['addSubTask']),
+    ...mapActions(['addSubTask', 'updateSubTask']),
     async onSubmit() {
       await this.hideAlert();
       const isConfirmed = await this.$refs.confirmDeletingSubTaskAlert.show({
@@ -136,7 +138,20 @@ export default {
         };
         this.projectService.addNewSubtask(this.$route.params.id, this.taskId, newSubTask).then(() => {
           this.addSubTask(this.$route.params.id);
+          this.newSubTask = '';
         }).catch(() => this.showAlert({message: 'Не удалось создать подзадачу', type: 'error'}))
+      }
+    },
+    async onDelete(message, task) {
+      await this.hideAlert();
+      const isConfirmed = await this.$refs.confirmDeletingSubTaskAlert.show({
+        message: "Удалить подзадачу?"
+      });
+      if (isConfirmed) {
+        this.projectService.removeSubtask(this.$route.params.id, this.taskId, task.id).then(() => {
+          this.updateSubTask(this.$route.params.id);
+          this.showAlert({message: message})
+        }).catch(() => this.showAlert({message: 'Не удалось удалить подзадачу', type: 'error'}))
       }
     },
     filteredData(data) {
@@ -150,10 +165,18 @@ export default {
     },
     openUpdateDialog(task) {
       this.$refs.updateSubTaskDialogue.openDialog({
-        initialValue: task.title,
-        taskId: task.id,
-        completed: task.completed
+        task,
+        taskId: this.taskId,
       })
+    },
+    onChecked(v, task) {
+      const editedSubtask = {
+        status: v,
+        title: task.title
+      };
+      this.projectService.editSubtask(this.$route.params.id, this.taskId, task.id,  editedSubtask).then(() => {
+        this.updateSubTask(this.$route.params.id);
+      }).catch((e) => console.error(e));
     },
   },
   computed: {
@@ -168,7 +191,7 @@ export default {
     },
     inputStateColor() {
       return !this.isInputValid ? 'grey' : 'green';
-    }
+    },
   }
 }
 </script>

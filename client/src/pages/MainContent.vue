@@ -8,25 +8,31 @@
       <v-app-bar-title>TODO App</v-app-bar-title>
       <v-spacer/>
       <v-combobox
-          outlined
-          filled
-          rounded
-          hide-details
-          :item-text="itemText"
-          item-value="id"
-          return-object
-          :search-input.sync="searchFilter"
-          label="Сотрудник или проект"
-          prepend-inner-icon="mdi-magnify"
-          :items="filteredData"
-          dense
-          style="max-width: 270px"
+        class="app-bar_search"
+        outlined
+        hide-details
+        :item-text="itemText"
+        item-value="id"
+        return-object
+        :search-input.sync="searchFilter"
+        @update:search-input="onUpdateSearchText"
+        label="Поиск проекта"
+        prepend-inner-icon="mdi-magnify"
+        :items="filteredData"
+        dense
+        style="max-width: 270px"
+        @input="onSearch"
       >
         <template v-slot:no-data>
           <v-list-item>
             <v-list-item-content>
               <v-list-item-title>
-                Нет результатов для "<strong>{{ searchFilter }}</strong>".
+                <span v-if="searchFilter === null || searchFilter.length === 0">
+                  Поиск по проектам
+                </span>
+                <span v-else>
+                   Нет результатов для "<strong>{{ searchFilter }}</strong>".
+                </span>
               </v-list-item-title>
             </v-list-item-content>
           </v-list-item>
@@ -79,18 +85,22 @@
 import {defineComponent} from 'vue'
 import AppDrawer from '@/components/AppDrawer.vue';
 import DatabaseDialog from '@/components/DatabaseDialog.vue';
+import {mapState} from "vuex";
 
 export default defineComponent({
   name: "MainContent",
   components: {DatabaseDialog, AppDrawer},
   data: () => ({
     drawerToggled: true,
-    searchFilter: '',
-    filteredData: [{
-      id: 1,
-      name: 'fsdgh',
-    }],
+    searchFilter: null,
   }),
+  computed: {
+    ...mapState(['projects']),
+    filteredData() {
+      let data = this.projects || [];
+      return data.filter((el) => el.name.toLowerCase().includes(this.searchFilter?.toLowerCase()));
+    },
+  },
   methods: {
     itemText(item) {
       return item.surname ?  `${item.name} ${item.surname}` : item.name;
@@ -101,11 +111,19 @@ export default defineComponent({
     onLogout(){
       localStorage.clear();
       this.$router.push({name: 'auth'});
+    },
+    onSearch(v) {
+      if (v && this.$route.params?.id !== v.id) this.$router.push(`/projects/${v.id}`);
+    },
+    onUpdateSearchText(v) {
+      if (v.length === 0) this.searchFilter = null;
     }
   }
 })
 </script>
 
-<style scoped>
-
+<style>
+.app-bar_search .v-input__append-inner {
+  display: none;
+}
 </style>

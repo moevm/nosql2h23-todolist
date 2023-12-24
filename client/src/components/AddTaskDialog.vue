@@ -32,11 +32,14 @@
           />
 
           <span class="label-span">Исполнитель</span>
-          <v-combobox
+          <v-select
             label="Исполнитель"
-            v-model="executerId"
+            v-model="executer"
             class="mt-1"
-            :items="['asd']"
+            item-value="id"
+            :item-text="(item) => item.name + ' ' + item.surname"
+            :items="$store.state.persons"
+            return-object
             hide-details="auto"
             solo
           />
@@ -87,7 +90,7 @@ export default {
       newTask: '',
       date: (new Date(Date.now() - (new Date()).getTimezoneOffset() * 60000)).toISOString().substr(0, 10),
       menu: false,
-      executerId: [],
+      executer: {},
     }
   },
   computed: {
@@ -113,13 +116,12 @@ export default {
       if (isConfirmed) {
         const newTask = {
           title: this.newTask,
-          executerId: this.user.id,
+          executerId: this.executer.id,
           dateOfDeadline: moment(this.date).format('DD.MM.yyyy HH:mm:ss'),
         }
         this.projectService.addNewTask(this.$route.params.id, newTask).then((res) => {
-          console.log(res);
           this.addTask(res);
-        }).catch((e) => console.log(e));
+        }).catch((e) => console.error(e));
         await this.showAlert({message: 'Задача успешно создана!'});
         this.$emit('update:opened', false);
       }

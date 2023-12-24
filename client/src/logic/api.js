@@ -331,7 +331,7 @@ export default class Api {
   }
 
   static addNewSubtask(project_id, task_id, data) {
-    return fetch(`${this.baseUrl}/subtasks/add-subtask/${project_id}/${task_id} `, {
+    return fetch(`${this.baseUrl}/subtasks/${project_id}/${task_id}/add-subtask`, {
       method: 'POST',
       headers: {
         Accept: 'application/json',
@@ -364,8 +364,62 @@ export default class Api {
   }
 
   static editSubtask(project_id, task_id, subtask_id, data) {
-    return fetch(`${this.baseUrl} /subtasks/${project_id}/${task_id}/${subtask_id}`, {
+    return fetch(`${this.baseUrl}/subtasks/${project_id}/${task_id}/${subtask_id}`, {
       method: 'PATCH',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+        Authorization: getAuthHeader(),
+      },
+      body: JSON.stringify(data),
+    }).then((response) => {
+      if (response.status !== 200) {
+        return Promise.reject(new Error(`${response.status} ${response.statusText}`));
+      }
+      return Promise.resolve(response);
+    }).then((res) => res.json());
+  }
+
+  // ИМПОРТ И ЭКСПОРТ
+  static importDb() {
+    return fetch(`${this.baseUrl}/data/download`, {
+      method: 'GET',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+        Authorization: getAuthHeader(),
+      },
+    }).then((response) => {
+      if (response.status !== 200) {
+        return Promise.reject(new Error(`${response.status} ${response.statusText}`));
+      }
+      return Promise.resolve(response);
+    }).then( res => res.json() )
+      .then( async (res) => {
+        const file = JSON.stringify(res);
+        const fileHandle = await window.showSaveFilePicker({
+          // рекомендуемое название файла
+          suggestedName: 'ToDoList.json',
+          types: [
+            {
+              description: "JSON file",
+              accept: { "application/json": [".json"] },
+            },
+          ],
+        })
+        const writableStream = await fileHandle.createWritable()
+
+        await writableStream.write(file)
+        // данный метод не упоминается в черновике спецификации,
+        // хотя там говорится о необходимости закрытия потока
+        // для успешной записи файла
+        await writableStream.close()
+      });
+  }
+
+  static exportDb(data) {
+    return fetch(`${this.baseUrl}/data/load`, {
+      method: 'POST',
       headers: {
         Accept: 'application/json',
         'Content-Type': 'application/json',

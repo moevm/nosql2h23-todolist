@@ -1,7 +1,6 @@
 <template>
   <v-container
     class="container"
-    fluid
   >
     <div class="d-flex flex-row pl-2 mb-1 align-center">
       <h1>{{ project.name }}</h1>
@@ -17,7 +16,7 @@
           <v-divider/>
           <v-list-item
             class="pl-0"
-            v-for="(user, index) in executers"
+            v-for="(user, index) in project.executors"
             :key="index"
           >
             <v-list-item-icon class="mr-2 ml-2">
@@ -36,7 +35,7 @@
         <template v-slot:activator="{ on, attrs }">
           <v-btn v-bind="attrs" v-on="on" icon flat @click="removeProject('Проект успешно удален')"><v-icon>mdi-delete</v-icon></v-btn>
         </template>
-        Remove Project
+        Удалить проект
       </v-tooltip>
     </div>
     <v-row
@@ -54,7 +53,7 @@
         >
           mdi-plus
         </v-icon>
-        Add task
+        Добавить задачу
       </v-btn>
       <AddTaskDialog :opened.sync="isAddTaskDialogShown"/>
     </v-row>
@@ -77,7 +76,7 @@
           <template v-slot:activator="{ on, attrs }">
             <v-text-field
               v-model="date"
-              label="Task date"
+              label="Срок"
               prepend-inner-icon="mdi-calendar"
               class="mr-2"
               readonly
@@ -85,8 +84,9 @@
               v-on="on"
               dense
               hide-details
+              clearable
               solo
-              style="max-width:140px"
+              style="max-width:180px"
             ></v-text-field>
           </template>
           <v-date-picker
@@ -117,12 +117,13 @@
           :items="$store.state.persons"
           item-value="id"
           :item-text="(item) => item.name + ' ' + item.surname"
-          label="Сотрудник"
+          label="Исполнитель"
           return-object
           dense
           solo
           hide-details
           style="max-width:300px"
+          clearable
         />
       </v-col>
     </v-row>
@@ -130,7 +131,7 @@
       class="pa-1"
       fluid
     >
-      <TaskList />
+      <TaskList :person-filter="personToFilter?.id" :date-filter="date"/>
     </v-container>
     <ConfirmAlert ref="confirmMainTaskAddDialogue"/>
   </v-container>
@@ -150,7 +151,7 @@ export default {
   inject: ['projectService'],
   data() {
     return {
-      date: (new Date(Date.now() - (new Date()).getTimezoneOffset() * 60000)).toISOString().substr(0, 10),
+      date: null,
       menu: false,
       items: ['Смирнов А.В.', 'Началов И.А.', 'Кахоркин М.С.'],
       isAddTaskDialogShown: false,
@@ -193,7 +194,7 @@ export default {
         message: "Are you sure?"
       });
       if (isConfirmed) {
-        this.projectService.deleteProject(this.$route.params.id).catch((e) => console.log(e));
+        this.projectService.deleteProject(this.$route.params.id).catch((e) => console.error(e));
         this.deleteProject(this.project.id);
         this.$router.push({ name: 'home' });
         await this.showAlert({message: alertMessage});
@@ -208,6 +209,10 @@ export default {
   max-width: 1920px;
 }
 
+
+</style>
+
+<style>
 .executers-tooltip {
   opacity: 1;
   padding: 0;

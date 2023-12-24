@@ -45,9 +45,9 @@
         <v-card flat>
           <v-card-text>
             <v-file-input
-                chips
-                multiple
-                label="Выберите файл"
+              v-model="file"
+              label="Выберите JSON файл"
+              accept=".json"
             ></v-file-input>
           </v-card-text>
           <v-card-actions>
@@ -56,58 +56,33 @@
                 text
                 @click="dialog = false"
             >
-              Cancel
+              Отменить
             </v-btn>
             <v-btn
                 text
-                @click="dialog = false"
+                :disabled="!file"
+                @click="onExport"
             >
-              Confirm
+              Экспорт
             </v-btn>
           </v-card-actions>
         </v-card>
       </v-tab-item>
       <v-tab-item>
         <v-card flat>
-          <v-card-text>
-            <v-checkbox
-                v-model="selected"
-                label="Фильтр 1"
-                value="filter1"
-                hide-details
-            />
-            <v-checkbox
-                v-model="selected"
-                label="Фильтр 2"
-                value="filter2"
-                hide-details
-            />
-            <v-checkbox
-                v-model="selected"
-                label="Фильтр 3"
-                value="filter3"
-                hide-details
-            />
-            <v-checkbox
-                v-model="selected"
-                label="Фильтр 4"
-                value="filter4"
-                hide-details
-            />
-          </v-card-text>
           <v-card-actions>
             <v-spacer></v-spacer>
             <v-btn
                 text
                 @click="dialog = false"
             >
-              Cancel
+              Отмена
             </v-btn>
             <v-btn
                 text
-                @click="dialog = false"
+                @click="onImport"
             >
-              Confirm
+              Импорт
             </v-btn>
           </v-card-actions>
         </v-card>
@@ -118,22 +93,47 @@
 
 <script>
 import {defineComponent} from 'vue'
+import {mapActions} from "vuex";
 
 export default defineComponent({
   name: "DatabaseDialog",
+  inject: ['projectService'],
   data: () => ({
     selected: [],
     dialog: false,
     tab: null,
+    file: null,
     items: [{
-      label: 'Import',
+      label: 'Экспорт',
       icon: 'mdi-database-import-outline',
     }, {
-      label: 'Export',
+      label: 'Импорт',
       icon: 'mdi-database-export-outline',
     }],
     text: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.',
   }),
+  methods: {
+    ...mapActions(['updateProjects']),
+    onImport() {
+      this.projectService.importDb().catch((e) => console.error(e));
+    },
+    onExport() {
+      const reader = new FileReader(); // File reader to read the file
+
+      // This event listener will happen when the reader has read the file
+      reader.onloadend = (evt) => {
+        if (evt.target.readyState == FileReader.DONE) {
+          const result = JSON.parse(reader.result); // Parse the result into an object
+          this.projectService.exportDb(result).then(() => {
+            this.updateProjects();
+            if (this.$route.path !== '/') this.$router.push('/');
+          }).catch((e) => console.error(e));
+          this.dialog = false;
+        }
+      };
+      reader.readAsText(this.file);
+    },
+  },
 })
 </script>
 

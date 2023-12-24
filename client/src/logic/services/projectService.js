@@ -91,10 +91,19 @@ export default class ProjectService {
   }
 
   static async removeSubtask(project_id, task_id, subtask_id) {
-    return Api.removeTask(project_id, task_id, subtask_id);
+    return Api.removeSubtask(project_id, task_id, subtask_id);
   }
 
   static async editSubtask(project_id, task_id, subtask_id, data) {
     return Api.editSubtask(project_id, task_id, subtask_id, data);
+  }
+
+  // ИМПОРТ И ЭКСПОРТ
+  static async importDb() {
+    return Api.importDb();
+  }
+
+  static async exportDb(data) {
+    return Api.exportDb(data);
   }
 }

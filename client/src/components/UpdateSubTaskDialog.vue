@@ -7,7 +7,7 @@
   >
     <v-card>
       <v-card-title class="text-h5">
-        Редактирование задачи
+        Редактирование подзадачи
       </v-card-title>
       <v-card-text>
         <span class="label-span">Описание</span>
@@ -21,40 +21,17 @@
           solo
         />
 
-        <span class="label-span">Срок исполнения</span>
-        <el-date-picker
-          v-model="value.dateOfDeadline"
-          class="elevation-2 mb-3"
-          style="width: 100%"
-          type="datetime"
-          placeholder="Срок исполнения, до"
-        />
-
-        <span class="label-span">Исполнитель</span>
-        <v-combobox
-          label="Исполнитель"
-          :value="value.executer"
-          :item-text="(item) => item.name + ' ' + item.surname"
-          item-value="id"
-          :items="$store.state.persons"
-          class="mb-3"
-          hide-details="auto"
-          return-object
-          solo
-          @input="(val) => this.executer = val"
-        />
-
         <v-radio-group
           v-model="value.status"
           row
         >
           <v-radio
             label="Выполнена"
-            value="COMPLETE"
+            :value="true"
           ></v-radio>
           <v-radio
             label="В процессе"
-            value="INCOMPLETE"
+            :value="false"
           ></v-radio>
         </v-radio-group>
       </v-card-text>
@@ -86,25 +63,16 @@
 <script>
 import ConfirmAlert from "./ConfirmAlert.vue";
 import {mapActions, mapState} from "vuex";
-import moment from "moment";
 
 export default {
-  name: "UpdateDialog",
+  name: "UpdateSubTaskDialog",
   components: {ConfirmAlert},
-  props: {
-    mutation: {
-      type: String,
-    },
-    fieldToUpdate: {
-      type: String,
-    },
-  },
   inject: ['projectService'],
   data() {
     return {
       value: {},
       isDialogShown: false,
-      executer: {},
+      taskId: null,
     }
   },
   computed: {
@@ -112,7 +80,7 @@ export default {
       rules: state => state.taskInputRules
     }),
     isConfirmButtonDisabled() {
-      return !!this.value.title && this.value.dateOfDeadline;
+      return !!this.value.title;
     }
   },
   methods: {
@@ -124,11 +92,9 @@ export default {
       if (isConfirmed) {
         const valueToSend = {
           title: this.value.title,
-          executerId: this.executer.id,
           status: this.value.status,
-          dateOfDeadline: moment(this.value.dateOfDeadline).format('DD.MM.yyyy HH:mm:ss'),
         };
-        this.projectService.editTask(this.$route.params.id, this.value.id, valueToSend).then(() => {
+        this.projectService.editSubtask(this.$route.params.id, this.taskId, this.value.id, valueToSend).then(() => {
           this.closeDialog();
           this.updateTask(this.$route.params.id);
         })
@@ -139,8 +105,7 @@ export default {
     },
     openDialog(opts) {
       this.value = {...opts.task};
-      this.executer = {...opts.task.executer};
-      this.value.dateOfDeadline = moment(this.value.dateOfDeadline, 'DD.MM.yyyy HH:mm:ss');
+      this.taskId = opts.taskId;
       this.isDialogShown = true;
     },
   }

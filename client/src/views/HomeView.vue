@@ -16,7 +16,7 @@ export default {
   mounted() {
     this.projectService.getPersons().then((res) => {
       this.setPersons(res);
-    }).catch((e) => console.log(e));
+    }).catch((e) => console.error(e));
   }
 }
 </script>
