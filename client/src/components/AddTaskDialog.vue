@@ -82,13 +82,16 @@ export default {
     opened: {
       type: Boolean,
       required: true
-    }
+    },
+    projectId: {},
   },
   inject: ['projectService'],
   data() {
     return {
       newTask: '',
-      date: (new Date(Date.now() - (new Date()).getTimezoneOffset() * 60000)).toISOString().substr(0, 10),
+      date: null,
+      personToFilter: {},
+      projectToFilter: [],
       menu: false,
       executer: {},
     }
@@ -119,7 +122,7 @@ export default {
           executerId: this.executer.id,
           dateOfDeadline: moment(this.date).format('DD.MM.yyyy HH:mm:ss'),
         }
-        this.projectService.addNewTask(this.$route.params.id, newTask).then((res) => {
+        this.projectService.addNewTask(this.projectId || this.$route.params.id, newTask).then((res) => {
           this.addTask(res);
         }).catch((e) => console.error(e));
         await this.showAlert({message: 'Задача успешно создана!'});

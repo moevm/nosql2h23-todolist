@@ -1,5 +1,5 @@
 <template>
-  <v-container fluid>
+  <v-container>
     <v-row>
       <v-col cols="12" class="d-flex flex-row pb-0">
         <h1>{{ person.name + ' ' + person.surname }}</h1>
@@ -21,6 +21,7 @@
           :close-on-content-click="false"
           :return-value.sync="date"
           transition="scale-transition"
+          left
           offset-y
           min-width="auto"
         >
@@ -61,34 +62,22 @@
             </v-btn>
           </v-date-picker>
         </v-menu>
-        <v-combobox
-          v-model="projects"
-          :items="projectItems"
-          :search-input.sync="search"
-          class="mr-2"
-          prepend-inner-icon="mdi-magnify"
-          clearable
-          hide-selected
-          multiple
-          small-chips
-          solo
-          dense
-          hide-details
-          label="Проект"
-        />
-        <v-combobox
+
+        <v-select
           v-if="$store.state.userRole === 'admin'"
-          :items="['Сотрудник 1', 'Сотрудник 2', 'Сотрудник 3']"
+          v-model="personToFilter"
+          :items="$store.state.persons"
           :search-input.sync="search"
+          :item-text="(item) => item.name + ' ' + item.surname"
+          item-value="id"
+          return-object
           prepend-inner-icon="mdi-magnify"
           clearable
           hide-selected
-          multiple
-          small-chips
           dense
           hide-details
           solo
-          label="Сотрудник"
+          label="Исполнитель"
         />
       </v-col>
     </v-row>
@@ -96,7 +85,21 @@
       class="pa-1"
       fluid
     >
-      <TaskList />
+      <h2 class="mb-2">{{headerText()}}</h2>
+      <div
+        v-for="(project) in $store.state.projects"
+        :key="project.id"
+        class="mb-4"
+      >
+        <h3 class="mb-2">{{project.name}}</h3>
+        <TaskList
+          :date-filter="date"
+          :person-filter="personToFilter"
+          :project-id="project.id"
+          :tasks="project.tasks"
+        />
+      </div>
+
     </v-container>
   </v-container>
 </template>
@@ -112,13 +115,21 @@ export default defineComponent({
   components: {FiltersPanel, TaskList},
   data: () => {
     return {
-      date: (new Date(Date.now() - (new Date()).getTimezoneOffset() * 60000)).toISOString().substr(0, 10),
+      date: null,
       menu: false,
-      items: ['Смирнов А.В.', 'Началов И.А.', 'Кахоркин М.С.'],
       projects: [],
-      projectItems: ['Проект 1', 'Проект 2', 'Проект 3', 'Проект 4'],
       search: '',
+      personToFilter: null,
     };
+  },
+  methods: {
+    headerText() {
+      let text = `Все ${this.person.role === 'ADMIN' ? '' : 'мои'} проекты`;
+      if (this.personToFilter) {
+        text += ` с исполнителем ${this.personToFilter.name} ${this.personToFilter.surname}`
+      }
+      return text;
+    },
   },
   computed: mapState({
     person: state => state.user,

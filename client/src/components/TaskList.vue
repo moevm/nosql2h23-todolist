@@ -73,7 +73,7 @@
                         </v-list-item>
                       </v-list>
                     </v-tooltip>
-                    <v-tooltip bottom>
+                    <v-tooltip v-if="$store.state.userRole === 'admin'" bottom>
                       <template v-slot:activator="{ on, attrs }">
                         <v-btn
                           v-bind="attrs"
@@ -90,7 +90,7 @@
                       <span>Редактировать</span>
                     </v-tooltip>
 
-                    <v-tooltip bottom>
+                    <v-tooltip v-if="$store.state.userRole === 'admin'" bottom>
                       <template v-slot:activator="{ on, attrs }">
                         <v-btn
                           v-bind="attrs"
@@ -114,6 +114,7 @@
                   :task-id="task.id"
                   :subtasks="task.subtasks"
                   :executer-id="task.executer.id"
+                  :project-id="projectId"
                 />
               </v-expansion-panel-content>
             </v-expansion-panel>
@@ -136,6 +137,7 @@
     <UpdateDialog
       ref="updateDialogue"
       :mutation="''"
+      :project-id="projectId"
     />
   </div>
 </template>
@@ -147,237 +149,20 @@ import ConfirmAlert from "@/components/ConfirmAlert.vue";
 import UpdateDialog from "@/components/UpdateDialog.vue";
 import moment from "moment";
 
-const creator = {
-  name: "Артем",
-  surname: "Смирнов",
-  email: "email@gmail.com",
-  password: "pass",
-  role: "admin",
-};
-
-const log = {
-  type: "CREATED",
-  time: "12/12/2024",
-  changings: [],
-};
-
-const mainTasks = [
-  {
-    id: "tMI7-Xio9",
-    title: "Do something nice for someone I care about",
-    dateOfCreation: "12/12/2024",
-    dateOfDeadline: "12/12/2024",
-    status: true,
-    creator,
-    executer: creator,
-    subtasks: [
-      {
-        id: "-OfaFlQ4t",
-        title: "Buy flowers for Nate",
-        taskID: "tMI7-Xio9",
-        completed: true
-      },
-      {
-        id: "5JiMEgkKM",
-        title: "Call your parents",
-        taskID: "tMI7-Xio9",
-        completed: false
-      },
-      {
-        id: "0A3GdqdWb",
-        title: "Buy a beer for a neighbor",
-        taskID: "tMI7-Xio9",
-        completed: false
-      },
-    ],
-    log
-  },
-  {
-    id: "dGebzVkk9",
-    title: "Memorize the fifty states and their capitals",
-    dateOfCreation: "12/12/2024",
-    dateOfDeadline: "12/12/2024",
-    status: true,
-    creator,
-    executer: creator,
-    subtasks: [],
-    log
-  },
-  {
-    id: "KNl8GvI0Y",
-    title: "Watch a classic movie",
-    dateOfCreation: "12/12/2024",
-    dateOfDeadline: "12/12/2024",
-    status: true,
-    creator,
-    executer: creator,
-    subtasks: [
-      {
-        id: "LO6CGxwth",
-        title: "Joker",
-        taskID: "KNl8GvI0Y",
-        completed: false
-      },
-      {
-        id: "iNw-czpgM",
-        title: "Hobbit",
-        taskID: "KNl8GvI0Y",
-        completed: false
-      },
-      {
-        id: "0k96donEm",
-        title: "Home alone",
-        taskID: "KNl8GvI0Y",
-        completed: true
-      },
-      {
-        id: "AMVJ8AiD2",
-        title: "Harry Potter",
-        taskID: "KNl8GvI0Y",
-        completed: false
-      },
-      {
-        id: "irKuuuE3T",
-        title: "Titanic",
-        taskID: "KNl8GvI0Y",
-        completed: false
-      },
-      {
-        id: "DYWMM4leo",
-        title: "Avengers",
-        taskID: "KNl8GvI0Y",
-        completed: true
-      },
-    ],
-    log
-  },
-  {
-    id: "yGHJMbwez",
-    title: "Contribute code or a monetary donation to an open-source software project",
-    dateOfCreation: "12/12/2024",
-    dateOfDeadline: "12/12/2024",
-    status: true,
-    creator,
-    executer: creator,
-    subtasks: [],
-    log
-  },
-  {
-    id: "NUybcwFAd",
-    title: "Bake pastries for me and neighbor",
-    dateOfCreation: "12/12/2024",
-    dateOfDeadline: "12/12/2024",
-    status: true,
-    creator,
-    executer: creator,
-    subtasks: [
-      {
-        id: "WD5LskS8g",
-        title: "Cookies",
-        taskID: "NUybcwFAd",
-        completed: false
-      }
-    ],
-    log
-  },
-  {
-    id: "eMvR7cyZw",
-    title: "Write a thank you letter to an influential person in my life",
-    dateOfCreation: "12/12/2024",
-    dateOfDeadline: "12/12/2024",
-    status: true,
-    creator,
-    executer: creator,
-    subtasks: [],
-    log
-  },
-  {
-    id: "MnXqVFBTR",
-    title: "Invite some friends over for a game night",
-    dateOfCreation: "12/12/2024",
-    dateOfDeadline: "12/12/2024",
-    status: true,
-    creator,
-    executer: creator,
-    subtasks: [
-      {
-        id: "6seNMVdWm",
-        title: "Angry Cats",
-        taskID: "MnXqVFBTR",
-        completed: false
-      },
-    ],
-    log
-  },
-  {
-    id: "2Mgi0OlVY",
-    title: "Have a football scrimmage with some friends",
-    dateOfCreation: "12/12/2024",
-    dateOfDeadline: "12/12/2024",
-    status: true,
-    creator,
-    executer: creator,
-    subtasks: [],
-    log
-  },
-  {
-    id: "SsadaVGdQ",
-    title: "Organize pantry",
-    dateOfCreation: "12/12/2024",
-    dateOfDeadline: "12/12/2024",
-    status: true,
-    creator,
-    executer: creator,
-    subtasks: [
-      {
-        id: "Oa6nKii23",
-        title: "Socks",
-        taskID: "SsadaVGdQ",
-        completed: false
-      },
-    ],
-    log
-  },
-  {
-    id: "INhXuF0qY",
-    title: "Buy a new house decoration",
-    dateOfCreation: "12/12/2024",
-    dateOfDeadline: "12/12/2024",
-    status: true,
-    creator,
-    executer: creator,
-    subtasks: [
-      {
-        id: "bmLB2VHvB",
-        title: "Table",
-        taskID: "INhXuF0qY",
-        completed: false
-      },
-      {
-        id: "fsLL_OzWt",
-        title: "Christmas tree",
-        taskID: "INhXuF0qY",
-        completed: false
-      },
-    ],
-    log
-  }
-];
-
 export default {
   name: "TaskList",
   data() {
     return {
-      mainTasks,
+
     }
   },
-  props: ['personFilter', 'dateFilter'],
+  props: ['personFilter', 'dateFilter', 'projectId', 'tasks'],
   inject: ['projectService'],
   computed: {
     ...mapState(['currentFilter']),
     ...mapGetters(['project']),
     filteredTasks: function () {
-      let filtered = this.project.tasks || [];
+      let filtered = this.tasks || this.project.tasks || [];
       if (this.personFilter) {
         filtered = filtered.filter((el) => el.executer.id === this.personFilter);
       }
@@ -410,7 +195,7 @@ export default {
         message: "Удалить задачу?"
       });
       if (isConfirmed) {
-        this.projectService.removeTask(this.$route.params.id, task_id).then(() => {
+        this.projectService.removeTask(this.projectId || this.$route.params.id, task_id).then(() => {
           this.removeTask(task_id);
         }).catch(() => this.showAlert({message: 'Не удалось удалить задачу.'}));
         await this.showAlert({message: alertMessage});
@@ -426,7 +211,7 @@ export default {
 }
 </script>
 
-<style scoped>
+<style>
 ::v-deep .subtasks-container > .v-expansion-panel-content__wrap {
   padding: 0 0 15px 0;
 }

@@ -9,13 +9,18 @@
           :duration="{enter: 500, leave: 500}"
           appear
         >
+          <v-list-item v-if="filteredData(subtasks).length === 0" :key="'empty_subtasks'">
+            <v-list-item-content>
+              Подзадачи отстутствуют
+            </v-list-item-content>
+          </v-list-item>
           <v-list-item
             v-for="task in filteredData(subtasks)"
             :key="task.id"
           >
             <v-list-item-action>
               <v-checkbox
-                :disabled="false"
+                :disabled="$store.state.userRole !== 'admin'"
                 :input-value="task.status"
                 color="success"
                 on-icon="mdi-radiobox-marked"
@@ -26,7 +31,7 @@
             <v-list-item-content :class="[completedSubTaskClass(task.status)]">
               <v-list-item-title>{{ task.title }}</v-list-item-title>
             </v-list-item-content>
-            <v-list-item-icon class="ma-1">
+            <v-list-item-icon v-if="$store.state.userRole === 'admin'" class="ma-1">
               <v-tooltip top>
                 <template v-slot:activator="{ on, attrs }">
                   <v-btn
@@ -60,6 +65,7 @@
       </v-list-item-group>
       <v-divider/>
       <transition
+        v-if="$store.state.userRole === 'admin'"
         name="custom-classes-transition"
         enter-active-class="animated fadeIn"
         appear
@@ -90,6 +96,7 @@
     <ConfirmAlert ref="confirmDeletingSubTaskAlert"/>
     <UpdateSubTaskDialog
       ref="updateSubTaskDialogue"
+      :project-id="projectId"
     />
   </div>
 </template>
@@ -114,6 +121,9 @@ export default {
     executerId: {
       type: String,
     },
+    projectId: {
+
+    }
   },
   inject: ['projectService'],
   data() {
@@ -136,8 +146,8 @@ export default {
         const newSubTask = {
           title: this.newSubTask,
         };
-        this.projectService.addNewSubtask(this.$route.params.id, this.taskId, newSubTask).then(() => {
-          this.addSubTask(this.$route.params.id);
+        this.projectService.addNewSubtask(this.projectId || this.$route.params.id, this.taskId, newSubTask).then(() => {
+          this.addSubTask(this.projectId || this.$route.params.id);
           this.newSubTask = '';
         }).catch(() => this.showAlert({message: 'Не удалось создать подзадачу', type: 'error'}))
       }
@@ -148,8 +158,8 @@ export default {
         message: "Удалить подзадачу?"
       });
       if (isConfirmed) {
-        this.projectService.removeSubtask(this.$route.params.id, this.taskId, task.id).then(() => {
-          this.updateSubTask(this.$route.params.id);
+        this.projectService.removeSubtask(this.projectId || this.$route.params.id, this.taskId, task.id).then(() => {
+          this.updateSubTask(this.projectId || this.$route.params.id);
           this.showAlert({message: message})
         }).catch(() => this.showAlert({message: 'Не удалось удалить подзадачу', type: 'error'}))
       }
@@ -174,8 +184,8 @@ export default {
         status: v,
         title: task.title
       };
-      this.projectService.editSubtask(this.$route.params.id, this.taskId, task.id,  editedSubtask).then(() => {
-        this.updateSubTask(this.$route.params.id);
+      this.projectService.editSubtask(this.projectId || this.$route.params.id, this.taskId, task.id,  editedSubtask).then(() => {
+        this.updateSubTask(this.projectId || this.$route.params.id);
       }).catch((e) => console.error(e));
     },
   },

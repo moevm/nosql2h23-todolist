@@ -2,7 +2,7 @@
   <v-container
     class="container"
   >
-    <div class="d-flex flex-row pl-2 mb-1 align-center">
+    <div class="d-flex flex-row pl-2 mb-3 align-center">
       <h1>{{ project.name }}</h1>
       <v-spacer/>
       <v-tooltip content-class="executers-tooltip" left>
@@ -31,7 +31,7 @@
           </v-list-item>
         </v-list>
       </v-tooltip>
-      <v-tooltip bottom>
+      <v-tooltip v-if="$store.state.userRole === 'admin'" bottom>
         <template v-slot:activator="{ on, attrs }">
           <v-btn v-bind="attrs" v-on="on" icon flat @click="removeProject('Проект успешно удален')"><v-icon>mdi-delete</v-icon></v-btn>
         </template>
@@ -39,6 +39,7 @@
       </v-tooltip>
     </div>
     <v-row
+      v-if="$store.state.userRole === 'admin'"
       class="pl-2"
       no-gutters
     >
@@ -55,7 +56,7 @@
         </v-icon>
         Добавить задачу
       </v-btn>
-      <AddTaskDialog :opened.sync="isAddTaskDialogShown"/>
+      <AddTaskDialog :project-id="this.$route.params.id" :opened.sync="isAddTaskDialogShown"/>
     </v-row>
     <v-row
       class="mb-2 pl-2"

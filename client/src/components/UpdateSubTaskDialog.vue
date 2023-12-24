@@ -75,6 +75,9 @@ export default {
       taskId: null,
     }
   },
+  props: {
+    projectId: {},
+  },
   computed: {
     ...mapState('validators', {
       rules: state => state.taskInputRules
@@ -94,9 +97,9 @@ export default {
           title: this.value.title,
           status: this.value.status,
         };
-        this.projectService.editSubtask(this.$route.params.id, this.taskId, this.value.id, valueToSend).then(() => {
+        this.projectService.editSubtask(this.projectId || this.$route.params.id, this.taskId, this.value.id, valueToSend).then(() => {
           this.closeDialog();
-          this.updateTask(this.$route.params.id);
+          this.updateTask(this.projectId || this.$route.params.id);
         })
       }
     },

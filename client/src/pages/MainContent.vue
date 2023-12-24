@@ -73,7 +73,6 @@
     <v-main>
       <v-container
           class="fill-height align-content-start"
-          fluid
       >
         <router-view/>
       </v-container>

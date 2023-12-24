@@ -31,9 +31,9 @@
         />
 
         <span class="label-span">Исполнитель</span>
-        <v-combobox
+        <v-select
           label="Исполнитель"
-          :value="value.executer"
+          v-model="value.executer"
           :item-text="(item) => item.name + ' ' + item.surname"
           item-value="id"
           :items="$store.state.persons"
@@ -41,7 +41,6 @@
           hide-details="auto"
           return-object
           solo
-          @input="(val) => this.executer = val"
         />
 
         <v-radio-group
@@ -98,6 +97,7 @@ export default {
     fieldToUpdate: {
       type: String,
     },
+    projectId: {},
   },
   inject: ['projectService'],
   data() {
@@ -124,13 +124,13 @@ export default {
       if (isConfirmed) {
         const valueToSend = {
           title: this.value.title,
-          executerId: this.executer.id,
+          executerId: this.value.executer.id,
           status: this.value.status,
           dateOfDeadline: moment(this.value.dateOfDeadline).format('DD.MM.yyyy HH:mm:ss'),
         };
-        this.projectService.editTask(this.$route.params.id, this.value.id, valueToSend).then(() => {
+        this.projectService.editTask(this.projectId || this.$route.params.id, this.value.id, valueToSend).then(() => {
           this.closeDialog();
-          this.updateTask(this.$route.params.id);
+          this.updateTask(this.projectId || this.$route.params.id);
         })
       }
     },

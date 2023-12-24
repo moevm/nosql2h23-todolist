@@ -36,7 +36,7 @@
       </v-col>
     </v-row>
     <h2>Соотношение количества задач в проектах</h2>
-    <v-row>
+    <v-row class="mb-3">
       <v-col>
         <Doughnut
             :chart-options="chartOptions"
@@ -53,7 +53,7 @@
     <v-row>
       <v-col>
         <Bar
-            :chart-options="chartOptions"
+            :chart-options="dogChartOptions"
             :chart-data="barChartData"
             :chart-id="barChartId"
             :dataset-id-key="datasetIdKey"
@@ -110,7 +110,7 @@ export default defineComponent({
       type: Object,
       default: () => {
         return {
-          height: '400px'
+          height: '500px'
         };
       }
     },
@@ -126,7 +126,23 @@ export default defineComponent({
       search: '',
       chartOptions: {
         responsive: true,
-        maintainAspectRatio: false
+        maintainAspectRatio: false,
+      },
+      dogChartOptions: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          xAxes: [{
+            gridLines: {
+              color: "rgba(0, 0, 0, 0)",
+            }
+          }],
+          yAxes: [{
+            gridLines: {
+              color: "rgba(0, 0, 0, 0)",
+            }
+          }]
+        }
       },
     }
   },
@@ -158,7 +174,7 @@ export default defineComponent({
         proj = proj.filter((el) => this.projectsToFilter.map((el) => el.id).includes(el.id));
       }
       if (this.personToFilter) {
-        proj = proj.filter((el) => el.executors.map((el) => el.id).includes(this.projectsToFilter.id));
+        proj = proj.filter((el) => el.executors.map((el) => el.id).includes(this.personToFilter.id));
       }
       return proj;
     },
