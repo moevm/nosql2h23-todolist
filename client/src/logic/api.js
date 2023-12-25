@@ -61,7 +61,22 @@ export default class Api {
 
   // РАБОТА С ПРОЕКТАМИ
   static getAllProjects() {
-    return fetch(`${this.baseUrl}/project/all`, {
+    return fetch(`${this.baseUrl}/project/all?` + new URLSearchParams({ page: 0, size: 999 }), {
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+        'Authorization': getAuthHeader(),
+      },
+    }).then((response) => {
+      if (response.status !== 200) {
+        return Promise.reject(new Error(`${response.status} ${response.statusText}`));
+      }
+      return Promise.resolve(response);
+    }).then((res) => res.json());
+  }
+
+  static getAllProjectsAtPage(page, size) {
+    return fetch(`${this.baseUrl}/project/all?` + new URLSearchParams({ page, size }), {
       headers: {
         Accept: 'application/json',
         'Content-Type': 'application/json',

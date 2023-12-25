@@ -21,6 +21,10 @@ export default class ProjectService {
     return Api.getAllProjects();
   }
 
+  static async getAllProjectsAtPage(page, size) {
+    return Api.getAllProjectsAtPage(page, size);
+  }
+
   static async findProjectByName(pr_name) {
     return Api.findProjectByName(pr_name);
   }

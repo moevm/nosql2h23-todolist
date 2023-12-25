@@ -36,7 +36,7 @@
       </v-col>
       <v-col>
         <el-date-picker
-          class="elevation-1"
+          class="elevation-1 mr-2"
           style="width: 100%"
           v-model="date"
           format="yyyy-MM-dd"
@@ -45,6 +45,25 @@
           value-format="yyyy-MM-dd"
           start-placeholder="С"
           end-placeholder="ДО"
+        />
+      </v-col>
+      <v-col>
+        <v-combobox
+          v-model="comboTasks"
+          :items="comboItems"
+          style="max-height: 30px"
+          chips
+          item-value="id"
+          item-text="title"
+          return-object
+          multiple
+          hide-selected
+          placeholder="Название задачи"
+          label="Название задачи"
+          clearable
+          dense
+          hide-details
+          solo
         />
       </v-col>
     </v-row>
@@ -135,6 +154,8 @@ export default defineComponent({
   },
   data() {
     return {
+      comboTasks: null,
+      comboItems: null,
       date: null,
       projectsToFilter: [],
       personToFilter: null,
@@ -199,6 +220,14 @@ export default defineComponent({
           })]
         });
       }
+      this.comboItems = proj.map((el) => el.tasks).flat();
+
+      if (this.comboTasks && this.comboTasks.length !== 0) {
+        proj.forEach((el) => {
+          el.tasks = [...el.tasks.filter((t) => this.comboTasks.map((v) => v.title).includes(t.title))]
+        });
+      }
+
       return proj;
     },
     chartData() {

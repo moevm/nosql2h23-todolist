@@ -59,7 +59,7 @@
     >
       <h2 class="mb-2">{{headerText()}}</h2>
       <div
-        v-for="(project) in $store.state.projects"
+        v-for="(project) in projects"
         :key="project.id"
         class="mb-4"
       >
@@ -72,7 +72,30 @@
           :search-filter="taskSearch"
         />
       </div>
-
+      <v-row class="d-flex justify-center">
+        <v-col class="d-flex flex-row align-center justify-center">
+          <v-pagination
+            v-model="page"
+            :disabled="loading"
+            :length="Math.ceil($store.state.projects.length / this.size)"
+            @input="onLoad"
+          ></v-pagination>
+          <span>Проектов на странице: </span>
+          <v-select
+            class="ml-2"
+            v-model="size"
+            :items="cItems"
+            style="max-width: 100px"
+            hide-details
+            dense
+            label="Проектов на странице"
+            item-text="label"
+            item-value="value"
+            @input="onLoad"
+            solo
+          />
+        </v-col>
+      </v-row>
     </v-container>
   </v-container>
 </template>
@@ -94,7 +117,32 @@ export default defineComponent({
       search: '',
       personToFilter: null,
       taskSearch: null,
+      page: 1,
+      loading: false,
+      size: 3,
+      cItems: [{
+        label: '1',
+        value: 1,
+        },
+        {
+          label: '3',
+          value: 3,
+        },
+        {
+          label: '5',
+          value: 5,
+        },
+        {
+          label: 'Все',
+          value: 999,
+        }]
     };
+  },
+  inject: ['projectService'],
+  mounted() {
+    this.projectService.getAllProjectsAtPage(this.page - 1, this.size).then((res) => {
+      this.projects = res;
+    }).catch((e) => console.error(e));
   },
   methods: {
     headerText() {
@@ -104,6 +152,14 @@ export default defineComponent({
       }
       return text;
     },
+    onLoad() {
+      this.loading = true;
+      this.projectService.getAllProjectsAtPage(this.page - 1, this.size).then((res) => {
+        this.projects = res;
+      }).catch((e) => console.error(e)).finally(() => {
+        this.loading = false
+      });
+    }
   },
   computed: mapState({
     person: state => state.user,
