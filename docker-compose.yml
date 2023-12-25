@@ -2,17 +2,17 @@ version: "3.8"
 
 services:
   mongodb:
-    image: mongo
+    image: mongo:7.0.2
     container_name: mongodb
     ports:
-      - "27017:27017"
+      - "127.0.0.2:${DB_PORT}:${DB_PORT}"
     volumes:
       - data:/data
 
   backend:
     build: ./hello_world/toDoList
     ports:
-      - "8080:8080"
+      - "127.0.0.2:${BACKEND_PORT}:${BACKEND_PORT}"
     depends_on:
       - mongodb
 
@@ -21,7 +21,7 @@ services:
       context: ./client
     container_name: todo_frontend
     ports:
-      - "8081:8081"
+      - "127.0.0.2:${FRONTEND_PORT}:${FRONTEND_PORT}"
     depends_on:
       - backend
 volumes:
