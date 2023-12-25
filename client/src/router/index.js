@@ -30,16 +30,6 @@ const routes = [
     name: 'auth',
     component: () => import('../views/AuthView.vue')
   },
-  // {
-  //   path: '/about',
-  //   name: 'about',
-  //   component: () => import('../views/AboutView.vue')
-  // },
-  // {
-  //   path: '/projects/:projectName',
-  //   name: 'projects',
-  //   component: () => import('../views/ProjectView.vue')
-  // },
   {
     path: '*',
     name: 'not-found',
