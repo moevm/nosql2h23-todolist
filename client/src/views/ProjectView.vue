@@ -4,6 +4,12 @@
   >
     <div class="d-flex flex-row pl-2 mb-3 align-center">
       <h1>{{ project.name }}</h1>
+      <v-tooltip v-if="$store.state.userRole === 'admin'" bottom>
+        <template v-slot:activator="{ on, attrs }">
+          <v-btn v-bind="attrs" v-on="on" icon text @click="onEdit"><v-icon>mdi-pencil</v-icon></v-btn>
+        </template>
+        Редактировать проект
+      </v-tooltip>
       <v-spacer/>
       <v-tooltip content-class="executers-tooltip" left>
         <template v-slot:activator="{ on, attrs }">
@@ -33,7 +39,7 @@
       </v-tooltip>
       <v-tooltip v-if="$store.state.userRole === 'admin'" bottom>
         <template v-slot:activator="{ on, attrs }">
-          <v-btn v-bind="attrs" v-on="on" icon flat @click="removeProject('Проект успешно удален')"><v-icon>mdi-delete</v-icon></v-btn>
+          <v-btn v-bind="attrs" v-on="on" icon text @click="removeProject('Проект успешно удален')"><v-icon>mdi-delete</v-icon></v-btn>
         </template>
         Удалить проект
       </v-tooltip>
@@ -135,6 +141,7 @@
       <TaskList :person-filter="personToFilter?.id" :date-filter="date"/>
     </v-container>
     <ConfirmAlert ref="confirmMainTaskAddDialogue"/>
+    <UpdateProjectDialog ref="updateDialog"/>
   </v-container>
 </template>
 
@@ -145,10 +152,11 @@ import FiltersPanel from "@/components/FiltersPanel.vue";
 import ConfirmAlert from "@/components/ConfirmAlert.vue";
 import {mapActions, mapMutations, mapState} from "vuex";
 import store from "@/store";
+import UpdateProjectDialog from "@/components/UpdateProjectDialog.vue";
 
 export default {
   name: "ProjectView",
-  components: {ConfirmAlert, FiltersPanel, AddTaskDialog, TaskList},
+  components: {UpdateProjectDialog, ConfirmAlert, FiltersPanel, AddTaskDialog, TaskList},
   inject: ['projectService'],
   data() {
     return {
@@ -200,6 +208,11 @@ export default {
         this.$router.push({ name: 'home' });
         await this.showAlert({message: alertMessage});
       }
+    },
+    onEdit() {
+      this.$refs.updateDialog.openDialog({
+        project: this.project,
+      })
     },
   }
 }
