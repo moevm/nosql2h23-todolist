@@ -27,7 +27,7 @@ public class ProjectController {
     private final ProjectService projectService;
     private final PersonService personService;
 
-    private final int PAGE_SIZE = 5;
+    private final int PAGE_SIZE = 3;
 
     @Autowired
     public ProjectController(ProjectService projectService, PersonService personService) {
@@ -37,10 +37,12 @@ public class ProjectController {
 
     @GetMapping("/all")
     public List<Project> findAll(@RequestParam(defaultValue = "0", required = false)
-                                     Integer page) {
+                                 Integer page,
+                                 @RequestParam(defaultValue = "999", required = false)
+                                 Integer size) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         PersonDetails personDetails = (PersonDetails) authentication.getPrincipal();
-        Pageable paging  = PageRequest.of(page, PAGE_SIZE);
+        Pageable paging  = PageRequest.of(page, size);
 
         if (Objects.equals(personService.findEmail(personDetails.getUsername()).getRole(), "ROLE_ADMIN")){
             return projectService.findAll(paging);
@@ -50,16 +52,11 @@ public class ProjectController {
 
     @PostMapping("/find_person/{person_id}")
     public List<Project> findAllForPerson(@PathVariable("person_id") String person_id,
-                                          @RequestParam(defaultValue = "0", required = false)
-                                          Integer page) {
+                                          @RequestParam(defaultValue = "999", required = false)
+                                          Integer size) {
 
-        Pageable paging  = PageRequest.of(page, PAGE_SIZE);
+        Pageable paging  = PageRequest.of(size, PAGE_SIZE);
         return projectService.findAllForPerson(person_id, paging);
-    }
-
-    @GetMapping("/find/{project_id}")
-    public Project findById(@PathVariable("project_id") String project_id) {
-        return projectService.findById(project_id);
     }
     @GetMapping("/find_name/{project_name}")
     public Project projectByName(@PathVariable("project_name")  String projectName) {

@@ -26,11 +26,9 @@ import java.util.Objects;
 @RequestMapping("/tasks")
 public class TaskController {
     private final TaskService taskService;
-    private final SubtaskService subtaskService;
     private final ProjectService projectService;
     private final PersonService personService;
 
-    private final int PAGE_SIZE = 5;
 
     /**
      *
@@ -40,20 +38,23 @@ public class TaskController {
     @GetMapping("/{project_id}")
     public List<Task> getAllTasks(@PathVariable("project_id") String project_id,
                                   @RequestParam(defaultValue = "0", required = false)
-                                  Integer page) {
+                                  Integer page,
+                                  @RequestParam(defaultValue = "999", required = false)
+                                  Integer size) {
 
-        Pageable paging  = PageRequest.of(page, PAGE_SIZE);
+        Pageable paging  = PageRequest.of(page, size);
 
         return taskService.findAllForProject(project_id, paging);
     }
 
     @GetMapping("/all")
     public List<Task> findAll(@RequestParam(defaultValue = "0", required = false)
-                                  Integer page) {
+                              Integer page,@RequestParam(defaultValue = "999", required = false)
+                              Integer size) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         PersonDetails personDetails = (PersonDetails) authentication.getPrincipal();
 
-        Pageable paging  = PageRequest.of(page, PAGE_SIZE);
+        Pageable paging  = PageRequest.of(page, size);
 
         if (Objects.equals(personService.findEmail(personDetails.getUsername()).getRole(), "ROLE_ADMIN")) {
             return taskService.findAll(paging);
@@ -65,14 +66,16 @@ public class TaskController {
     @GetMapping("/all/{project_id}")
     public List<Task> findAllForPersonForProject(@PathVariable("project_id") String project_id,
                                                  @RequestParam(defaultValue= "0", required = false)
-                                                 Integer page) {
+                                                 Integer page,
+                                                 @RequestParam(defaultValue = "999", required = false)
+                                                 Integer size) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         PersonDetails personDetails = (PersonDetails) authentication.getPrincipal();
 
-        Pageable paging = PageRequest.of(page, PAGE_SIZE);
+        Pageable paging = PageRequest.of(page, size);
 
         return  taskService.findAllTasksForPersonForProject(personService.
-                findEmail(personDetails.getUsername()).getId(),
+                        findEmail(personDetails.getUsername()).getId(),
                 project_id, paging);
     }
 
@@ -80,9 +83,9 @@ public class TaskController {
     public List<Task> findAllForPerson(@PathVariable("person_id") String person_id,
                                        @RequestParam(defaultValue= "0", required = false)
                                        Integer page ,
-                                       @RequestParam(defaultValue= "5", required = false)
-                                           Integer pageSize) {
-        Pageable paging = PageRequest.of(page, pageSize);
+                                       @RequestParam(defaultValue = "999", required = false)
+                                       Integer size) {
+        Pageable paging = PageRequest.of(page, size);
 
         return taskService.findAllForPerson(person_id, paging);
     }

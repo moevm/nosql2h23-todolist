@@ -107,39 +107,6 @@ public class ToDoListApplication {
 			taskRepository.save(TaskForFlight1);
 			TasksForCode.add(TaskForFlight1);
 
-			Task TaskForCalc2 = new Task("Написание модулей", LocalDateTime.now(),
-					LocalDateTime.of(2023, 11, 23,11,30,46),
-					TaskStatus.INCOMPLETE, KatyPerson, XeniaPerson, new ArrayList<>());
-			Task TaskForCalc3 = new Task("Разработка интерфейса приложения", LocalDateTime.now(),
-					LocalDateTime.of(2023, 11, 23,11,30,46),
-					TaskStatus.INCOMPLETE, KatyPerson, XeniaPerson, new ArrayList<>());
-			Task TaskForCalc4 = new Task("Запуск и проверка модулей", LocalDateTime.now(),
-					LocalDateTime.of(2023, 11, 23,11,30,46),
-					TaskStatus.INCOMPLETE, KatyPerson, XeniaPerson, new ArrayList<>());
-			Task TaskForCalc5 = new Task("Издательство документов", LocalDateTime.now(),
-					LocalDateTime.of(2023, 11, 23,11,30,46),
-					TaskStatus.INCOMPLETE, KatyPerson, XeniaPerson, new ArrayList<>());
-			Task TaskForCalc6 = new Task("Сопоставить данные", LocalDateTime.now(),
-					LocalDateTime.of(2023, 11, 23,11,30,46),
-					TaskStatus.INCOMPLETE, KatyPerson, XeniaPerson, new ArrayList<>());
-			Task TaskForCalc7 = new Task("Посчитать изменения", LocalDateTime.now(),
-					LocalDateTime.of(2023, 11, 23,11,30,46),
-					TaskStatus.INCOMPLETE, KatyPerson, XeniaPerson, new ArrayList<>());
-
-			taskRepository.save(TaskForCalc2);
-			taskRepository.save(TaskForCalc3);
-			taskRepository.save(TaskForCalc4);
-			taskRepository.save(TaskForCalc5);
-			taskRepository.save(TaskForCalc6);
-			taskRepository.save(TaskForCalc7);
-
-			TasksForCode.add(TaskForCalc2);
-			TasksForCode.add(TaskForCalc3);
-			TasksForCode.add(TaskForCalc4);
-			TasksForCode.add(TaskForCalc5);
-			TasksForCode.add(TaskForCalc6);
-			TasksForCode.add(TaskForCalc7);
-
 			Set<Person> Executers = new HashSet<>();
 			Executers.add(XeniaPerson);
 			Executers.add(DariaPerson);
@@ -366,6 +333,165 @@ public class ToDoListApplication {
 			Project ProjectGraph = new Project("Графикс", ProjectStatus.IN_PROGRESS, ExecutersForGraph,
 					TasksForGraph);
 			projectRepository.save(ProjectGraph);
+
+
+			/**
+			 * пятый проект
+			 **/
+
+			Task TaskForRazrab2 = new Task("Разработка инновационных графических решений 2", LocalDateTime.now(),
+					LocalDateTime.of(2023, 12, 11,18,30,00),
+					TaskStatus.INCOMPLETE, DanilPerson, NatalyPerson, subtaskForRazrab);
+			Task TaskForOptm2 = new Task("Оптимизация производительности графических приложений 2", LocalDateTime.now(),
+					LocalDateTime.of(2023, 12, 11,17,00,00),
+					TaskStatus.INCOMPLETE, KatyPerson, XeniaPerson, subtaskForOptm);
+			Task TaskForAnalize2 = new Task("Анализ современных технологий VR/AR 2", LocalDateTime.now(),
+					LocalDateTime.of(2023, 12, 11,11,30,46),
+					TaskStatus.INCOMPLETE, DanilPerson, DariaPerson, subtaskForAnalize);
+			Task TaskForSup2 = new Task("Обучение и поддержка пользователей 2", LocalDateTime.now(),
+					LocalDateTime.of(2023, 12, 9,10,30,46),
+					TaskStatus.COMPLETE, KatyPerson, NatalyPerson, subtaskTaskForSup);
+
+			taskRepository.save(TaskForRazrab2);
+			taskRepository.save(TaskForOptm2);
+			taskRepository.save(TaskForAnalize2);
+			taskRepository.save(TaskForSup2);
+
+			ArrayList<Task> TasksForGraph2 = new ArrayList<>();
+			TasksForGraph2.add(TaskForRazrab2);
+			TasksForGraph2.add(TaskForOptm2);
+			TasksForGraph2.add(TaskForAnalize2);
+			TasksForGraph2.add(TaskForSup2);
+
+			Set<Person> ExecutersForGraph2 = new HashSet<>();
+			ExecutersForGraph2.add(XeniaPerson);
+			ExecutersForGraph2.add(DariaPerson);
+			ExecutersForGraph2.add(KatyPerson);
+			ExecutersForGraph2.add(DanilPerson);
+			ExecutersForGraph2.add(NatalyPerson);
+
+			Project ProjectGraph2 = new Project("Графикс 2.0", ProjectStatus.IN_PROGRESS, ExecutersForGraph2,
+					TasksForGraph2);
+			projectRepository.save(ProjectGraph2);
+
+
+			/**
+			 * шестой проект
+			 **/
+
+			Task TaskForRazrab3 = new Task("Разработка инновационных 3", LocalDateTime.now(),
+					LocalDateTime.of(2023, 12, 11,18,10,00),
+					TaskStatus.INCOMPLETE, DanilPerson, NatalyPerson, subtaskForRazrab);
+			Task TaskForOptm3 = new Task("Оптимизация производительности 3", LocalDateTime.now(),
+					LocalDateTime.of(2023, 12, 11,17,20,00),
+					TaskStatus.INCOMPLETE, KatyPerson, XeniaPerson, subtaskForOptm);
+			Task TaskForAnalize3 = new Task("Анализ современных 3", LocalDateTime.now(),
+					LocalDateTime.of(2023, 12, 11,11,20,46),
+					TaskStatus.INCOMPLETE, DanilPerson, DariaPerson, subtaskForAnalize);
+			Task TaskForSup3 = new Task("Обучение и поддержка 3", LocalDateTime.now(),
+					LocalDateTime.of(2023, 12, 9,10,30,46),
+					TaskStatus.COMPLETE, KatyPerson, NatalyPerson, subtaskTaskForSup);
+
+			taskRepository.save(TaskForRazrab3);
+			taskRepository.save(TaskForOptm3);
+			taskRepository.save(TaskForAnalize3);
+			taskRepository.save(TaskForSup3);
+
+			ArrayList<Task> TasksForGraph3 = new ArrayList<>();
+			TasksForGraph3.add(TaskForRazrab3);
+			TasksForGraph3.add(TaskForOptm3);
+			TasksForGraph3.add(TaskForAnalize3);
+			TasksForGraph3.add(TaskForSup3);
+
+			Set<Person> ExecutersForGraph3 = new HashSet<>();
+			ExecutersForGraph3.add(XeniaPerson);
+			ExecutersForGraph3.add(DariaPerson);
+			ExecutersForGraph3.add(KatyPerson);
+			ExecutersForGraph3.add(DanilPerson);
+			ExecutersForGraph3.add(NatalyPerson);
+
+			Project ProjectGraph3 = new Project("ШЛКК", ProjectStatus.IN_PROGRESS, ExecutersForGraph3,
+					TasksForGraph3);
+			projectRepository.save(ProjectGraph3);
+
+
+			/**
+			 * седьмое проект
+			 **/
+
+			Task TaskForRazrab4 = new Task("Разработка инновационных 4", LocalDateTime.now(),
+					LocalDateTime.of(2023, 12, 11,18,10,00),
+					TaskStatus.INCOMPLETE, DanilPerson, NatalyPerson, subtaskForRazrab);
+			Task TaskForOptm4 = new Task("Оптимизация производительности 4", LocalDateTime.now(),
+					LocalDateTime.of(2023, 12, 11,17,20,00),
+					TaskStatus.INCOMPLETE, KatyPerson, XeniaPerson, subtaskForOptm);
+			Task TaskForAnalize4 = new Task("Анализ современных 4", LocalDateTime.now(),
+					LocalDateTime.of(2023, 12, 11,11,20,46),
+					TaskStatus.INCOMPLETE, DanilPerson, DariaPerson, subtaskForAnalize);
+			Task TaskForSup4 = new Task("Обучение и поддержка 4", LocalDateTime.now(),
+					LocalDateTime.of(2023, 12, 9,10,30,46),
+					TaskStatus.COMPLETE, KatyPerson, NatalyPerson, subtaskTaskForSup);
+
+			taskRepository.save(TaskForRazrab4);
+			taskRepository.save(TaskForOptm4);
+			taskRepository.save(TaskForAnalize4);
+			taskRepository.save(TaskForSup4);
+
+			ArrayList<Task> TasksForGraph4 = new ArrayList<>();
+			TasksForGraph4.add(TaskForRazrab4);
+			TasksForGraph4.add(TaskForOptm4);
+			TasksForGraph4.add(TaskForAnalize4);
+			TasksForGraph4.add(TaskForSup4);
+
+			Set<Person> ExecutersForGraph4 = new HashSet<>();
+			ExecutersForGraph4.add(XeniaPerson);
+			ExecutersForGraph4.add(DariaPerson);
+			ExecutersForGraph4.add(KatyPerson);
+			ExecutersForGraph4.add(DanilPerson);
+			ExecutersForGraph4.add(NatalyPerson);
+
+			Project ProjectGraph4 = new Project("УКРВ", ProjectStatus.IN_PROGRESS, ExecutersForGraph4,
+					TasksForGraph4);
+			projectRepository.save(ProjectGraph4);
+
+			/**
+			 * восьмой проект
+			 **/
+
+			Task TaskForRazrab5 = new Task("Разработка инновационных 5", LocalDateTime.now(),
+					LocalDateTime.of(2023, 12, 11,18,10,00),
+					TaskStatus.INCOMPLETE, DanilPerson, NatalyPerson, subtaskForRazrab);
+			Task TaskForOptm5 = new Task("Оптимизация производительности 5", LocalDateTime.now(),
+					LocalDateTime.of(2023, 12, 11,17,20,00),
+					TaskStatus.INCOMPLETE, KatyPerson, XeniaPerson, subtaskForOptm);
+			Task TaskForAnalize5 = new Task("Анализ современных 5", LocalDateTime.now(),
+					LocalDateTime.of(2023, 12, 11,11,20,46),
+					TaskStatus.INCOMPLETE, DanilPerson, DariaPerson, subtaskForAnalize);
+			Task TaskForSup5 = new Task("Обучение и поддержка 5", LocalDateTime.now(),
+					LocalDateTime.of(2023, 12, 9,10,30,46),
+					TaskStatus.COMPLETE, KatyPerson, NatalyPerson, subtaskTaskForSup);
+
+			taskRepository.save(TaskForRazrab5);
+			taskRepository.save(TaskForOptm5);
+			taskRepository.save(TaskForAnalize5);
+			taskRepository.save(TaskForSup5);
+
+			ArrayList<Task> TasksForGraph5 = new ArrayList<>();
+			TasksForGraph5.add(TaskForRazrab5);
+			TasksForGraph5.add(TaskForOptm5);
+			TasksForGraph5.add(TaskForAnalize5);
+			TasksForGraph5.add(TaskForSup5);
+
+			Set<Person> ExecutersForGraph5 = new HashSet<>();
+			ExecutersForGraph5.add(XeniaPerson);
+			ExecutersForGraph5.add(DariaPerson);
+			ExecutersForGraph5.add(KatyPerson);
+			ExecutersForGraph5.add(DanilPerson);
+			ExecutersForGraph5.add(NatalyPerson);
+
+			Project ProjectGraph5 = new Project("УКРВ", ProjectStatus.IN_PROGRESS, ExecutersForGraph5,
+					TasksForGraph5);
+			projectRepository.save(ProjectGraph5);
 		};
 	}
 
