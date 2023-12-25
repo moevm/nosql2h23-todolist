@@ -15,53 +15,25 @@
       <v-col class="d-flex flex-row align-center" cols="12">
         <FiltersPanel/>
         <v-spacer/>
-        <v-menu
-          ref="menu"
-          v-model="menu"
-          :close-on-content-click="false"
-          :return-value.sync="date"
-          transition="scale-transition"
-          left
-          offset-y
-          min-width="auto"
-        >
-          <template v-slot:activator="{ on, attrs }">
-            <v-text-field
-              v-model="date"
-              class="mr-2"
-              label="Task date"
-              prepend-inner-icon="mdi-calendar"
-              readonly
-              v-bind="attrs"
-              v-on="on"
-              dense
-              solo
-              hide-details
-              style="max-width:140px"
-            ></v-text-field>
-          </template>
-          <v-date-picker
-            v-model="date"
-            no-title
-            scrollable
-          >
-            <v-spacer></v-spacer>
-            <v-btn
-              text
-              color="primary"
-              @click="menu = false"
-            >
-              Cancel
-            </v-btn>
-            <v-btn
-              text
-              color="primary"
-              @click="$refs.menu.save(date)"
-            >
-              OK
-            </v-btn>
-          </v-date-picker>
-        </v-menu>
+        <v-text-field
+          v-model="taskSearch"
+          placeholder="Название задачи"
+          class="mr-2"
+          clearable
+          dense
+          hide-details
+          solo
+        />
+        <el-date-picker
+          class="mr-2 elevation-1"
+          v-model="date"
+          format="yyyy-MM-dd"
+          type="daterange"
+          range-separator="ПО"
+          value-format="yyyy-MM-dd"
+          start-placeholder="С"
+          end-placeholder="ДО"
+        />
 
         <v-select
           v-if="$store.state.userRole === 'admin'"
@@ -97,6 +69,7 @@
           :person-filter="personToFilter"
           :project-id="project.id"
           :tasks="project.tasks"
+          :search-filter="taskSearch"
         />
       </div>
 
@@ -120,6 +93,7 @@ export default defineComponent({
       projects: [],
       search: '',
       personToFilter: null,
+      taskSearch: null,
     };
   },
   methods: {

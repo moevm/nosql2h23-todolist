@@ -34,6 +34,19 @@
             label="Сотрудник"
         ></v-select>
       </v-col>
+      <v-col>
+        <el-date-picker
+          class="elevation-1"
+          style="width: 100%"
+          v-model="date"
+          format="yyyy-MM-dd"
+          type="daterange"
+          range-separator="ПО"
+          value-format="yyyy-MM-dd"
+          start-placeholder="С"
+          end-placeholder="ДО"
+        />
+      </v-col>
     </v-row>
     <h2>Соотношение количества задач в проектах</h2>
     <v-row class="mb-3">
@@ -81,6 +94,7 @@ import {
   LinearScale
 } from 'chart.js'
 import {mapState} from "vuex";
+import moment from "moment/moment";
 
 ChartJS.register(Title, Tooltip, Legend, ArcElement, CategoryScale, LinearScale, BarElement)
 
@@ -121,6 +135,7 @@ export default defineComponent({
   },
   data() {
     return {
+      date: null,
       projectsToFilter: [],
       personToFilter: null,
       search: '',
@@ -164,17 +179,25 @@ export default defineComponent({
     },
     getTaskCount(project) {
       return project.tasks.length;
-    }
+    },
   },
   computed: {
     ...mapState(['projects', 'persons']),
     computedProjectsData() {
-      let proj = [...this.projects];
+      let proj = JSON.parse(JSON.stringify(this.projects));
       if (this.projectsToFilter.length !== 0) {
         proj = proj.filter((el) => this.projectsToFilter.map((el) => el.id).includes(el.id));
       }
       if (this.personToFilter) {
         proj = proj.filter((el) => el.executors.map((el) => el.id).includes(this.personToFilter.id));
+      }
+      if (this.date) {
+        proj.forEach((el) => {
+          el.tasks = [...el.tasks.filter((t) => {
+            return (moment(t.dateOfDeadline, 'DD.MM.yyyy HH:mm:ss') >= moment(`${this.date[0]} 00:00:01`, 'yyyy-MM-DD HH:mm:ss')) &&
+              (moment(t.dateOfDeadline, 'DD.MM.yyyy HH:mm:ss') <= moment(`${this.date[1]} 23:59:59`, 'yyyy-MM-DD HH:mm:ss'));
+          })]
+        });
       }
       return proj;
     },

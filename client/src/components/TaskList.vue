@@ -156,7 +156,7 @@ export default {
 
     }
   },
-  props: ['personFilter', 'dateFilter', 'projectId', 'tasks'],
+  props: ['personFilter', 'dateFilter', 'projectId', 'tasks', 'searchFilter'],
   inject: ['projectService'],
   computed: {
     ...mapState(['currentFilter']),
@@ -166,7 +166,12 @@ export default {
       if (this.personFilter) {
         filtered = filtered.filter((el) => el.executer.id === this.personFilter);
       }
-      if (this.dateFilter) {
+      if (this.dateFilter && Array.isArray(this.dateFilter)) {
+        filtered = filtered.filter((el) => {
+          return (moment(el.dateOfDeadline, 'DD.MM.yyyy HH:mm:ss') >= moment(`${this.dateFilter[0]} 00:00:01`, 'yyyy-MM-DD HH:mm:ss')) &&
+            (moment(el.dateOfDeadline, 'DD.MM.yyyy HH:mm:ss') <= moment(`${this.dateFilter[1]} 23:59:59`, 'yyyy-MM-DD HH:mm:ss'))
+        });
+      } else if (this.dateFilter && !Array.isArray(this.dateFilter)) {
         filtered = filtered.filter((el) => moment(el.dateOfDeadline, 'DD.MM.yyyy HH:mm:ss') <= moment(`${this.dateFilter} 23:59:59`, 'yyyy-MM-DD HH:mm:ss'));
       }
       if (this.currentFilter.name === 'COMPLETE') {
@@ -174,6 +179,9 @@ export default {
       }
       if (this.currentFilter.name === 'INCOMPLETE') {
         filtered = filtered.filter((task) => task.status === 'INCOMPLETE');
+      }
+      if (this.searchFilter) {
+        filtered = filtered.filter((task) => task.title.includes(this.searchFilter));
       }
       return filtered;
     },
