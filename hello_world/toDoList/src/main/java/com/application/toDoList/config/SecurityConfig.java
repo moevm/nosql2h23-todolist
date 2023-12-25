@@ -87,7 +87,7 @@ public class SecurityConfig {
 //                "Accept-Language", "Authorization", "Content-Type", "Request-Name", "Request-Surname", "Origin", "X-Request-AppVersion",
 //                "X-Request-OsVersion", "X-Request-Device", "X-Requested-With"));
         configuration.setAllowedOrigins(List.of(
-                "http://localhost:8080", "http://localhost:8081"
+                "http://127.0.0.2:8080", "http://127.0.0.2:8081"
         ));
         configuration.setAllowedMethods(List.of("GET", "POST", "PATCH", "DELETE"));
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
