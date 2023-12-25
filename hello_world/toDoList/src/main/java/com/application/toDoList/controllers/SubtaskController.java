@@ -3,15 +3,20 @@ package com.application.toDoList.controllers;
 import com.application.toDoList.domains.Subtask;
 import com.application.toDoList.dto.SubtaskToSave;
 import com.application.toDoList.dto.SubtaskToUpdate;
+import com.application.toDoList.security.PersonDetails;
+import com.application.toDoList.services.PersonService;
 import com.application.toDoList.services.ProjectService;
 import com.application.toDoList.services.SubtaskService;
 import com.application.toDoList.services.TaskService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Objects;
 
 @CrossOrigin("*")
 @RestController
@@ -21,6 +26,7 @@ public class SubtaskController {
     private final TaskService taskService;
     private final SubtaskService subtaskService;
     private final ProjectService projectService;
+    private final PersonService personService;
 
 
     /**
@@ -44,7 +50,13 @@ public class SubtaskController {
                                            @PathVariable("task_id") String task_id,
                                            @PathVariable("subtask_id") String subtask_id,
                                            @RequestBody SubtaskToUpdate subtaskToUpdate) {
-        Subtask subtask = subtaskService.updateSubtask(project_id, task_id, subtask_id, subtaskToUpdate);
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        PersonDetails personDetails = (PersonDetails) authentication.getPrincipal();
+
+        if (Objects.equals(personService.findEmail(personDetails.getUsername()).getRole(), "ROLE_ADMIN")) {
+            return subtaskService.updateSubtask(project_id, task_id, subtask_id, subtaskToUpdate);
+        }
+        Subtask subtask = subtaskService.updateSubtask(project_id, task_id, subtask_id, subtaskToUpdate.getStatus());
 
         return subtask;
     }

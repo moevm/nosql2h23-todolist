@@ -94,6 +94,13 @@ public class TaskController {
                            @PathVariable("task_id") String task_id,
                            @RequestBody TaskToUpdate taskToUpdate) {
 
-        return taskService.updateTask(task_id, project_id, taskToUpdate);
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        PersonDetails personDetails = (PersonDetails) authentication.getPrincipal();
+
+        if (Objects.equals(personService.findEmail(personDetails.getUsername()).getRole(), "ROLE_ADMIN")) {
+            return taskService.updateTask(task_id, project_id, taskToUpdate);
+        }
+
+        return taskService.updateTask(task_id, project_id, taskToUpdate.getStatus());
     }
 }

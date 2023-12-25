@@ -96,6 +96,46 @@ public class SubtaskService {
         return updatedSubtask;
     }
 
+    public Subtask updateSubtask(String project_id, String task_id, String subtask_id, Boolean status) {
+        if (subtaskRepository.findById(subtask_id).isEmpty())
+            throw new SubtaskNotFoundException();
+
+        if (taskRepository.findById(task_id).isEmpty())
+            throw new TaskNotFoundException();
+
+        if (projectRepository.findById(project_id).isEmpty())
+            throw new ProjectNotFoundException();
+
+        Project project = projectRepository.findById(project_id).get();
+        Task task = taskRepository.findById(task_id).get();
+        Subtask subtask = subtaskRepository.findById(subtask_id).get();
+
+        subtask.setStatus(status);
+
+        Subtask updatedSubtask = subtaskRepository.save(subtask);
+
+        project.getTasks().forEach(taskInList -> {
+            if (taskInList.getId().equals(task.getId())) {
+                taskInList.getSubtasks().forEach(subtaskInList -> {
+                    if (subtaskInList.getId().equals(subtask.getId())) {
+                        subtaskInList.setStatus(status);
+                    }
+                });
+            }
+        });
+
+        task.getSubtasks().forEach(subtaskInList -> {
+            if (subtaskInList.getId().equals(subtask.getId())) {
+                subtaskInList.setStatus(status);
+            }
+        });
+
+        projectRepository.save(project);
+        taskRepository.save(task);
+
+        return updatedSubtask;
+    }
+
     public void deleteSubtask(String project_id, String task_id, String subtask_id) {
         if (subtaskRepository.findById(subtask_id).isEmpty())
             throw new SubtaskNotFoundException();

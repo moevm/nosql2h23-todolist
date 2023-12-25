@@ -85,6 +85,31 @@ public class TaskService {
         return saveTask;
     }
 
+    public Task updateTask(String taskId, String projectId, String taskStatus) {
+        if (taskRepository.findById(taskId).isEmpty())
+            throw new TaskNotFoundException();
+
+        if(projectRepository.findById(projectId).isEmpty())
+            throw new ProjectNotFoundException();
+
+        Project project = projectRepository.findById(projectId).get();
+
+        Task task = taskRepository.findById(taskId).get();
+
+        task.setStatus(Enum.valueOf(TaskStatus.class, taskStatus));
+
+        project.getTasks().forEach(taskInList -> {
+            if (taskInList.getId().equals(task.getId())) {
+                taskInList.setStatus(Enum.valueOf(TaskStatus.class, taskStatus));
+            }
+        });
+
+        Task saveTask = taskRepository.save(task);
+        projectRepository.save(project);
+
+        return saveTask;
+    }
+
     public void addExecuterToTask(Task task, String executerId) {
         if (personRepository.findById(executerId).isEmpty())
             throw new PersonNotFoundException();
