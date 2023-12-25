@@ -7,7 +7,7 @@ const getAuthHeader = () => {
 };
 
 export default class Api {
-  static baseUrl = 'http://localhost:8080';
+  static baseUrl = 'http://127.0.0.2:8080';
 
   // АВТОРИЗАЦИЯ И АУТЕНТИФИКАЦИЯ
   static login(data) {
