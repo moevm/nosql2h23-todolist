@@ -107,6 +107,39 @@ public class ToDoListApplication {
 			taskRepository.save(TaskForFlight1);
 			TasksForCode.add(TaskForFlight1);
 
+			Task TaskForCalc2 = new Task("Написание модулей", LocalDateTime.now(),
+					LocalDateTime.of(2023, 11, 23,11,30,46),
+					TaskStatus.INCOMPLETE, KatyPerson, XeniaPerson, new ArrayList<>());
+			Task TaskForCalc3 = new Task("Разработка интерфейса приложения", LocalDateTime.now(),
+					LocalDateTime.of(2023, 11, 23,11,30,46),
+					TaskStatus.INCOMPLETE, KatyPerson, XeniaPerson, new ArrayList<>());
+			Task TaskForCalc4 = new Task("Запуск и проверка модулей", LocalDateTime.now(),
+					LocalDateTime.of(2023, 11, 23,11,30,46),
+					TaskStatus.INCOMPLETE, KatyPerson, XeniaPerson, new ArrayList<>());
+			Task TaskForCalc5 = new Task("Издательство документов", LocalDateTime.now(),
+					LocalDateTime.of(2023, 11, 23,11,30,46),
+					TaskStatus.INCOMPLETE, KatyPerson, XeniaPerson, new ArrayList<>());
+			Task TaskForCalc6 = new Task("Сопоставить данные", LocalDateTime.now(),
+					LocalDateTime.of(2023, 11, 23,11,30,46),
+					TaskStatus.INCOMPLETE, KatyPerson, XeniaPerson, new ArrayList<>());
+			Task TaskForCalc7 = new Task("Посчитать изменения", LocalDateTime.now(),
+					LocalDateTime.of(2023, 11, 23,11,30,46),
+					TaskStatus.INCOMPLETE, KatyPerson, XeniaPerson, new ArrayList<>());
+
+			taskRepository.save(TaskForCalc2);
+			taskRepository.save(TaskForCalc3);
+			taskRepository.save(TaskForCalc4);
+			taskRepository.save(TaskForCalc5);
+			taskRepository.save(TaskForCalc6);
+			taskRepository.save(TaskForCalc7);
+
+			TasksForCode.add(TaskForCalc2);
+			TasksForCode.add(TaskForCalc3);
+			TasksForCode.add(TaskForCalc4);
+			TasksForCode.add(TaskForCalc5);
+			TasksForCode.add(TaskForCalc6);
+			TasksForCode.add(TaskForCalc7);
+
 			Set<Person> Executers = new HashSet<>();
 			Executers.add(XeniaPerson);
 			Executers.add(DariaPerson);

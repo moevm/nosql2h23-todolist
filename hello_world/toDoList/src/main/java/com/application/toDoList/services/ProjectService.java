@@ -11,9 +11,12 @@ import com.application.toDoList.repositories.ProjectRepository;
 import com.application.toDoList.repositories.TaskRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static com.application.toDoList.enums.ProjectStatus.IN_PROGRESS;
 
@@ -49,18 +52,33 @@ public class ProjectService {
         return projectRepository.findAll();
     }
 
-    public List<Project> findAllForPerson(String person_id){
-        if (personRepository.findById(person_id).isPresent()) {
-            List<Project> allProjectsForPerson = new ArrayList<>();
-            for (Project project : this.findAll()){
-                if (project.getExecutors() != null &&
-                        project.getExecutors().contains(personRepository.findById(person_id).get())){
-                    allProjectsForPerson.add(project);
-                }
+    public List<Project> findAll(Pageable pageable) {
+        Page<Project> projectPage = projectRepository.findAll(pageable);
+        return projectPage.getContent();
+    }
+
+    public List<Project> findAllForPerson(String person_id, Pageable pageable){
+        List<Project> projects = new ArrayList<>();
+
+        // Получаем все проекты
+        List<Project> allProjects = projectRepository.findAll();
+
+        // Фильтруем проекты, содержащие задачи с указанным исполнителем
+        for (Project project : allProjects) {
+            List<Task> projectTasks = project.getTasks().stream()
+                    .filter(task -> task.getExecuter().getId().equals(person_id))
+                    .collect(Collectors.toList());
+
+            if (!projectTasks.isEmpty()) {
+                projects.add(project);
             }
-            return allProjectsForPerson;
         }
-        throw new PersonNotFoundException();
+
+        // Реализуем пагинацию
+        int start = (int) pageable.getOffset();
+        int end = Math.min((start + pageable.getPageSize()), projects.size());
+
+        return projects.subList(start, end);
     }
 
     public Project change(ProjectDTO projectDTO, String project_id) {

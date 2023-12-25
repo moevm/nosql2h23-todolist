@@ -7,6 +7,8 @@ import com.application.toDoList.security.PersonDetails;
 import com.application.toDoList.services.PersonService;
 import com.application.toDoList.services.ProjectService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -25,6 +27,8 @@ public class ProjectController {
     private final ProjectService projectService;
     private final PersonService personService;
 
+    private final int PAGE_SIZE = 5;
+
     @Autowired
     public ProjectController(ProjectService projectService, PersonService personService) {
         this.projectService = projectService;
@@ -32,18 +36,25 @@ public class ProjectController {
     }
 
     @GetMapping("/all")
-    public List<Project> findAll() {
+    public List<Project> findAll(@RequestParam(defaultValue = "0", required = false)
+                                     Integer page) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         PersonDetails personDetails = (PersonDetails) authentication.getPrincipal();
+        Pageable paging  = PageRequest.of(page, PAGE_SIZE);
+
         if (Objects.equals(personService.findEmail(personDetails.getUsername()).getRole(), "ROLE_ADMIN")){
-            return projectService.findAll();
+            return projectService.findAll(paging);
         }
-        return projectService.findAllForPerson(personService.findEmail(personDetails.getUsername()).getId());
+        return projectService.findAllForPerson(personService.findEmail(personDetails.getUsername()).getId(), paging);
     }
 
     @PostMapping("/find_person/{person_id}")
-    public List<Project> findAllForPerson(@PathVariable("person_id") String person_id) {
-        return projectService.findAllForPerson(person_id);
+    public List<Project> findAllForPerson(@PathVariable("person_id") String person_id,
+                                          @RequestParam(defaultValue = "0", required = false)
+                                          Integer page) {
+
+        Pageable paging  = PageRequest.of(page, PAGE_SIZE);
+        return projectService.findAllForPerson(person_id, paging);
     }
 
     @GetMapping("/find/{project_id}")

@@ -15,12 +15,15 @@ import com.application.toDoList.repositories.ProjectRepository;
 import com.application.toDoList.repositories.SubtaskRepository;
 import com.application.toDoList.repositories.TaskRepository;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
@@ -118,42 +121,105 @@ public class TaskService {
         task.setExecuter(person);
     }
 
-    public List<Task> findAll() {
-        return taskRepository.findAll();
+    public List<Task> findAllForProject(String project_id, Pageable paging) {
+        Optional<Project> projectOptional = projectRepository.findById(project_id);
+
+        if (projectOptional.isPresent()) {
+            Project project = projectOptional.get();
+            List<Task> tasks = project.getTasks();
+
+            int start = (int) paging.getOffset();
+            int end = Math.min((start + paging.getPageSize()), tasks.size());
+
+            return tasks.subList(start, end);
+        } else {
+            // Обработка отсутствия проекта
+            return Collections.emptyList();
+        }
     }
 
-    public List<Task> findAllForPerson(String person_id) {
+    public List<Task> findAll(Pageable paging) {
+        Iterable<Task> tasks = taskRepository.findAll(paging);
+
+        List<Task> allTasks = new ArrayList<>();
+
+        tasks.forEach(task -> {
+            allTasks.add(Task.builder()
+                    .id(task.getId())
+                    .title(task.getTitle())
+                    .dateOfCreation(task.getDateOfCreation())
+                    .dateOfDeadline(task.getDateOfDeadline())
+                    .status(task.getStatus())
+                    .creator(task.getCreator())
+                    .executer(task.getExecuter())
+                    .subtasks(task.getSubtasks())
+                    .build());
+        });
+
+        return allTasks;
+    }
+
+    public List<Task> findAllForPerson(String person_id, Pageable paging) {
         if (personRepository.findById(person_id).isEmpty())
             throw new PersonNotFoundException();
 
-        List<Task> allTasksForPerson = new ArrayList<>();
+        List<Task> tasks = taskRepository.
+                findAllByExecuterId(person_id, paging).get();
 
-        for (Task task : this.findAll()) {
-            if (task.getExecuter() != null && task.getExecuter().getId().equals(person_id)) {
-                allTasksForPerson.add(task);
-            }
-        }
-
-        return allTasksForPerson;
+        return tasks;
+//        List<Task> allTasksForPerson = new ArrayList<>();
+//
+//        for (Task task : this.findAll()) {
+//            if (task.getExecuter() != null && task.getExecuter().getId().equals(person_id)) {
+//                allTasksForPerson.add(task);
+//            }
+//        }
+//
+//        return allTasksForPerson;
     }
 
-    public List<Task> findAllTasksForPersonForProject(String person_id, String project_id) {
+    public List<Task> findAllTasksForPersonForProject(String person_id, String project_id, Pageable paging) {
         if (personRepository.findById(person_id).isEmpty())
             throw new PersonNotFoundException();
 
         if (projectRepository.findById(project_id).isEmpty())
             throw new ProjectNotFoundException();
 
-        Project project = projectRepository.findById(project_id).get();
-        List<Task> allTasksForPerson = new ArrayList<>();
+        Optional<Project> projectOptional = projectRepository.findById(project_id);
 
-        project.getTasks().forEach(task -> {
-            if (task.getExecuter() != null && task.getExecuter().getId().equals(person_id)) {
-                allTasksForPerson.add(task);
-            }
-        });
+        if (projectOptional.isPresent()) {
+            Project project = projectOptional.get();
+            List<Task> tasks = project.getTasks().stream()
+                    .filter(task -> task.getExecuter().getId().equals(person_id))
+                    .collect(Collectors.toList());
 
-        return allTasksForPerson;
+            int start = (int) paging.getOffset();
+            int end = Math.min((start + paging.getPageSize()), tasks.size());
+
+            return tasks.subList(start, end);
+        } else {
+            // Обработка отсутствия проекта
+            return Collections.emptyList();
+        }
+//        List<Task> allTasksForPerson = new ArrayList<>();
+
+//        Optional<List<Task>> tasks = taskRepository.findAllByProjectId(project_id, paging);
+
+//        List<Task> allTasksForPerson = new ArrayList<>();
+//
+//        if (tasks.isPresent()) {
+//            tasks.stream().forEach(task -> {
+//                if (task.)
+//            });
+//        }
+//
+//        project.getTasks().forEach(task -> {
+//            if (task.getExecuter() != null && task.getExecuter().getId().equals(person_id)) {
+//                allTasksForPerson.add(task);
+//            }
+//        });
+//
+//        return allTasksForPerson;
     }
 
     public Task findById(String taskId) {
