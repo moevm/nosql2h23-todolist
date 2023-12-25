@@ -16,7 +16,7 @@
         return-object
         :search-input.sync="searchFilter"
         @update:search-input="onUpdateSearchText"
-        label="Поиск проекта"
+        label="Поиск по проектам или задачам"
         prepend-inner-icon="mdi-magnify"
         :items="filteredData"
         dense
@@ -28,7 +28,7 @@
             <v-list-item-content>
               <v-list-item-title>
                 <span v-if="searchFilter === null || searchFilter.length === 0">
-                  Поиск по проектам
+                  Поиск по проектам или задачам
                 </span>
                 <span v-else>
                    Нет результатов для "<strong>{{ searchFilter }}</strong>".
@@ -36,6 +36,9 @@
               </v-list-item-title>
             </v-list-item-content>
           </v-list-item>
+        </template>
+        <template slot="item" slot-scope="data">
+          <v-icon class="mr-2">{{ data.item.icon }}</v-icon>  {{data.item.name}}
         </template>
       </v-combobox>
       <DatabaseDialog/>
@@ -96,7 +99,20 @@ export default defineComponent({
   computed: {
     ...mapState(['projects']),
     filteredData() {
-      let data = this.projects || [];
+      let data = JSON.parse(JSON.stringify(this.projects)) || [];
+      data.forEach((el) => {
+        el.icon = 'mdi-sitemap';
+        el.projId = el.id;
+      });
+      const allTasks = data.map((el) => {
+        el.tasks.forEach((t) => t.projId = el.id);
+        return el.tasks;
+      }).flat();
+      allTasks.forEach((el) => {
+        el.name = el.title;
+        el.icon = 'mdi-lead-pencil';
+      });
+      data = [...data, ...allTasks];
       return data.filter((el) => el.name.toLowerCase().includes(this.searchFilter?.toLowerCase()));
     },
   },
@@ -112,7 +128,7 @@ export default defineComponent({
       this.$router.push({name: 'auth'});
     },
     onSearch(v) {
-      if (v && this.$route.params?.id !== v.id) this.$router.push(`/projects/${v.id}`);
+      if (v && this.$route.params?.id !== v.id) this.$router.push(`/projects/${v.projId}`);
     },
     onUpdateSearchText(v) {
       if (v.length === 0) this.searchFilter = null;

@@ -70,54 +70,26 @@
       <v-col class="d-flex flex-row align-center pt-0" cols="12">
         <FiltersPanel/>
         <v-spacer/>
-        <v-menu
-          ref="menu"
-          v-model="menu"
-          :close-on-content-click="false"
-          :return-value.sync="date"
-          transition="scale-transition"
-          offset-y
-          left
-          min-width="auto"
+        <v-text-field
+          v-model="taskSearch"
+          placeholder="Название задачи"
+          class="mr-2"
+          clearable
+          dense
+          hide-details
+          solo
+        />
+        <el-date-picker
+          class="mr-2 elevation-1"
+          v-model="date"
+          format="yyyy-MM-dd"
+          type="daterange"
+          range-separator="ПО"
+          value-format="yyyy-MM-dd"
+          start-placeholder="С"
+          end-placeholder="ДО"
         >
-          <template v-slot:activator="{ on, attrs }">
-            <v-text-field
-              v-model="date"
-              label="Срок"
-              prepend-inner-icon="mdi-calendar"
-              class="mr-2"
-              readonly
-              v-bind="attrs"
-              v-on="on"
-              dense
-              hide-details
-              clearable
-              solo
-              style="max-width:180px"
-            ></v-text-field>
-          </template>
-          <v-date-picker
-            v-model="date"
-            no-title
-            scrollable
-          >
-            <v-spacer></v-spacer>
-            <v-btn
-              text
-              color="primary"
-              @click="menu = false"
-            >
-              Cancel
-            </v-btn>
-            <v-btn
-              text
-              color="primary"
-              @click="$refs.menu.save(date)"
-            >
-              OK
-            </v-btn>
-          </v-date-picker>
-        </v-menu>
+        </el-date-picker>
         <v-select
           v-if="$store.state.userRole === 'admin'"
           v-model="personToFilter"
@@ -138,7 +110,7 @@
       class="pa-1"
       fluid
     >
-      <TaskList :person-filter="personToFilter?.id" :date-filter="date"/>
+      <TaskList :person-filter="personToFilter?.id" :date-filter="date" :search-filter="taskSearch"/>
     </v-container>
     <ConfirmAlert ref="confirmMainTaskAddDialogue"/>
     <UpdateProjectDialog ref="updateDialog"/>
@@ -164,6 +136,7 @@ export default {
       menu: false,
       items: ['Смирнов А.В.', 'Началов И.А.', 'Кахоркин М.С.'],
       isAddTaskDialogShown: false,
+      taskSearch: null,
       executers: [
         {
           name: 'Артем',
